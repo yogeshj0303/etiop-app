@@ -20,8 +20,10 @@ class Shop {
   final ShopOwner? shopOwner;
   final Category? category; // Ensure this is nullable as it might be null
   final List<dynamic>? requirements;  // Add this field for requirements
-
-
+  final String? websiteLink;
+  final String? googleMapLink;
+  final int? subcategoryId;
+  final List<String>? catalogImageUrls;
 
   Shop({
     required this.id,
@@ -45,9 +47,22 @@ class Shop {
     required this.shopOwner,
     this.category,
     this.requirements,  // Add this in the constructor
+    this.websiteLink,
+    this.googleMapLink,
+    this.subcategoryId,
+    this.catalogImageUrls,
   });
 
   factory Shop.fromJson(Map<String, dynamic> json) {
+    // Extract catalog images from catlog_0 through catlog_4
+    List<String> catalogImages = [];
+    for (int i = 0; i < 5; i++) {
+      String? image = json['catlog_$i'];
+      if (image != null && image.isNotEmpty) {
+        catalogImages.add(image);
+      }
+    }
+
     return Shop(
       id: json['id'],
       shopOwnerId: json['shop_owner_id'],
@@ -72,7 +87,10 @@ class Shop {
           ? Category.fromJson(json['category'])
           : null, // Ensure category is parsed only if it exists
       requirements: json['requirements'] != null ? List.from(json['requirements']) : null,  // Make requirements nullable
-
+      websiteLink: json['website_link'],
+      googleMapLink: json['google_map_link'],
+      subcategoryId: json['subcategory_id'],
+      catalogImageUrls: catalogImages.isNotEmpty ? catalogImages : null,
     );
   }
 
@@ -96,6 +114,11 @@ class Shop {
       'description': description,
       'services': services,
     };
+  }
+
+  String? get fullImageUrl {
+    if (shopImage == null) return null;
+    return 'https://etiop.acttconnect.com/$shopImage';
   }
 }
 

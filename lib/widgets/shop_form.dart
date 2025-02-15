@@ -333,7 +333,7 @@ class _AddShopState extends State<AddShop> {
                                   subCategory as Subcategory;
                               return DropdownMenuItem<int>(
                                 value: sub.id,
-                                child: Text(sub.subcategoryName),
+                                child: Text(sub.subcategoryName ?? ''),
                               );
                             }).toList(),
                             validator: (value) => value == null

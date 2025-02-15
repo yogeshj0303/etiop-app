@@ -1,18 +1,16 @@
 class Subcategory {
   final int id;
   final int categoryId;
-  final String subcategoryName;
-  final String subcategoryImage;
-  final String? imageUrl;
-  final String? services;
+  final String? subcategoryName;
+  final String? subcategoryImage;
+  final int ownerId;
 
   Subcategory({
     required this.id,
     required this.categoryId,
-    required this.subcategoryName,
-    required this.subcategoryImage,
-    this.imageUrl,
-    this.services,
+    this.subcategoryName,
+    this.subcategoryImage,
+    required this.ownerId,
   });
 
   // Factory method to parse JSON
@@ -22,8 +20,7 @@ class Subcategory {
       categoryId: json['category_id'],
       subcategoryName: json['subcategory_name'],
       subcategoryImage: json['subcategory_image'],
-      imageUrl: json['image_url'],
-      services: json['services'],
+      ownerId: json['owner_id'],
     );
   }
 }

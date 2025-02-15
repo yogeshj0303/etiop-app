@@ -1,77 +1,121 @@
 class ShopDetails {
+  final int id;
+  final int shopOwnerId;
+  final int ownerId;
   final String shopName;
-  final String? shopImage; // Nullable
+  final String? shopImage;
   final String description;
-  final String services;
+  final String? services;
   final String area;
   final String city;
   final String state;
+  final String? district;
   final String country;
   final String zipcode;
   final String email;
-  final String mobile_no;
-  final String website_link;
-  final String google_map_link;
-  final int categoryId; // New field for category_id
+  final String? mobile_no;
+  final String? website_link;
+  final String? google_map_link;
+  final int categoryId;
+  final int? subcategoryId;
   final List<String> otherImages;
   final String? catlog_0;
   final String? catlog_1;
   final String? catlog_2;
   final String? catlog_3;
   final String? catlog_4;
+  final String? categoryName;
+  final String? subCategoryName;
+  final String? shopStatus;
+  final String? shopNo;
+  final String? govtName;
+  final String? officeName;
+  final String? officerName;
+  final String? ownerName;
+  final String? ownerEmail;
 
   ShopDetails({
+    required this.id,
+    required this.shopOwnerId,
+    required this.ownerId,
     required this.shopName,
-    this.shopImage, // Nullable
+    this.shopImage,
     required this.description,
-    required this.services,
+    this.services,
     required this.area,
     required this.city,
     required this.state,
+    this.district,
     required this.country,
     required this.zipcode,
-    required this.categoryId, // Required field for category_id
+    required this.categoryId,
+    this.subcategoryId,
     required this.otherImages,
     required this.email,
-    required this.mobile_no,
-    required this.website_link,
-    required this.google_map_link,
+    this.mobile_no,
+    this.website_link,
+    this.google_map_link,
     this.catlog_0,
     this.catlog_1,
     this.catlog_2,
     this.catlog_3,
     this.catlog_4,
+    this.categoryName,
+    this.subCategoryName,
+    this.shopStatus,
+    this.shopNo,
+    this.govtName,
+    this.officeName,
+    this.officerName,
+    this.ownerName,
+    this.ownerEmail,
   });
 
   factory ShopDetails.fromJson(Map<String, dynamic> json) {
     List<String> images = [];
-    // Check if 'shop_others' is a list and process the image URLs
     if (json['shop_others'] != null) {
       images = (json['shop_others'] as List)
-          .map((image) => image['other_image'] as String) // Extract 'other_image' string
+          .map((image) => image['other_image'] as String)
           .toList();
     }
+
+    final shop = json['shop'] as Map<String, dynamic>;
+    
     return ShopDetails(
-      shopName: json['shop']['shop_name'] ?? 'Unknown Shop',
-      shopImage: json['shop']['shop_image'], // Nullable field
-      description: json['shop']['description'] ?? 'No description available',
-      services: json['shop']['services'] ?? 'Not listed',
-      area: json['shop']['area'] ?? 'Not specified',
-      city: json['shop']['city'] ?? 'Unknown City',
-      state: json['shop']['state'] ?? 'Unknown State',
-      country: json['shop']['country'] ?? 'Unknown Country',
-      zipcode: json['shop']['zipcode'] ?? '000000',
-      categoryId: json['shop']['category_id'] ?? 0, // Default to 0 if not available
+      id: shop['id'] ?? 0,
+      shopOwnerId: shop['shop_owner_id'] ?? 0,
+      ownerId: shop['owner_id'] ?? 0,
+      shopName: shop['shop_name'] ?? 'Unknown Shop',
+      shopImage: shop['shop_image'],
+      description: shop['description'] ?? 'No description available',
+      services: shop['services'],
+      area: shop['area'] ?? 'Not specified',
+      city: shop['city'] ?? 'Unknown City',
+      state: shop['state'] ?? 'Unknown State',
+      district: shop['district'],
+      country: shop['country'] ?? 'Unknown Country',
+      zipcode: shop['zipcode'] ?? '000000',
+      categoryId: shop['category_id'] ?? 0,
+      subcategoryId: shop['subcategory_id'],
       otherImages: images,
-      email: json['shop']['email'] ?? 'Not available',
-      mobile_no: json['shop']['mobile_no'] ?? 'Not available',
-      website_link: json['shop']['website_link'] ?? 'Not available',
-      google_map_link: json['shop']['google_map_link'] ?? 'Not available',
-      catlog_0: json['shop']['catlog_0'],
-      catlog_1: json['shop']['catlog_1'],
-      catlog_2: json['shop']['catlog_2'],
-      catlog_3: json['shop']['catlog_3'],
-      catlog_4: json['shop']['catlog_4'],
+      email: shop['email'] ?? 'Not available',
+      mobile_no: shop['mobile_no'],
+      website_link: shop['website_link'],
+      google_map_link: shop['google_map_link'],
+      catlog_0: shop['catlog_0'],
+      catlog_1: shop['catlog_1'],
+      catlog_2: shop['catlog_2'],
+      catlog_3: shop['catlog_3'],
+      catlog_4: shop['catlog_4'],
+      categoryName: shop['category_name'],
+      subCategoryName: shop['subcategory_name'],
+      shopStatus: shop['shop_status'],
+      shopNo: shop['shop_no'],
+      govtName: shop['govt_name'],
+      officeName: shop['office_name'],
+      officerName: shop['officer_name'],
+      ownerName: shop['owner_name'],
+      ownerEmail: shop['owner_email'],
     );
   }
 }

@@ -143,6 +143,23 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               fontWeight: FontWeight.bold,),
                         ),
                         const SizedBox(height: 8),
+                        // Add category and subcategory information
+                        Row(
+                          children: [
+                            const Icon(Icons.category, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '${shopDetails.categoryName ?? 'N/A'} > ${shopDetails.subCategoryName ?? 'N/A'}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         HtmlWidget(shopDetails.description),
                         const SizedBox(height: 16),
                         Row(
@@ -197,8 +214,10 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               ElevatedButton.icon(
                                 onPressed: () {
                                   final website = shopDetails.website_link;
-                                  Uri uri = Uri.parse(website);
-                                  launch(uri.toString());
+                                  if (website != null && website.isNotEmpty) {
+                                    Uri uri = Uri.parse(website);
+                                    launch(uri.toString());
+                                  }
                                 },
                                 icon: const Icon(Icons.link),
                                 label: const Text('Website',
@@ -211,8 +230,10 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               ElevatedButton.icon(
                                 onPressed: () {
                                   final url = shopDetails.google_map_link;
-                                  Uri uri = Uri.parse(url);
-                                  launch(uri.toString());
+                                  if (url != null && url.isNotEmpty) {
+                                    Uri uri = Uri.parse(url);
+                                    launch(uri.toString());
+                                  }
                                 },
                                 icon: const Icon(Icons.map, ),
                                 label: const Text('Direction'
@@ -229,8 +250,11 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        HtmlWidget(shopDetails.services,
-                            textStyle: const TextStyle(fontSize: 16)),
+                        if (shopDetails.services != null)
+                          HtmlWidget(shopDetails.services!,
+                              textStyle: const TextStyle(fontSize: 16))
+                        else
+                          const Text('No services available'),
                         const SizedBox(height: 8),
                         // Catalog Images Section
                         if ([shopDetails.catlog_0, shopDetails.catlog_1, 
@@ -296,7 +320,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                             borderRadius:
                                 BorderRadius.vertical(top: Radius.circular(16.0)),
                           ),
-                          builder: (context) => ContactForm(),
+                          builder: (context) => ContactForm(shopId: widget.shopId),
                         );
                       },
                       label: const Text('Send Requirement',

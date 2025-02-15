@@ -83,10 +83,9 @@ class _UserShopScreenState extends State<UserShopScreen> {
         padding: const EdgeInsets.all(12.0),
         itemCount: widget.shops.length,
         itemBuilder: (context, index) {
-          // Extract shops data
           Shop shop = widget.shops[index];
-          String imageUrl =
-              shop.shopImage ?? ''; // Prepend base URL to image path
+          // Update the image URL construction
+          String imageUrl = shop.fullImageUrl ?? '';
 
           return GestureDetector(
             onTap: () {
@@ -143,18 +142,20 @@ class _UserShopScreenState extends State<UserShopScreen> {
                             size: 50,
                           ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 8.0),
-                          child: Text(
-                            shop.shopName ?? 'Shop Name',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
+                            child: Text(
+                              shop.shopName ?? 'Shop Name',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis, // Handle text overflow
                             ),
-                            overflow:
-                                TextOverflow.ellipsis, // Handle text overflow
                           ),
                         ),
                         // Popup menu for Edit and Delete options
@@ -163,12 +164,10 @@ class _UserShopScreenState extends State<UserShopScreen> {
                             if (value == 'edit') {
                               print('Edit shop');
                               print(shop);
-                              // Edit the shop and pass shop image along with other shop data
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      EditShopScreen(shop: shop),
+                                  builder: (context) => EditShopScreen(shop: shop),
                                 ),
                               );
                             } else if (value == 'delete') {

@@ -304,52 +304,6 @@ class ApiService {
     return prefs.getString('id');
   }
 
-  // Function to update shop details
-  static Future<void> editShop(
-      BuildContext context, int shopId, Map<String, dynamic> shopData) async {
-    try {
-      final String? userId = await _getUserId();
-      if (userId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User ID not found. Please log in again.')));
-        return;
-      }
-
-      // Convert shopData to query parameters by serializing it
-      final queryParams = {
-        'user_id': userId,
-        ...shopData.map((key, value) => MapEntry(key, value.toString()))
-        // Convert all values to string
-      };
-
-      // Build the URL with the query parameters
-      final String url =
-          'https://etiop.acttconnect.com/api/shop-data-update/$shopId';
-      final uri = Uri.parse(url).replace(queryParameters: queryParams);
-
-      // Make the POST request with the URL containing the query parameters
-      final response = await http.post(uri);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Shop updated successfully')));
-          Navigator.pop(context);
-        } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Failed to update shop')));
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Failed to update shop: ${response.statusCode}')));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
-    }
-  }
-
   // Function to delete the shop
   static Future<Map<String, dynamic>> deleteShop(int shopId) async {
     try {
@@ -433,4 +387,57 @@ class ApiService {
   //     throw Exception('Failed to load subcategories');
   //   }
   // }
+
+  Future<Map<String, dynamic>?> updateShop(
+    String shopId,
+    Map<String, dynamic> shopData,
+    File? shopImage,
+    List<File> catalogueImages,
+  ) async {
+    try {
+      // Add user_id if available
+      final String? userId = await ApiService._getUserId();
+      if (userId != null) {
+        shopData['user_id'] = userId;
+      }
+
+      // Create URL with query parameters
+      final uri = Uri.parse('${baseUrl}shop-data-update/$shopId')
+          .replace(queryParameters: shopData.map((key, value) => 
+              MapEntry(key, value.toString())));
+
+      // Create request with final URL
+      var request = http.MultipartRequest('POST', uri);
+
+      // Add shop image and catalog images
+      if (shopImage != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'shop_image',
+          shopImage.path,
+        ));
+      }
+
+      for (var i = 0; i < catalogueImages.length; i++) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'catlog_$i',
+          catalogueImages[i].path,
+        ));
+      }
+
+      request.headers['Accept'] = 'application/json';
+      
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        print('Error response: ${response.body}');
+        throw Exception('Failed to update shop: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error updating shop: $e');
+      return null;
+    }
+  }
 }

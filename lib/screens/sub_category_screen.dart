@@ -97,7 +97,7 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
                           borderRadius:
                               BorderRadius.vertical(top: Radius.circular(10.0)),
                           // Rounded corners for image
-                          child: subcategory.subcategoryImage.isNotEmpty
+                          child: subcategory.subcategoryImage?.isNotEmpty == true
                               ? Image.network(
                                   "https://etiop.acttconnect.com/${subcategory.subcategoryImage}",
                                   fit: BoxFit.cover,
@@ -112,7 +112,7 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            subcategory.subcategoryName,
+                            subcategory.subcategoryName ?? '',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
