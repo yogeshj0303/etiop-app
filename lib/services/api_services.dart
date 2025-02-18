@@ -292,8 +292,11 @@ class ApiService {
             .map((json) => SubCategoryRelatedShopModel.fromJson(json))
             .toList();
       } else {
-        throw Exception('Failed to load shops');
+        throw responseData['message'] ?? 'Failed to load shops';
       }
+    } else if (response.statusCode == 404) {
+      final responseData = json.decode(response.body);
+      throw responseData['message'];
     } else {
       throw Exception('Failed to fetch data from API');
     }
@@ -438,6 +441,22 @@ class ApiService {
     } catch (e) {
       print('Error updating shop: $e');
       return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>> resetPassword(String email) async {
+    final url = Uri.parse('https://etiop.acttconnect.com/api/forgot-password-api?email=$email');
+    
+    try {
+      final response = await http.post(url);
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to reset password');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to the server');
     }
   }
 }

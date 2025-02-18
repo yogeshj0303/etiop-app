@@ -51,7 +51,7 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text(snapshot.error.toString().replaceAll('Exception: ', '')));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No shops found.'));
           } else {

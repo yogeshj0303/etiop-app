@@ -81,21 +81,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _isLoading = true;
     });
 
-    // try {
-    //   final response = await ApiService.resetPassword(email); // Make API call for password reset
-    //
-    //   if (response['success'] == true) {
-    //     _showSuccessDialog('Password reset link sent to your email');
-    //   } else {
-    //     _showErrorDialog(response['message'] ?? 'Error resetting password');
-    //   }
-    // } catch (e) {
-    //   _showErrorDialog('An error occurred. Please try again.');
-    // } finally {
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // }
+    try {
+      final response = await ApiService.resetPassword(email);
+      
+      if (response['message'] != null) {
+        _showSuccessDialog(response['message']);
+        // Clear the email field after successful reset
+        _emailController.clear();
+      } else {
+        _showErrorDialog('Error resetting password');
+      }
+    } catch (e) {
+      _showErrorDialog('An error occurred. Please try again.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _showErrorDialog(String message) {
@@ -122,7 +124,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Go back to previous screen
+            },
             child: const Text('OK'),
           ),
         ],

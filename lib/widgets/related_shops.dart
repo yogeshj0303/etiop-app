@@ -95,7 +95,7 @@ class _RelatedShopsScreenState extends State<RelatedShopsScreen> {
                 child: Container(
                   height: 120,
                   width: double.infinity,
-                  color: Colors.grey[200],
+                  color: Colors.white,
                   child: shop.shopImage.isNotEmpty
                       ? Image.network(
                           shop.shopImage.startsWith('http')

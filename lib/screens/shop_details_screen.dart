@@ -102,23 +102,25 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
               return Stack(
                 children: [
                   SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0, vertical: 12.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (shopDetails.shopImage != null)
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(0),
                             child: Container(
-                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              width: MediaQuery.of(context).size.width,
+                              height: 200,
+                              color: Colors.white,
                               child: Image.network(
                                 'https://etiop.acttconnect.com/${shopDetails.shopImage}',
-                                fit: BoxFit.fitWidth,
+                                width: double.infinity,
+                                fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     height: 200,
-                                    color: Colors.grey[300],
+                                    color: Colors.white,
                                     child: const Icon(Icons.error),
                                   );
                                 },
@@ -126,7 +128,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                   if (loadingProgress == null) return child;
                                   return Container(
                                     height: 200,
-                                    color: Colors.grey[200],
+                                    color: Colors.white,
                                     child: const Center(
                                       child: CircularProgressIndicator(),
                                     ),
@@ -135,169 +137,201 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               ),
                             ),
                           ),
-                        const SizedBox(height: 16),
-                        Text(
-                          shopDetails.shopName ?? 'No Name Available',
-                          style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,),
-                        ),
-                        const SizedBox(height: 8),
-                        // Add category and subcategory information
-                        Row(
-                          children: [
-                            const Icon(Icons.category, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                '${shopDetails.categoryName ?? 'N/A'} > ${shopDetails.subCategoryName ?? 'N/A'}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        HtmlWidget(shopDetails.description),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                '${shopDetails.area}, ${shopDetails.city}, ${shopDetails.state}, ${shopDetails.country}, ${shopDetails.zipcode}',
-                                style: const TextStyle(
-                                    fontSize: 16, ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        SingleChildScrollView(
-                          clipBehavior: Clip.none,
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  final phone = shopDetails.mobile_no;
-                                  Uri uri = Uri.parse('tel:$phone');
-                                  launch(uri.toString());
-                                },
-                                icon: const Icon(
-                                  Icons.call,
+                              const SizedBox(height: 16),
+                              Text(
+                                shopDetails.shopName ?? 'No Name Available',
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,),
+                              ),
+                  
+                              const SizedBox(height: 8),
+                              HtmlWidget(shopDetails.description),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '${shopDetails.area}, ${shopDetails.city}, ${shopDetails.state}, ${shopDetails.country}, ${shopDetails.zipcode}',
+                                      style: const TextStyle(
+                                          fontSize: 16, ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              SingleChildScrollView(
+                                clipBehavior: Clip.none,
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        final phone = shopDetails.mobile_no;
+                                        Uri uri = Uri.parse('tel:$phone');
+                                        launch(uri.toString());
+                                      },
+                                      icon: const Icon(
+                                        Icons.call,
+                                      ),
+                                      label: const Text(
+                                        'Contact',
+                                        style: TextStyle(
+                                            fontSize: 14, fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        final email = shopDetails.email;
+                                        Uri uri = Uri.parse('mailto:$email');
+                                        launch(uri.toString());
+                                      },
+                                      icon: const Icon(Icons.mail),
+                                      label: const Text('Email',
+                                          style: TextStyle(
+                                              fontSize: 14, fontWeight: FontWeight.bold,
+                                          )),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        final website = shopDetails.website_link;
+                                        if (website != null && website.isNotEmpty) {
+                                          Uri uri = Uri.parse(website);
+                                          launch(uri.toString());
+                                        }
+                                      },
+                                      icon: const Icon(Icons.link),
+                                      label: const Text('Website',
+                                          style: TextStyle(
+                                              fontSize: 14, fontWeight: FontWeight.bold,
+                                          )
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        final url = shopDetails.google_map_link;
+                                        if (url != null && url.isNotEmpty) {
+                                          Uri uri = Uri.parse(url);
+                                          launch(uri.toString());
+                                        }
+                                      },
+                                      icon: const Icon(Icons.map, ),
+                                      label: const Text('Direction'
+                                          , style: TextStyle(
+                                              fontSize: 14, fontWeight: FontWeight.bold,
+                                          )),
+                                    ),
+                                  ],
                                 ),
-                                label: const Text(
-                                  'Contact',
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                "Category:",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                                  const SizedBox(height: 8),
+                              // Add category and subcategory information
+                              Row(
+                                children: [
+                                  const Icon(Icons.category, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '${shopDetails.categoryName ?? 'N/A'}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Sub Category:',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                             Row(
+                              children: [
+                                const Icon(Icons.category, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text('${shopDetails.subCategoryName ?? 'N/A'}', style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                ),)),
+                              ],
+                             ),
+                              // const Text(
+                              //   'Services:',
+                              //   style: TextStyle(
+                              //       fontSize: 18, fontWeight: FontWeight.bold),
+                              // ),
+                              // if (shopDetails.services != null)
+                              //   HtmlWidget(shopDetails.services!,
+                              //       textStyle: const TextStyle(fontSize: 16))
+                              // else
+                              //   const Text('No services available'),
+                              const SizedBox(height: 8),
+                              // Catalog Images Section
+                              if ([shopDetails.catlog_0, shopDetails.catlog_1, 
+                                  shopDetails.catlog_2, shopDetails.catlog_3, 
+                                  shopDetails.catlog_4].any((img) => img != null)) ...[
+                                const Text(
+                                  'Catalogue Images:',
                                   style: TextStyle(
-                                      fontSize: 14, fontWeight: FontWeight.bold,
+                                      fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  height: 160,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    children: [
+                                      if (shopDetails.catlog_0 != null)
+                                        _buildCatalogImage(shopDetails.catlog_0!),
+                                      if (shopDetails.catlog_1 != null)
+                                        _buildCatalogImage(shopDetails.catlog_1!),
+                                      if (shopDetails.catlog_2 != null)
+                                        _buildCatalogImage(shopDetails.catlog_2!),
+                                      if (shopDetails.catlog_3 != null)
+                                        _buildCatalogImage(shopDetails.catlog_3!),
+                                      if (shopDetails.catlog_4 != null)
+                                        _buildCatalogImage(shopDetails.catlog_4!),
+                                    ],
                                   ),
                                 ),
+                                const SizedBox(height: 16),
+                              ],
+                              const Text(
+                                'Related Shops:',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
-                              const SizedBox(width: 8),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  final email = shopDetails.email;
-                                  Uri uri = Uri.parse('mailto:$email');
-                                  launch(uri.toString());
-                                },
-                                icon: const Icon(Icons.mail),
-                                label: const Text('Email',
-                                    style: TextStyle(
-                                        fontSize: 14, fontWeight: FontWeight.bold,
-                                    )),
-                              ),
-                              const SizedBox(width: 8),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  final website = shopDetails.website_link;
-                                  if (website != null && website.isNotEmpty) {
-                                    Uri uri = Uri.parse(website);
-                                    launch(uri.toString());
-                                  }
-                                },
-                                icon: const Icon(Icons.link),
-                                label: const Text('Website',
-                                    style: TextStyle(
-                                        fontSize: 14, fontWeight: FontWeight.bold,
-                                    )
+                              Container(
+                                height: 220,
+                                child: RelatedShopsScreen(
+                                  categoryId: shopDetails.categoryId,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  final url = shopDetails.google_map_link;
-                                  if (url != null && url.isNotEmpty) {
-                                    Uri uri = Uri.parse(url);
-                                    launch(uri.toString());
-                                  }
-                                },
-                                icon: const Icon(Icons.map, ),
-                                label: const Text('Direction'
-                                    , style: TextStyle(
-                                        fontSize: 14, fontWeight: FontWeight.bold,
-                                    )),
-                              ),
+                              const SizedBox(height: 100), // Add extra padding here
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Services:',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        if (shopDetails.services != null)
-                          HtmlWidget(shopDetails.services!,
-                              textStyle: const TextStyle(fontSize: 16))
-                        else
-                          const Text('No services available'),
-                        const SizedBox(height: 8),
-                        // Catalog Images Section
-                        if ([shopDetails.catlog_0, shopDetails.catlog_1, 
-                            shopDetails.catlog_2, shopDetails.catlog_3, 
-                            shopDetails.catlog_4].any((img) => img != null)) ...[
-                          const Text(
-                            'Catalogue Images:',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            height: 160,
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                if (shopDetails.catlog_0 != null)
-                                  _buildCatalogImage(shopDetails.catlog_0!),
-                                if (shopDetails.catlog_1 != null)
-                                  _buildCatalogImage(shopDetails.catlog_1!),
-                                if (shopDetails.catlog_2 != null)
-                                  _buildCatalogImage(shopDetails.catlog_2!),
-                                if (shopDetails.catlog_3 != null)
-                                  _buildCatalogImage(shopDetails.catlog_3!),
-                                if (shopDetails.catlog_4 != null)
-                                  _buildCatalogImage(shopDetails.catlog_4!),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        const Text(
-                          'Related Shops:',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 220,
-                          child: RelatedShopsScreen(
-                            categoryId: shopDetails.categoryId,
-                          ),
-                        ),
-                        const SizedBox(height: 100), // Add extra padding here
                       ],
                     ),
                   ),
@@ -316,11 +350,25 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
+                          useSafeArea: true,
                           shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(16.0)),
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
                           ),
-                          builder: (context) => ContactForm(shopId: widget.shopId),
+                          builder: (context) => DraggableScrollableSheet(
+                            initialChildSize: 0.9, // Takes up 90% of screen height
+                            minChildSize: 0.5, // Minimum 50% of screen height
+                            maxChildSize: 0.95, // Maximum 95% of screen height
+                            expand: false,
+                            builder: (context, scrollController) => Padding(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: SingleChildScrollView(
+                                controller: scrollController,
+                                child: ContactForm(shopId: widget.shopId),
+                              ),
+                            ),
+                          ),
                         );
                       },
                       label: const Text('Send Requirement',

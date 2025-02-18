@@ -51,51 +51,62 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _handleMyBusinessesClick() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId =
-        prefs.getString('id'); // Retrieve user ID from SharedPreferences
+    String? userId = prefs.getString('id');
     print('User ID: $userId');
 
     if (userId != null) {
-      try {
-        // API call
-        var response = await http.get(Uri.parse(
-            'https://etiop.acttconnect.com/api/requirements-get-byowner/$userId'));
-
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          var data = jsonDecode(response.body); // Parse the JSON response
-
-          if (data['success']) {
-            setState(() {
-              final List list = data['data']['shops'];
-              shops = list
-                  .map((e) => Shop.fromJson(e['shop']))
-                  .toList(); // Update the shops list with the fetched data
-            });
-
-            // Navigate to ShopsListScreen and pass the list of shops
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserShopScreen(shops: shops),
-              ),
-            );
-          } else {
-            print('No shops found.');
-            _showCreateShopPrompt();
-          }
-        } else if (response.statusCode == 404) {
-          // Show prompt if status code is 404 (Not Found)
-          _showCreateShopPrompt();
-        } else {
-          // Handle error when API call fails
-          print('Failed to load data. Status code: ${response.statusCode}');
+      await _fetchShops(userId); // Extract fetch logic to separate method
+      
+      if (shops.isNotEmpty) {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserShopScreen(shops: shops),
+          ),
+        );
+        
+        // Reload shops data when returning from UserShopScreen
+        if (result == true) {
+          await _fetchShops(userId);
         }
-      } catch (e) {
-        print('Error: $e'); // Handle error if the request fails
-        rethrow;
+      } else {
+        _showCreateShopPrompt();
       }
     } else {
       print('User ID not found in SharedPreferences');
+    }
+  }
+
+  Future<void> _fetchShops(String userId) async {
+    try {
+      var response = await http.get(
+        Uri.parse('https://etiop.acttconnect.com/api/requirements-get-byowner/$userId'),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var data = jsonDecode(response.body);
+
+        if (data['success']) {
+          setState(() {
+            final List shopsList = data['data']['shops'];
+            shops = shopsList.map((shopData) {
+              return Shop.fromJson({
+                ...shopData['shop'],
+                'requirements': shopData['requirements'],
+              });
+            }).toList();
+          });
+        } else {
+          print('No shops found.');
+        }
+      } else if (response.statusCode == 404) {
+        setState(() => shops = []);
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      rethrow;
     }
   }
 

@@ -24,6 +24,19 @@ class Shop {
   final String? googleMapLink;
   final int? subcategoryId;
   final List<String>? catalogImageUrls;
+  final String? catlog_0;
+  final String? catlog_1;
+  final String? catlog_2;
+  final String? catlog_3;
+  final String? catlog_4;
+  final String? email;
+  final String? mobileNo;
+  final String? govtName;
+  final String? officeName;
+  final String? officerName;
+  final String? ownerName;
+  final String? ownerEmail;
+  final String? categoryName;
 
   Shop({
     required this.id,
@@ -51,6 +64,19 @@ class Shop {
     this.googleMapLink,
     this.subcategoryId,
     this.catalogImageUrls,
+    this.catlog_0,
+    this.catlog_1,
+    this.catlog_2,
+    this.catlog_3,
+    this.catlog_4,
+    this.email,
+    this.mobileNo,
+    this.govtName,
+    this.officeName,
+    this.officerName,
+    this.ownerName,
+    this.ownerEmail,
+    this.categoryName,
   });
 
   factory Shop.fromJson(Map<String, dynamic> json) {
@@ -61,6 +87,12 @@ class Shop {
       if (image != null && image.isNotEmpty) {
         catalogImages.add(image);
       }
+    }
+
+    // Properly handle requirements
+    List<dynamic>? requirementsList;
+    if (json['requirements'] != null) {
+      requirementsList = List<dynamic>.from(json['requirements']);
     }
 
     return Shop(
@@ -86,11 +118,24 @@ class Shop {
       category: json['category'] != null
           ? Category.fromJson(json['category'])
           : null, // Ensure category is parsed only if it exists
-      requirements: json['requirements'] != null ? List.from(json['requirements']) : null,  // Make requirements nullable
+      requirements: requirementsList,
       websiteLink: json['website_link'],
       googleMapLink: json['google_map_link'],
       subcategoryId: json['subcategory_id'],
       catalogImageUrls: catalogImages.isNotEmpty ? catalogImages : null,
+      catlog_0: json['catlog_0'],
+      catlog_1: json['catlog_1'],
+      catlog_2: json['catlog_2'],
+      catlog_3: json['catlog_3'],
+      catlog_4: json['catlog_4'],
+      email: json['email'],
+      mobileNo: json['mobile_no'],
+      govtName: json['govt_name'],
+      officeName: json['office_name'],
+      officerName: json['officer_name'],
+      ownerName: json['owner_name'],
+      ownerEmail: json['owner_email'],
+      categoryName: json['category_name'],
     );
   }
 
@@ -119,6 +164,31 @@ class Shop {
   String? get fullImageUrl {
     if (shopImage == null) return null;
     return 'https://etiop.acttconnect.com/$shopImage';
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'shop_owner_id': shopOwnerId,
+      'owner_id': ownerId,
+      'category_id': categoryId,
+      'shop_name': shopName,
+      'shop_no': shopNo,
+      'area': area,
+      'city': city,
+      'state': state,
+      'district': district,
+      'country': country,
+      'zipcode': zipcode,
+      'shop_image': shopImage,
+      'shop_status': shopStatus,
+      'description': description,
+      'services': services,
+      'requirements': requirements,
+      'website_link': websiteLink,
+      'google_map_link': googleMapLink,
+      'subcategory_id': subcategoryId,
+    };
   }
 }
 

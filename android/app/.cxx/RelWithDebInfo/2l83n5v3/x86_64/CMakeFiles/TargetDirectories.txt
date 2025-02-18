@@ -1,0 +1,2 @@
+C:/Users/yashs/StudioProjects/etiop_application-master/android/app/.cxx/RelWithDebInfo/2l83n5v3/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/yashs/StudioProjects/etiop_application-master/android/app/.cxx/RelWithDebInfo/2l83n5v3/x86_64/CMakeFiles/rebuild_cache.dir

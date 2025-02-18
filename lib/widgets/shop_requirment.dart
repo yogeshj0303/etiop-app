@@ -12,6 +12,7 @@ class ShopRequirementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Requirements received in screen: $requirements'); // Debug print
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -33,19 +34,18 @@ class ShopRequirementsScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: requirements.isEmpty
-            ? Center(
+            ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.info_outline,
                       size: 50,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Text(
-                      textAlign: TextAlign.center,
                       'No requirements available for this shop.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -55,7 +55,6 @@ class ShopRequirementsScreen extends StatelessWidget {
                 ),
               )
             : SingleChildScrollView(
-                clipBehavior: Clip.none,
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columnSpacing: 20,
@@ -116,44 +115,18 @@ class ShopRequirementsScreen extends StatelessWidget {
                     ),
                   ],
                   rows: requirements.map((requirement) {
+                    // Make sure to safely access the requirement data
+                    final userName = requirement['user_name'] ?? 'N/A';
+                    final userEmail = requirement['user_email'] ?? 'N/A';
+                    final userPhone = requirement['user_phone'] ?? 'N/A';
+                    final message = requirement['message'] ?? 'N/A';
+
                     return DataRow(
                       cells: [
-                        DataCell(
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              requirement['user_name'] ?? 'N/A',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              requirement['user_email'] ?? 'N/A',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              requirement['user_phone'] ?? 'N/A',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              requirement['message'] ?? 'N/A',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
+                        DataCell(Text(userName)),
+                        DataCell(Text(userEmail)),
+                        DataCell(Text(userPhone)),
+                        DataCell(Text(message)),
                       ],
                     );
                   }).toList(),

@@ -72,6 +72,7 @@ class ShopDetails {
   });
 
   factory ShopDetails.fromJson(Map<String, dynamic> json) {
+    print('Parsing shop details: $json');
     List<String> images = [];
     if (json['shop_others'] != null) {
       images = (json['shop_others'] as List)
@@ -80,6 +81,7 @@ class ShopDetails {
     }
 
     final shop = json['shop'] as Map<String, dynamic>;
+    print('Shop data: $shop');
     
     return ShopDetails(
       id: shop['id'] ?? 0,

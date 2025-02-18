@@ -16,6 +16,14 @@ class UserShopScreen extends StatefulWidget {
 }
 
 class _UserShopScreenState extends State<UserShopScreen> {
+  late List<Shop> shops;  // Add this line to maintain local state
+
+  @override
+  void initState() {
+    super.initState();
+    shops = widget.shops;  // Initialize local shops list
+  }
+
   // Function to retrieve user_id from SharedPreferences
   Future<String?> _getUserId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -41,7 +49,7 @@ class _UserShopScreenState extends State<UserShopScreen> {
 
         // Update the shop list by removing the deleted shop from the list
         setState(() {
-          widget.shops.removeWhere((shop) => shop.id == shopId);
+          shops.removeWhere((shop) => shop.id == shopId);  // Update local shops list
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -51,6 +59,26 @@ class _UserShopScreenState extends State<UserShopScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+  }
+
+  void _navigateToEditScreen(Shop shop) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditShopScreen(shop: shop),
+      ),
+    );
+
+    // If the shop was updated, refresh the shop data
+    if (result != null && result is Shop) {
+      setState(() {
+        // Find and update the shop in the list
+        final index = shops.indexWhere((s) => s.id == shop.id);
+        if (index != -1) {
+          shops[index] = result;
+        }
+      });
     }
   }
 
@@ -81,21 +109,23 @@ class _UserShopScreenState extends State<UserShopScreen> {
           childAspectRatio: 1, // Aspect ratio for grid items
         ),
         padding: const EdgeInsets.all(12.0),
-        itemCount: widget.shops.length,
+        itemCount: shops.length,  // Use local shops list
         itemBuilder: (context, index) {
-          Shop shop = widget.shops[index];
+          Shop shop = shops[index];  // Use local shops list
           // Update the image URL construction
           String imageUrl = shop.fullImageUrl ?? '';
 
           return GestureDetector(
             onTap: () {
-              // Navigate to Shop Requirements screen
+              print('Shop: ${shop.toJson()}'); 
+              print('Shop requirements: ${shop.requirements}'); // Debug print
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ShopRequirementsScreen(
-                      shopId: shop.id, // Pass shop ID to the next screen
-                      requirements: widget.shops[index].requirements ?? []),
+                    shopId: shop.id,
+                    requirements: shop.requirements ?? [],
+                  ),
                 ),
               );
             },
@@ -162,14 +192,7 @@ class _UserShopScreenState extends State<UserShopScreen> {
                         PopupMenuButton<String>(
                           onSelected: (value) {
                             if (value == 'edit') {
-                              print('Edit shop');
-                              print(shop);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditShopScreen(shop: shop),
-                                ),
-                              );
+                              _navigateToEditScreen(shop);
                             } else if (value == 'delete') {
                               // Delete the shop
                               _deleteShop(context, shop.id);
