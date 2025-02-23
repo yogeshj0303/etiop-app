@@ -34,6 +34,12 @@ class _MainScreenState extends State<MainScreen> {
     }
     setState(() {
       _currentIndex = index;
+      // If profile tab is selected, refresh the data
+      if (index == 4) { // Profile tab index
+        if (_pages[index] is UserProfileScreen) {
+          (_pages[index] as UserProfileScreen).createState().initState();
+        }
+      }
     });
   }
 

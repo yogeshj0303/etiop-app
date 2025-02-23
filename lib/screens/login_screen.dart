@@ -239,32 +239,28 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
-      final String email = _emailController.text.trim();
+      final String emailOrMobile = _emailController.text.trim();
       final String password = _passwordController.text.trim();
       try {
-        final response = await ApiService.loginUser(email, password);
+        final response = await ApiService.loginUser(emailOrMobile, password);
         print('API Response: $response'); // Debugging: log the API response
         if (response['success'] == true) {
           final user = response['user'];
-          final userId = user['id'].toString();
-          final mobileNumber = user['mobile_number'] ?? '';
-          final gender = user['gender'] ?? '';
-          final dob = user['dob'] ?? '';
-          final addhar = user['addhar'] ?? '';
-          final address = user['address'] ?? '';
-
-          // Save login state and user data in SharedPreferences
+          
+          // Save all user data regardless of login method
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
+          await prefs.setString('id', user['id'].toString());
           await prefs.setString('name', user['name'] ?? '');
           await prefs.setString('last_name', user['last_name'] ?? '');
-          await prefs.setString('email', email); // Save email if needed
-          await prefs.setString('id', userId); // Save user ID
-          await prefs.setString('mobile_number', mobileNumber);
-          await prefs.setString('gender', gender);
-          await prefs.setString('dob', dob);
-          await prefs.setString('addhar', addhar);
-          await prefs.setString('address', address);
+          await prefs.setString('email', user['email'] ?? '');
+          await prefs.setString('mobile_number', user['mobile_number'] ?? '');
+          await prefs.setString('gender', user['gender'] ?? '');
+          await prefs.setString('dob', user['dob'] ?? '');
+          await prefs.setString('addhar', user['addhar'] ?? '');
+          await prefs.setString('address', user['address'] ?? '');
+          await prefs.setString('avatar', user['avatar'] ?? '');
+
           // Navigate to HomeScreen
           Navigator.pushReplacement(
             context,

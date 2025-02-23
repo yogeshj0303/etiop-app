@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/shop_form.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
+import 'edit_profile_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -19,15 +20,27 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  String firstName = "First Name";
-  String lastName = "Last Name";
-  String email = "example@example.com";
-  String mobileNumber = "000-000-0000";
-  String gender = "Not specified";
-  String dob = "Not specified";
-  String address = "No address provided";
-  String avatar = "assets/user_profile.jpg"; // Default avatar path
+  String firstName = '';
+  String lastName = '';
+  String email = '';
+  String mobileNumber = '';
+  String gender = '';
+  String dob = '';
+  String address = '';
+  String avatar = '';
   List<Shop> shops = []; // List to hold shop data
+
+  // Add these controllers at the top of your _UserProfileScreenState class
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  String? _selectedGender;
+  DateTime? _selectedDate;
+
+  // Add this at the class level
+  final String baseUrl = 'https://etiop.acttconnect.com';
 
   @override
   void initState() {
@@ -35,18 +48,60 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     _loadUserData();
   }
 
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _mobileController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      firstName = prefs.getString('name') ?? "User";
-      lastName = prefs.getString('last_name') ?? "Name";
-      email = prefs.getString('email') ?? "example@example.com";
-      mobileNumber = prefs.getString('mobile_number') ?? "Not available";
-      gender = prefs.getString('gender') ?? "Not specified";
-      dob = prefs.getString('dob') ?? "Not specified";
-      address = prefs.getString('address') ?? "No address provided";
-      avatar = prefs.getString('avatar') ?? "assets/images/app_logo.jpg";
-    });
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? avatarPath = prefs.getString('avatar');
+      print('Raw avatar path from SharedPreferences: $avatarPath');
+      
+      setState(() {
+        firstName = prefs.getString('name') ?? "User";
+        lastName = prefs.getString('last_name') ?? "Name";
+        email = prefs.getString('email') ?? "example@example.com";
+        mobileNumber = prefs.getString('mobile_number') ?? "Not available";
+        gender = prefs.getString('gender') ?? "Not specified";
+        dob = prefs.getString('dob') ?? "Not specified";
+        address = prefs.getString('address') ?? "No address provided";
+        avatar = avatarPath ?? "";
+        print('Final avatar URL: $baseUrl/$avatar');
+
+        // Set controller values
+        _firstNameController.text = firstName;
+        _lastNameController.text = lastName;
+        _emailController.text = email;
+        _mobileController.text = mobileNumber;
+        _addressController.text = address;
+        _selectedGender = gender;
+        if (dob != "Not specified") {
+          try {
+            _selectedDate = DateTime.parse(dob);
+          } catch (e) {
+            print('Error parsing date: $e');
+          }
+        }
+      });
+      print('Loaded user data: firstName=$firstName, lastName=$lastName, email=$email, mobile=$mobileNumber'); // Debug print
+    } catch (e) {
+      print('Error loading user data: $e');
+    }
+  }
+
+  // Add this method to refresh data when screen becomes visible
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadUserData();
+    }
   }
 
   Future<void> _handleMyBusinessesClick() async {
@@ -183,6 +238,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
+  // Add this helper method to format the date
+  String _formatDate(String dateString) {
+    if (dateString == "Not specified" || dateString.isEmpty) {
+      return "Not specified";
+    }
+    try {
+      DateTime date;
+      if (dateString.contains('T')) {
+        date = DateTime.parse(dateString.split('T')[0]);
+      } else {
+        date = DateTime.parse(dateString);
+      }
+      return "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
+    } catch (e) {
+      print('Error parsing date: $e');
+      return "Not specified";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String fullName = "$firstName $lastName";
@@ -238,31 +312,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: ListView(
           clipBehavior: Clip.none,
           children: [
-            // Profile Picture and Name Section
             Row(
               children: [
                 Stack(
                   children: [
                     CircleAvatar(
-                      radius: 55, // Increased size for profile picture
-                      backgroundImage: AssetImage(avatar),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        radius: 20,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(
-                            Icons.camera_alt,
-                            size: 18,
-                          ),
-                          onPressed: () {
-                            // Add functionality for updating profile picture
-                          },
-                        ),
-                      ),
+                      radius: 55,
+                      backgroundImage: avatar.isNotEmpty
+                          ? NetworkImage('https://etiop.acttconnect.com/$avatar')
+                          : const AssetImage('assets/images/profile_placeholder.png') as ImageProvider,
                     ),
                   ],
                 ),
@@ -283,6 +341,38 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         email,
                         style: const TextStyle(
                           fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditProfileScreen(
+                                currentAvatar: avatar,
+                                userData: {
+                                  'name': firstName,
+                                  'last_name': lastName,
+                                  'email': email,
+                                  'mobile_number': mobileNumber,
+                                  'gender': gender,
+                                  'dob': dob,
+                                  'address': address,
+                                },
+                              ),
+                            ),
+                          );
+                          
+                          if (result == true) {
+                            await _loadUserData(); // Reload user data if profile was updated
+                          }
+                        },
+                        icon: const Icon(Icons.edit, size: 18),
+                        label: const Text('Edit Profile'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          textStyle: const TextStyle(fontSize: 14),
                         ),
                       ),
                     ],
@@ -386,6 +476,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Widget _buildProfileInfoSection(String title, String value) {
+    // Format the date if this is the date of birth section
+    String displayValue = title == "Date of Birth" ? _formatDate(value) : value;
+    
     return Card(
       clipBehavior: Clip.none,
       margin: const EdgeInsets.only(bottom: 12.0),
@@ -406,7 +499,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
             ),
             Text(
-              value,
+              displayValue,
               style: const TextStyle(
                 fontSize: 14,
               ),
