@@ -16,49 +16,88 @@ class UserShopScreen extends StatefulWidget {
 }
 
 class _UserShopScreenState extends State<UserShopScreen> {
-  late List<Shop> shops;  // Add this line to maintain local state
+  late List<Shop> shops;
 
   @override
   void initState() {
     super.initState();
-    shops = widget.shops;  // Initialize local shops list
+    shops = widget.shops;
+    // Check if shops is empty and navigate back
+    if (shops.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+      });
+    }
   }
 
-  // Function to retrieve user_id from SharedPreferences
-  Future<String?> _getUserId() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('id'); // Get the user ID from SharedPreferences
-  }
 
   // Function to delete the shop
   Future<void> _deleteShop(BuildContext context, int shopId) async {
-    final String? userId =
-        await _getUserId(); // Get user ID from SharedPreferences
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User ID not found. Please log in again.')));
-      return;
-    }
+    // Show confirmation dialog
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this shop?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
+
+    if (!confirmDelete) return;
 
     try {
       final responseBody = await ApiService.deleteShop(shopId);
 
-      if (responseBody['status'] == 'success') {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Shop deleted successfully')));
-
-        // Update the shop list by removing the deleted shop from the list
+      if (responseBody['success'] == true) {
         setState(() {
-          shops.removeWhere((shop) => shop.id == shopId);  // Update local shops list
+          shops.removeWhere((shop) => shop.id == shopId);
         });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Shop deleted successfully')),
+          );
+          
+          // Check if shops list is empty after deletion
+          if (shops.isEmpty) {
+            Navigator.pop(context);
+          } else {
+            // Only refresh if there are still shops
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserShopScreen(shops: shops),
+              ),
+            );
+          }
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content:
-                Text('Failed to delete shop: ${responseBody['message']}')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to delete shop: ${responseBody['message']}')),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
     }
   }
 

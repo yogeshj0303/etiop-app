@@ -1,4 +1,5 @@
 import 'package:etiop_application/screens/user_profile.dart';
+import 'package:etiop_application/utils/location_data.dart';
 import 'package:flutter/material.dart';
 import 'package:etiop_application/modals/shop_model.dart';
 import 'package:image_picker/image_picker.dart'; // Add this import
@@ -37,10 +38,21 @@ class _EditShopScreenState extends State<EditShopScreen> {
   String? shopImageUrl = '';
   List<String> catalogImageUrls = [];
 
+  // Add category type variable
+  String _categoryType = 'private';
+
+  // Add these variables at the top of the _EditShopScreenState class
+  String? _selectedState;
+  String? _selectedDistrict;
+  List<String> _states = [];
+  List<String> _districts = [];
+
   @override
   void initState() {
     super.initState();
     _initializeData();
+    _determineCategoryType();
+    _initializeLocationData();
   }
 
   void _initializeData() {
@@ -78,6 +90,25 @@ class _EditShopScreenState extends State<EditShopScreen> {
     }
     if (widget.shop.catlog_4 != null) {
       catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_4}');
+    }
+  }
+
+  // Add method to determine category type
+  void _determineCategoryType() {
+    if (widget.shop.categoryName != null) {
+      setState(() {
+        _categoryType = widget.shop.categoryName!.toLowerCase();
+      });
+    }
+  }
+
+  // Add method to initialize location data
+  void _initializeLocationData() {
+    _states = IndianLocation.states;
+    _selectedState = widget.shop.state;
+    if (_selectedState != null) {
+      _districts = IndianLocation.getDistricts(_selectedState!);
+      _selectedDistrict = widget.shop.district;
     }
   }
 
@@ -120,26 +151,55 @@ class _EditShopScreenState extends State<EditShopScreen> {
           Uri.parse('https://etiop.acttconnect.com/api/shop-data-update/${widget.shop.id}'),
         );
 
-        // Add text fields
-        request.fields.addAll({
+        // Add common fields
+        Map<String, String> fields = {
           'shop_owner_id': widget.shop.shopOwnerId.toString(),
           'owner_id': widget.shop.ownerId.toString(),
           'category_id': widget.shop.categoryId.toString(),
           'subcategory_id': widget.shop.subcategoryId.toString(),
-          'shop_name': shopName ?? '',
-          'shop_no': shopNo ?? '',
-          'area': area ?? '',
-          'city': city ?? '',
-          'state': state ?? '',
-          'district': district ?? '',
-          'country': country ?? '',
-          'zipcode': zipcode ?? '',
-          'shop_status': widget.shop.shopStatus ?? '',
-          'description': description ?? '',
-          'services': widget.shop.services ?? '',
-          'website_link': websiteLink ?? '',
-          'google_map_link': googleMapLink ?? '',
-        });
+        };
+
+        // Add fields based on category type
+        if (_categoryType == 'government') {
+          fields.addAll({
+            'department_name': widget.shop.departmentName ?? '',
+            'govt_name': widget.shop.govtName ?? '',
+            'office_name': widget.shop.officeName ?? '',
+            'officer_name': widget.shop.officerName ?? '',
+            'mobile_no': widget.shop.mobileNo ?? '',
+            'email': widget.shop.email ?? '',
+            'area': area ?? '',
+            'description': description ?? '',
+            'website_link': websiteLink ?? '',
+            'google_map_link': googleMapLink ?? '',
+          });
+        } else if (_categoryType == 'public') {
+          fields.addAll({
+            'shop_name': shopName ?? '',
+            'mobile_no': widget.shop.mobileNo ?? '',
+            'email': widget.shop.email ?? '',
+            'area': area ?? '',
+            'description': description ?? '',
+            'website_link': websiteLink ?? '',
+            'google_map_link': googleMapLink ?? '',
+          });
+        } else {
+          fields.addAll({
+            'shop_name': shopName ?? '',
+            'shop_no': shopNo ?? '',
+            'area': area ?? '',
+            'city': city ?? '',
+            'state': _selectedState ?? '',
+            'district': _selectedDistrict ?? '',
+            'country': country ?? '',
+            'zipcode': zipcode ?? '',
+            'description': description ?? '',
+            'website_link': websiteLink ?? '',
+            'google_map_link': googleMapLink ?? '',
+          });
+        }
+
+        request.fields.addAll(fields);
 
         // Add shop image if selected
         if (_shopImage != null) {
@@ -181,13 +241,14 @@ class _EditShopScreenState extends State<EditShopScreen> {
               shopNo: shopNo,
               area: area,
               city: city,
-              state: state,
-              district: district,
+              state: _selectedState,
+              district: _selectedDistrict,
               country: country,
               zipcode: zipcode,
               shopStatus: widget.shop.shopStatus,
               description: description,
               services: widget.shop.services,
+              departmentName: widget.shop.departmentName,
               websiteLink: websiteLink,
               googleMapLink: googleMapLink,
               shopImage: _shopImage != null ? _shopImage!.path : widget.shop.shopImage,
@@ -315,14 +376,11 @@ class _EditShopScreenState extends State<EditShopScreen> {
               _buildHeader(),
               const SizedBox(height: 20),
               
-              // Basic Details Section
-              _buildBasicDetailsSection(),
-
-// Online Presence Section
-              _buildOnlinePresenceSection(),
+              // Form fields based on category type
+              _buildFormFields(),
               
               // Address Section
-              _buildAddressSection(),
+              if (_categoryType == 'private') _buildAddressSection(),
               
               // Images Section
               _buildImagesSection(),
@@ -347,15 +405,47 @@ class _EditShopScreenState extends State<EditShopScreen> {
     );
   }
 
-  Widget _buildBasicDetailsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTextField('Shop Name', 'shop_name', shopName),
-        _buildTextField('Shop No', 'shop_no', shopNo),
-        _buildTextField('Description', 'description', description?.toString()),
-      ],
-    );
+  Widget _buildFormFields() {
+    if (_categoryType == 'government') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField('Department Name', 'department_name', widget.shop.departmentName),
+          _buildTextField('Office Name', 'office_name', widget.shop.officeName),
+          _buildTextField('Officer Name', 'officer_name', widget.shop.officerName),
+          _buildTextField('Mobile Number', 'mobile_number', widget.shop.mobileNo),
+          _buildTextField('Email', 'email', widget.shop.email),
+          _buildTextField('Description', 'description', description),
+          _buildTextField('Website', 'website_link', websiteLink, isRequired: false),
+          _buildTextField('Office Address', 'area', area),
+          _buildTextField('Google Map Location', 'google_map_link', googleMapLink, isRequired: false),
+        ],
+      );
+    } else if (_categoryType == 'public') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField('Spot Name', 'shop_name', shopName),
+          _buildTextField('Contact Number', 'mobile_no', widget.shop.mobileNo),
+          _buildTextField('Email', 'email', widget.shop.email),
+          _buildTextField('Description', 'description', description),
+          _buildTextField('Website', 'website_link', websiteLink, isRequired: false),
+          _buildTextField('Spot Address', 'area', area),
+          _buildTextField('Google Map Location', 'google_map_link', googleMapLink, isRequired: false),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField('Shop Name', 'shop_name', shopName),
+          _buildTextField('Shop No', 'shop_no', shopNo),
+          _buildTextField('Description', 'description', description),
+          _buildTextField('Website Link', 'website_link', websiteLink, isRequired: false),
+          _buildTextField('Google Map Link', 'google_map_link', googleMapLink, isRequired: false),
+        ],
+      );
+    }
   }
 
   Widget _buildAddressSection() {
@@ -363,9 +453,81 @@ class _EditShopScreenState extends State<EditShopScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTextField('Area', 'area', area),
-        _buildTextField('City', 'city', city),
-        _buildTextField('State', 'state', state),
-        _buildTextField('District', 'district', district),
+        // _buildTextField('City', 'city', city),
+        
+        // State Dropdown
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: DropdownButtonFormField<String>(
+            value: _selectedState,
+            decoration: InputDecoration(
+              labelText: 'State',
+              contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: const BorderSide(width: 2.0),
+              ),
+            ),
+            items: _states.map((String state) {
+              return DropdownMenuItem<String>(
+                value: state,
+                child: Text(state),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedState = newValue;
+                state = newValue;
+                // Reset district when state changes
+                _selectedDistrict = null;
+                district = null;
+                if (newValue != null) {
+                  _districts = IndianLocation.getDistricts(newValue);
+                } else {
+                  _districts = [];
+                }
+              });
+            },
+            validator: (value) => value == null ? 'Please select a state' : null,
+          ),
+        ),
+
+        // District Dropdown
+        if (_selectedState != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: DropdownButtonFormField<String>(
+              value: _selectedDistrict,
+              decoration: InputDecoration(
+                labelText: 'District',
+                contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(width: 2.0),
+                ),
+              ),
+              items: _districts.map((String district) {
+                return DropdownMenuItem<String>(
+                  value: district,
+                  child: Text(district),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedDistrict = newValue;
+                  district = newValue;
+                });
+              },
+              validator: (value) => value == null ? 'Please select a district' : null,
+            ),
+          ),
+
         _buildTextField('Country', 'country', country),
         _buildTextField('Zipcode', 'zipcode', zipcode),
       ],
@@ -601,16 +763,6 @@ class _EditShopScreenState extends State<EditShopScreen> {
     );
   }
 
-  Widget _buildOnlinePresenceSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTextField('Website Link', 'website_link', websiteLink),
-        _buildTextField('Google Maps Link', 'google_map_link', googleMapLink),
-      ],
-    );
-  }
-
   Widget _buildSubmitButton() {
     return Center(
       child: ElevatedButton(
@@ -631,7 +783,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String key, String? initialValue) {
+  Widget _buildTextField(String label, String key, String? initialValue, {bool isRequired = true}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(

@@ -318,7 +318,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 const SizedBox(height: 16),
                               ],
                               const Text(
-                                'Related Shops:',
+                                'Related Services:',
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),

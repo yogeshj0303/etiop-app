@@ -96,13 +96,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  // Add this method to refresh data when screen becomes visible
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _loadUserData();
-    }
-  }
+
 
   Future<void> _handleMyBusinessesClick() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
