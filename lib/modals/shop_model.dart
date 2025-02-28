@@ -37,6 +37,7 @@ class Shop {
   final String? ownerName;
   final String? ownerEmail;
   final String? categoryName;
+  final String? departmentName;
 
   Shop({
     required this.id,
@@ -44,6 +45,7 @@ class Shop {
     required this.ownerId,
     required this.categoryId,
     required this.shopName,
+    required this.departmentName,
     required this.shopNo,
     required this.area,
     required this.city,
@@ -102,6 +104,7 @@ class Shop {
       categoryId: json['category_id'],
       shopName: json['shop_name'],
       shopNo: json['shop_no'],
+      departmentName: json['department_name'],
       area: json['area'],
       city: json['city'],
       state: json['state'],
@@ -155,6 +158,7 @@ class Shop {
       'country': country,
       'zipcode': zipcode,
       'shop_image': shopImage,
+      'department_name': departmentName,
       'shop_status': shopStatus,
       'description': description,
       'services': services,
@@ -182,6 +186,7 @@ class Shop {
       'zipcode': zipcode,
       'shop_image': shopImage,
       'shop_status': shopStatus,
+      'department_name': departmentName,
       'description': description,
       'services': services,
       'requirements': requirements,
