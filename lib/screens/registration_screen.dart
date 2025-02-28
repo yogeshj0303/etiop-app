@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_services.dart';
 import 'login_screen.dart';
+import '../utils/location_data.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -30,6 +31,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   // Variables to store selected image
   File? _avatarImage;
 
+  // Add these variables with the other state variables
+  String? _selectedState;
+  String? _selectedDistrict;
+
   // Function to pick an image
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -43,24 +48,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
-  // Function to show full image preview
-  void _showFullImagePreview() {
-    if (_avatarImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No image selected to preview.")),
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Image.file(_avatarImage!, fit: BoxFit.contain),
-        ),
-      ),
-    );
+  // Add this method to handle state change
+  void _onStateChanged(String? state) {
+    setState(() {
+      _selectedState = state;
+      _selectedDistrict = null; // Reset district when state changes
+    });
   }
 
   // Registration function
@@ -80,6 +73,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
           _gender,
           _addressController.text.trim(),
           _passwordController.text.trim(),
+          _selectedState ?? '',
+          _selectedDistrict ?? '',
         );
 
         if (response.containsKey('user') &&
@@ -93,6 +88,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
           await prefs.setString('mobile_number', _mobileController.text.trim());
           await prefs.setString('gender', _gender);
           await prefs.setString('address', _addressController.text.trim());
+          await prefs.setString('state', _selectedState ?? '');
+          await prefs.setString('district', _selectedDistrict ?? '');
           await prefs.setString('id', userId); // Save user ID
 
           // getstring user id
@@ -179,6 +176,60 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   _buildTextField(_mobileController, "Mobile Number",
                       "Enter your mobile number",
                       isMobile: true),
+                  const SizedBox(height: 14),
+                  DropdownButtonFormField<String>(
+                    value: _selectedState,
+                    decoration: InputDecoration(
+                      labelText: 'State',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    ),
+                    items: IndianLocation.states.map((String state) {
+                      return DropdownMenuItem<String>(
+                        value: state,
+                        child: Text(state),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a state';
+                      }
+                      return null;
+                    },
+                    onChanged: _onStateChanged,
+                  ),
+                  const SizedBox(height: 14),
+                  DropdownButtonFormField<String>(
+                    value: _selectedDistrict,
+                    decoration: InputDecoration(
+                      labelText: 'District',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    ),
+                    items: _selectedState == null
+                        ? []
+                        : IndianLocation.getDistricts(_selectedState!).map((String district) {
+                            return DropdownMenuItem<String>(
+                              value: district,
+                              child: Text(district),
+                            );
+                          }).toList(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a district';
+                      }
+                      return null;
+                    },
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedDistrict = newValue;
+                      });
+                    },
+                  ),
                   const SizedBox(height: 14),
                   _buildTextField(
                       _addressController, "Address", "Enter your address"),

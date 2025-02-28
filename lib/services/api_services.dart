@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../modals/banner_model.dart';
 import '../modals/cities_model.dart';
 import '../modals/related_shops.dart';
@@ -20,32 +18,40 @@ class ApiService {
       String name,
       String lastName,
       String email,
-      String mobileNumber,
+      String mobile,
       String gender,
       String address,
-      String password) async {
+      String password,
+      String state,
+      String district) async {
     final url = Uri.parse(baseUrl + 'user-register');
-    final body = jsonEncode({
-      'name': name,
-      'last_name': lastName,
-      'email': email,
-      'mobile_number': mobileNumber,
-      'gender': gender,
-      'address': address,
-      'password': password,
-    });
+    
+    var request = http.MultipartRequest('POST', url)
+      ..fields['name'] = name
+      ..fields['last_name'] = lastName
+      ..fields['email'] = email
+      ..fields['mobile_number'] = mobile
+      ..fields['gender'] = gender
+      ..fields['address'] = address
+      ..fields['password'] = password
+      ..fields['state'] = state
+      ..fields['district'] = district;
+
+    request.headers['Accept'] = 'application/json';
 
     try {
-      final response = await http.post(url,
-          headers: {'Content-Type': 'application/json'}, body: body);
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body); // Assuming API returns JSON response
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        return {'success': false, 'message': jsonDecode(response.body)['message']};
       } else {
         throw Exception('Failed to register user: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error registering user: $e');
+      return {'success': false, 'message': 'Error registering user: $e'};
     }
   }
 
@@ -62,12 +68,13 @@ class ApiService {
           headers: {'Content-Type': 'application/json'}, body: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body); // Assuming API returns JSON response
-      } else {
-        throw Exception('Failed to login user: ${response.statusCode}');
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        return {'success': false, 'message': jsonDecode(response.body)['message']};
       }
+      return {'success': false, 'message': 'An error occurred'};
     } catch (e) {
-      throw Exception('Error logging in user: $e');
+      return {'success': false, 'message': 'Error logging in user: $e'};
     }
   }
 
@@ -210,23 +217,24 @@ class ApiService {
     File? shopImage,
     List<File> catalogueImages,
   ) async {
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('https://etiop.acttconnect.com/api/shop-add'),
-    );
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://etiop.acttconnect.com/api/shop-add'),
+      );
 
-    // Add text fields
-    data.forEach((key, value) {
-      request.fields[key] = value.toString();
-    });
+      // Add text fields
+      data.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
 
-    // Add shop image if exists
-    if (shopImage != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'shop_image',
-        shopImage.path,
-      ));
-    }
+      // Add shop image if exists
+      if (shopImage != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'shop_image',
+          shopImage.path,
+        ));
+      }
 
     // Add catalogue images
     for (var i = 0; i < catalogueImages.length; i++) {
@@ -236,9 +244,18 @@ class ApiService {
       ));
     }
 
-    var response = await request.send();
-    var responseData = await response.stream.bytesToString();
-    return json.decode(responseData) as Map<String, dynamic>;
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to create shop: ${response.body}');
+      }
+    } catch (e) {
+      print('Error in createShop: $e');
+      throw Exception('Failed to create shop: $e');
+    }
   }
 
   Future<List<dynamic>> fetchCategories() async {

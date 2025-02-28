@@ -243,36 +243,40 @@ class _LoginScreenState extends State<LoginScreen> {
       final String password = _passwordController.text.trim();
       try {
         final response = await ApiService.loginUser(emailOrMobile, password);
-        print('API Response: $response'); // Debugging: log the API response
+        print('API Response: $response');
         if (response['success'] == true) {
           final user = response['user'];
           
-          // Save all user data regardless of login method
+          // Save all user data
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
-          await prefs.setString('id', user['id'].toString());
+          await prefs.setString('id', user['id']?.toString() ?? '');
+          await prefs.setString('is_admin', user['is_admin']?.toString() ?? '');
           await prefs.setString('name', user['name'] ?? '');
           await prefs.setString('last_name', user['last_name'] ?? '');
           await prefs.setString('email', user['email'] ?? '');
           await prefs.setString('mobile_number', user['mobile_number'] ?? '');
           await prefs.setString('gender', user['gender'] ?? '');
+          await prefs.setString('date_of_joining', user['date_of_joining'] ?? '');
           await prefs.setString('dob', user['dob'] ?? '');
           await prefs.setString('addhar', user['addhar'] ?? '');
-          await prefs.setString('address', user['address'] ?? '');
+          await prefs.setString('state', user['state'] ?? '');
+          await prefs.setString('district', user['district'] ?? '');
+          await prefs.setString('email', user['email'] ?? '');
           await prefs.setString('avatar', user['avatar'] ?? '');
+          await prefs.setString('address', user['address'] ?? '');
+          await prefs.setString('created_at', user['created_at'] ?? '');
+          await prefs.setString('updated_at', user['updated_at'] ?? '');
 
           // Navigate to HomeScreen
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainScreen()),
           );
-        } else {
+        } else if (response['success'] == false) {
           _showErrorDialog(response['message'] ?? 'Login failed');
         }
-      } catch (e) {
-        print('Error logging in: $e'); // Debugging
-        _showErrorDialog('An error occurred. Please try again.');
-      } finally {
+      }  finally {
         setState(() {
           _isLoading = false;
         });

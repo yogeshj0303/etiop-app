@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String lastName = "Name";
   String email = "";
   String mobileNumber = "";
+  String _selectedDistrict = '';
 
 // Method to fetch search results from the API
   Future<void> _search(String query) async {
@@ -110,10 +111,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _fetchCategories();
     _loadUserData();
+    _loadSelectedDistrict();
   }
 
   Future<void> _loadUserData() async {
@@ -123,6 +124,13 @@ class _HomeScreenState extends State<HomeScreen> {
       lastName = prefs.getString('last_name') ?? "Name";
       email = prefs.getString('email') ?? "example@example.com";
       mobileNumber = prefs.getString('mobile_number') ?? "Not available";
+    });
+  }
+
+  Future<void> _loadSelectedDistrict() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedDistrict = prefs.getString('district') ?? '';
     });
   }
 
@@ -525,9 +533,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             children: [
               Text(
-                'Highlights of Banda',
+                'Highlights of $_selectedDistrict',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
               ),

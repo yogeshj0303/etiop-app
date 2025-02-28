@@ -1,6 +1,7 @@
 import 'dart:convert'; // For decoding JSON
 import 'dart:io'; // For File class
 
+import 'package:etiop_application/modals/shop_details.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'package:image_picker/image_picker.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../modals/sub_category.dart';
 import '../services/api_services.dart';
+import '../utils/location_data.dart';
 
 class AddShop extends StatefulWidget {
   const AddShop({Key? key}) : super(key: key);
@@ -37,6 +39,23 @@ class _AddShopState extends State<AddShop> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController websiteLinkController = TextEditingController();
   TextEditingController googleMapLinkController = TextEditingController();
+
+  // Add new controllers for government and public fields
+  TextEditingController departmentNameController = TextEditingController();
+  TextEditingController officeNameController = TextEditingController();
+  TextEditingController officerNameController = TextEditingController();
+  TextEditingController mobileNumberController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController spotNameController = TextEditingController();
+  TextEditingController contactNumberController = TextEditingController();
+  TextEditingController spotEmailController = TextEditingController();
+
+  // Add variable to track category type
+  String _categoryType = 'private';
+
+  // Add these variables with other state variables
+  String? _selectedState;
+  String? _selectedDistrict;
 
   @override
   void initState() {
@@ -129,7 +148,6 @@ class _AddShopState extends State<AddShop> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      print(_formData);
 
       setState(() {
         _isLoading = true;
@@ -139,26 +157,59 @@ class _AddShopState extends State<AddShop> {
         final prefs = await SharedPreferences.getInstance();
         final userId = prefs.getString('id') ?? '';
 
-        final requestBody = {
-          ..._formData,
-          'id': userId,
-          'category_id': _selectedCategory?.toString() ?? '',
+        // Base request body with common fields
+        final Map<String, String> requestBody = {
           'shop_owner_id': userId,
-          'subcategory_id': _selectedSubCategory != null
-              ? int.parse(_selectedSubCategory!).toString()
-              : '0', // Default to '0' if null
-          'govt_name': 'govt_name',
-          'office_name': 'office_name',
-          'officer_name': 'officer_name',
-          'state': stateController.text.isNotEmpty ? stateController.text : '',
-          'district': cityController.text.isNotEmpty ? cityController.text : '',
+          'owner_id': '1',
+          'category_id': _selectedCategory?.toString() ?? '',
+          'subcategory_id': _selectedSubCategory ?? '0',
           'country': 'India',
-          'zipcode': '123456',
+          'zipcode': '462022',
+          'shop_status': 'approved',
+          'district': _selectedDistrict ?? '',
+          'state': _selectedState ?? '',
         };
 
-        print('Request Body: $requestBody'); // Debug print
-        print('Shop Image: $_shopImage'); // Debug print
-        print('Catalogue Images: $_catalogueImages'); // Debug print
+        // Add fields based on category type
+        if (_categoryType == 'government') {
+          requestBody.addAll({
+            'department_name': departmentNameController.text,
+            'office_name': officeNameController.text,
+            'officer_name': officerNameController.text,
+            'shop_name': departmentNameController.text,
+            'area': areaController.text,
+            'description': descriptionController.text,
+            'website_link': websiteLinkController.text,
+            'google_map_link': googleMapLinkController.text,
+            'mobile_number': mobileNumberController.text,
+            'email': emailController.text,
+            'services': '', // Add empty services field
+          });
+        } else if (_categoryType == 'public') {
+          requestBody.addAll({
+            'shop_name': spotNameController.text,
+            'area': areaController.text,
+            'description': descriptionController.text,
+            'website_link': websiteLinkController.text,
+            'google_map_link': googleMapLinkController.text,
+            'contact_number': contactNumberController.text,
+            'email': spotEmailController.text,
+            'services': '', // Add empty services field
+          });
+        } else {
+          // Private business
+          requestBody.addAll({
+            'shop_name': shopNameController.text,
+            'shop_no': shopNoController.text,
+            'area': areaController.text,
+            'city': cityController.text,
+            'description': descriptionController.text,
+            'website_link': websiteLinkController.text,
+            'google_map_link': googleMapLinkController.text,
+            'services': '', // Add empty services field
+          });
+        }
+
         final result = await _apiService.createShop(
           requestBody,
           _shopImage != null ? File(_shopImage!.path) : null,
@@ -166,20 +217,24 @@ class _AddShopState extends State<AddShop> {
               ? _catalogueImages!.map((image) => File(image.path)).toList()
               : [],
         );
-        print('shop image: $_shopImage');
-        print('catalogue images: $_catalogueImages');
-        print('Result: $result');
 
-        if (result != null) {
+        if (result.containsKey('success') && result['success'] == true) {
+          print('Response: $result');
+          if (result.containsKey('data')) {
+            print('Shop Data: ${result['data']}');
+          }
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            
+            SnackBar(
+              content: Text(result['message']?.toString() ?? "Shop created successfully"),
+            ),
+          );
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(result['message']?.toString() ?? "Shop created successfully")),
-          );
-          Navigator.pop(context);
-        } 
-        else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to create shop")),
+              content: Text(result['message']?.toString() ?? "Failed to create shop"),
+            ),
           );
         }
       } catch (e) {
@@ -226,59 +281,15 @@ class _AddShopState extends State<AddShop> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 16),
-                        _buildTextField(
-                          'Shop Name',
-                          'shop_name',
-                          shopNameController,
-                          14,
-                          const Icon(Icons.storefront, size: 18),
-                        ),
-                        _buildTextField('Shop No', 'shop_no', shopNoController,
-                            14, const Icon(Icons.home, size: 18)),
-                        _buildTextField('Address', 'area', areaController, 14,
-                            const Icon(Icons.location_city, size: 18)),
-                        _buildTextField('City', 'city', cityController, 14,
-                            const Icon(Icons.location_city, size: 18)),
-                        _buildTextField('State', 'state', stateController, 14,
-                            const Icon(Icons.location_city, size: 18)),
-                        _buildTextField(
-                            'Description',
-                            'description',
-                            descriptionController,
-                            14,
-                            const Icon(Icons.description, size: 18)),
-                        _buildTextField(
-                            'Website Link',
-                            'website_link',
-                            websiteLinkController,
-                            14,
-                            const Icon(
-                              Icons.link,
-                              size: 18,
-                            ),
-                            isRequired: false),
-                        _buildTextField(
-                            'Google Map Link',
-                            'google_map_link',
-                            googleMapLinkController,
-                            14,
-                            const Icon(
-                              Icons.map,
-                              size: 18,
-                            ),
-                            isRequired: false),
-                        const SizedBox(height: 10),
-
+                        
                         // Category Dropdown
-                        DropdownButtonFormField<String>(
+                        Padding(padding: EdgeInsets.only(bottom: 10),
+                        child:DropdownButtonFormField<String>(
                           decoration: InputDecoration(
                             labelText: 'Select Category',
-                            contentPadding: EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                                 vertical: 10.0, horizontal: 20.0),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                           ),
@@ -287,10 +298,20 @@ class _AddShopState extends State<AddShop> {
                             setState(() {
                               _selectedCategory = newValue;
                               _selectedSubCategory = null;
+                              
+                              // Determine category type
+                              if (newValue != null) {
+                                final category = _categories.firstWhere(
+                                  (cat) => cat['id'].toString() == newValue,
+                                  orElse: () => null,
+                                );
+                                if (category != null) {
+                                  _categoryType = category['category_name'].toString().toLowerCase();
+                                }
+                              }
                             });
                             if (newValue != null) {
-                              _fetchSubCategories(int.parse(
-                                  newValue)); // Fetch subcategories for selected category
+                              _fetchSubCategories(int.parse(newValue));
                             }
                           },
                           items: _categories.map((category) {
@@ -302,11 +323,10 @@ class _AddShopState extends State<AddShop> {
                           validator: (value) =>
                               value == null ? 'Please select a category' : null,
                         ),
-                        const SizedBox(height: 16),
+                        ),
 
-                        // Subcategory Dropdown (dependent on category selection)
-                        if (_selectedCategory != null &&
-                            _subCategories.isNotEmpty)
+                        // Subcategory Dropdown
+                        if (_selectedCategory != null && _subCategories.isNotEmpty)
                           DropdownButtonFormField<int>(
                             decoration: InputDecoration(
                               labelText: 'Select Subcategory',
@@ -342,7 +362,92 @@ class _AddShopState extends State<AddShop> {
                           ),
                         const SizedBox(height: 16),
 
-                        // Image Picker Section
+                        // Conditional form fields based on category type
+                        if (_categoryType == 'government') ...[
+                          _buildTextField('Department Name', 'department_name', departmentNameController, 14, const Icon(Icons.business, size: 18)),
+                          _buildTextField('Office Name', 'office_name', officeNameController, 14, const Icon(Icons.business_center, size: 18)),
+                          _buildTextField('Officer/Employee Name', 'officer_name', officerNameController, 14, const Icon(Icons.person, size: 18)),
+                          _buildTextField('Mobile Number', 'mobile_number', mobileNumberController, 14, const Icon(Icons.phone, size: 18)),
+                          _buildTextField('Email ID', 'email', emailController, 14, const Icon(Icons.email, size: 18)),
+                          _buildTextField('Description', 'description', descriptionController, 14, const Icon(Icons.description, size: 18)),
+                          _buildTextField('Website', 'website_link', websiteLinkController, 14, const Icon(Icons.link, size: 18), isRequired: false),
+                          _buildTextField('Office Address', 'area', areaController, 14, const Icon(Icons.location_on, size: 18)),
+                          _buildTextField('Google Map Location', 'google_map_link', googleMapLinkController, 14, const Icon(Icons.map, size: 18), isRequired: false),
+                        ] else if (_categoryType == 'public') ...[
+                          _buildTextField('Spot Name', 'spot_name', spotNameController, 14, const Icon(Icons.place, size: 18)),
+                          _buildTextField('Contact Number', 'contact_number', contactNumberController, 14, const Icon(Icons.phone, size: 18)),
+                          _buildTextField('Email ID', 'email', spotEmailController, 14, const Icon(Icons.email, size: 18)),
+                          _buildTextField('Description', 'description', descriptionController, 14, const Icon(Icons.description, size: 18)),
+                          _buildTextField('Website', 'website_link', websiteLinkController, 14, const Icon(Icons.link, size: 18), isRequired: false),
+                          _buildTextField('Spot Address', 'area', areaController, 14, const Icon(Icons.location_on, size: 18)),
+                          _buildTextField('Google Map Location', 'google_map_link', googleMapLinkController, 14, const Icon(Icons.map, size: 18), isRequired: false),
+                        ] else ...[
+                          // Original private business form fields
+                          _buildTextField('Shop Name', 'shop_name', shopNameController, 14, const Icon(Icons.storefront, size: 18)),
+                          _buildTextField('Shop No', 'shop_no', shopNoController, 14, const Icon(Icons.home, size: 18)),
+                          _buildTextField('Address', 'area', areaController, 14, const Icon(Icons.location_city, size: 18)),
+                          DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: 'State',
+                              prefixIcon: const Icon(Icons.location_city, size: 18),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                            ),
+                            value: _selectedState,
+                            items: IndianLocation.states.map((String state) {
+                              return DropdownMenuItem<String>(
+                                value: state,
+                                child: Text(state),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedState = newValue;
+                                _selectedDistrict = null;
+                              });
+                            },
+                            validator: (value) => value == null ? 'Please select a state' : null,
+                          ),
+                          const SizedBox(height: 14),
+                          DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: 'District',
+                              prefixIcon: const Icon(Icons.location_city, size: 18),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                            ),
+                            value: _selectedDistrict,
+                            items: _selectedState == null
+                                ? []
+                                : IndianLocation.getDistricts(_selectedState!).map((String district) {
+                                    return DropdownMenuItem<String>(
+                                      value: district,
+                                      child: Text(district),
+                                    );
+                                  }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedDistrict = newValue;
+                              });
+                            },
+                            validator: (value) => value == null ? 'Please select a district' : null,
+                          ),
+                          const SizedBox(height: 14),
+                          _buildTextField('Description', 'description', descriptionController, 14, const Icon(Icons.description, size: 18)),
+                          _buildTextField('Website Link', 'website_link', websiteLinkController, 14, const Icon(Icons.link, size: 18), isRequired: false),
+                          _buildTextField('Google Map Link', 'google_map_link', googleMapLinkController, 14, const Icon(Icons.map, size: 18), isRequired: false),
+                        ],
+
+                        const SizedBox(height: 20),
+                        
+                        // Image picker sections
+                        Text(
+                          'Main Photo',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+                        
+                        // Existing image picker code
                         GestureDetector(
                           onTap: _pickImage,
                           child: Container(
@@ -406,8 +511,10 @@ class _AddShopState extends State<AddShop> {
                                   ),
                           ),
                         ),
+                        
                         const SizedBox(height: 20),
-                        //this is for catalogue images
+                        
+                        // Catalogue images section
                         Text(
                           'Catalogue Images',
                           style: TextStyle(
