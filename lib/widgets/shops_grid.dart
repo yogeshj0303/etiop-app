@@ -98,7 +98,7 @@ class _ShopsGridViewState extends State<ShopsGridView> {
                                       width: double.infinity,
                                       child: Image.network(
                                         "https://etiop.acttconnect.com/${shop.shopImage}",
-                                        fit: BoxFit.cover,
+                                        fit: BoxFit.fill,
                                       ),
                                     )
                                   : Icon(Icons.shop, size: 50),

@@ -50,7 +50,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
             itemCount: catalogImages.length,
             itemBuilder: (context, index) {
               return Padding(
-                padding: const EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(right: 0.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
@@ -116,7 +116,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               child: Image.network(
                                 'https://etiop.acttconnect.com/${shopDetails.shopImage}',
                                 width: double.infinity,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fill,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     height: 200,
