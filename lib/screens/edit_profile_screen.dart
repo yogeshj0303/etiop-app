@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/location_data.dart'; // Ensure this import is present for location data
 
 class EditProfileScreen extends StatefulWidget {
   final String currentAvatar;
@@ -25,10 +26,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _districtController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
   File? _imageFile;
   bool _isLoading = false;
+  String? _selectedState;
+  String? _selectedDistrict;
 
   @override
   void initState() {
@@ -43,6 +48,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _mobileController.text = widget.userData['mobile_number'] ?? '';
     _addressController.text = widget.userData['address'] ?? '';
     _selectedGender = widget.userData['gender'];
+    _selectedState = widget.userData['state'];
+    _selectedDistrict = widget.userData['district'];
     
     if (widget.userData['dob'] != null && widget.userData['dob']!.isNotEmpty && widget.userData['dob'] != "Not specified") {
       try {
@@ -57,6 +64,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _selectedDate = null;
       }
     }
+  }
+
+  void _onStateChanged(String? state) {
+    setState(() {
+      _selectedState = state;
+      _selectedDistrict = null; // Reset district when state changes
+    });
   }
 
   Future<void> _pickImage() async {
@@ -102,6 +116,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'gender': _selectedGender ?? '',
         'dob': _selectedDate != null ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}" : '',
         'address': _addressController.text,
+        'state': _selectedState ?? '',
+        'district': _selectedDistrict ?? '',
       });
 
       // Add image if selected
@@ -126,6 +142,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await prefs.setString('gender', _selectedGender ?? '');
         await prefs.setString('dob', _selectedDate?.toIso8601String() ?? '');
         await prefs.setString('address', _addressController.text);
+        await prefs.setString('state', _selectedState ?? '');
+        await prefs.setString('district', _selectedDistrict ?? '');
         
         // Check if avatar was updated in the response
         if (decodedResponse['user'] != null && decodedResponse['user']['avatar'] != null) {
@@ -355,6 +373,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                   ),
+                  
+                  const SizedBox(height: 16),
+                  // State Dropdown
+                  DropdownButtonFormField<String>(
+                    value: _selectedState,
+                    decoration: InputDecoration(
+                      labelText: 'State',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.map_outlined),
+                    ),
+                    items: IndianLocation.states.map((String state) {
+                      return DropdownMenuItem<String>(
+                        value: state,
+                        child: Text(state),
+                      );
+                    }).toList(),
+                    onChanged: _onStateChanged,
+                  ),
+                  const SizedBox(height: 16),
+                  // District Dropdown
+                  DropdownButtonFormField<String>(
+                    value: _selectedDistrict,
+                    decoration: InputDecoration(
+                      labelText: 'District',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.location_city_outlined),
+                    ),
+                    items: _selectedState == null
+                        ? []
+                        : IndianLocation.getDistricts(_selectedState!).map((String district) {
+                            return DropdownMenuItem<String>(
+                              value: district,
+                              child: Text(district),
+                            );
+                          }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedDistrict = newValue;
+                      });
+                    },
+                  ),
                   const SizedBox(height: 16),
                   // Address
                   TextField(
@@ -415,6 +478,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _emailController.dispose();
     _mobileController.dispose();
     _addressController.dispose();
+    _stateController.dispose();
+    _districtController.dispose();
     super.dispose();
   }
 } 

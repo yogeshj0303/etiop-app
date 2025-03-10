@@ -28,6 +28,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String dob = '';
   String address = '';
   String avatar = '';
+  String state = '';
+  String district = '';
   List<Shop> shops = []; // List to hold shop data
 
   // Add these controllers at the top of your _UserProfileScreenState class
@@ -36,6 +38,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _districtController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
 
@@ -72,6 +76,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         gender = prefs.getString('gender') ?? "Not specified";
         dob = prefs.getString('dob') ?? "Not specified";
         address = prefs.getString('address') ?? "No address provided";
+        state = prefs.getString('state') ?? "Not specified";
+        district = prefs.getString('district') ?? "Not specified";
         avatar = avatarPath ?? "";
         print('Final avatar URL: $baseUrl/$avatar');
 
@@ -82,6 +88,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _mobileController.text = mobileNumber;
         _addressController.text = address;
         _selectedGender = gender;
+        _stateController.text = state;
+        _districtController.text = district;
         if (dob != "Not specified") {
           try {
             _selectedDate = DateTime.parse(dob);
@@ -353,6 +361,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   'gender': gender,
                                   'dob': dob,
                                   'address': address,
+                                  'state': state,
+                                  'district': district,
                                 },
                               ),
                             ),

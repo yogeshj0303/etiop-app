@@ -318,6 +318,22 @@ class ApiService {
       throw Exception('Failed to fetch data from API');
     }
   }
+    static const String _baseUrl = 'https://etiop.acttconnect.com/api';
+
+  Future<List<dynamic>> fetchNotifications(int userId) async {
+    final response = await http.post(Uri.parse('$_baseUrl/get-notification?user_id=$userId'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      if (data['status'] == 'success') {
+        return data['data'];
+      } else {
+        throw Exception('Failed to load notifications');
+      }
+    } else {
+      throw Exception('Failed to load notifications');
+    }
+  }
 
   static Future<String?> _getUserId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();

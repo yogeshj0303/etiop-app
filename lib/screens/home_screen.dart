@@ -275,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Unit of Act T Connect (P) Ltd.",
+              "ETIOP\n A unit of Etiop Private Limited",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
             ),
@@ -430,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: Image.network(
                     imageUrl,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     width: double.infinity,
                     errorBuilder: (context, error, stackTrace) => const Icon(
                       Icons.image,

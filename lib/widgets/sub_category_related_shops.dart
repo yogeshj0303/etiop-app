@@ -62,7 +62,7 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
                 crossAxisSpacing: 10.0, // Horizontal space between items
                 mainAxisSpacing: 10.0, // Vertical space between items
                 childAspectRatio:
-                    0.8, // Aspect ratio of each grid item (width/height)
+                    0.85, // Aspect ratio of each grid item (width/height)
               ),
               itemCount: shops.length,
               itemBuilder: (context, index) {
@@ -94,13 +94,13 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
                         SizedBox(
                           width: double.infinity,
                           // Make the image fill the card's width
-                          height: 100,
+                          height: 120,
                           // Fixed height for image
                           child: shop.shopImage != null
                               ? Image.network(
                                   '$baseUrl${shop.shopImage}',
                                   fit: BoxFit
-                                      .cover, // Ensure image covers the card
+                                      .fill, // Ensure image covers the card
                                   loadingBuilder:
                                       (context, child, loadingProgress) {
                                     if (loadingProgress == null) {
@@ -145,11 +145,10 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              SizedBox(height: 6),
                               Text(
-                                '${shop.city}, ${shop.state}',
+                                '${shop.district}, ${shop.state}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                 ),
                               ),
                             ],

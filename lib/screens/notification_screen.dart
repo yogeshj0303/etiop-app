@@ -1,9 +1,40 @@
 import 'package:flutter/material.dart';
+  import '../services/api_services.dart'; // Import the ApiService
 
 import 'main_screen.dart';
 
-class NotificationScreen extends StatelessWidget {
+class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
+
+  @override
+  _NotificationScreenState createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
+  final ApiService _apiService = ApiService();
+  List<dynamic> _notifications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+      final notifications = await _apiService.fetchNotifications(29); // Use the correct user ID
+      setState(() {
+        _notifications = notifications;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      // Handle error, e.g., show a snackbar
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,42 +55,44 @@ class NotificationScreen extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
-      body: ListView.separated(
-        itemCount: 10, // Number of notifications
-        itemBuilder: (context, index) {
-          return _buildNotificationItem(index);
-        },
-        separatorBuilder: (context, index) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(
-              color: Colors.grey, // Subtle grey color for the divider
-              thickness: 0.5, // Thinner line for a more professional look
-              height: 1, // Space between the list item and the divider
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.separated(
+              itemCount: _notifications.length,
+              itemBuilder: (context, index) {
+                return _buildNotificationItem(_notifications[index]);
+              },
+              separatorBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Divider(
+                    color: Colors.grey,
+                    thickness: 0.5,
+                    height: 1,
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 
   // Notification item widget
-  Widget _buildNotificationItem(int index) {
+  Widget _buildNotificationItem(dynamic notification) {
     return ListTile(
       leading: const Icon(
         Icons.notifications,
       ),
       title: Text(
-        'Notification Title $index',
+        notification['title'],
         style: const TextStyle(
           fontWeight: FontWeight.bold,
         ),
       ),
       subtitle: Text(
-        'This is the description of the notification $index',
+        notification['message'],
       ),
       trailing: Text(
-        '12:00 PM', // Replace with actual timestamp
+        '12:00 PM', // Replace with actual timestamp if available
         style: const TextStyle(fontSize: 12),
       ),
       onTap: () {
