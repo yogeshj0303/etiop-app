@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart'; // Add this import
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:collection';
 
 class EditShopScreen extends StatefulWidget {
   final Shop shop;
@@ -130,6 +131,15 @@ class _EditShopScreenState extends State<EditShopScreen> {
       _districts = IndianLocation.getDistricts(_selectedState!);
       _selectedDistrict = widget.shop.district;
     }
+
+    // Ensure _districts list is correctly populated and does not contain duplicates
+    Set<String> uniqueDistricts = Set<String>.from(_districts);
+    if (uniqueDistricts.length != _districts.length) {
+      print('Duplicate districts found');
+    }
+
+    // Use the unique set to populate the dropdown
+    _districts = uniqueDistricts.toList();
   }
 
   Future<void> _pickShopImage() async {
@@ -186,7 +196,6 @@ class _EditShopScreenState extends State<EditShopScreen> {
           'country': country ?? '',
           'zipcode': zipcode ?? '',
           'description': description ?? '',
-          'services': services ?? '',
           'website_link': websiteLink ?? '',
           'google_map_link': googleMapLink ?? '',
           'mobile_no': mobileNo ?? '',
@@ -436,12 +445,70 @@ class _EditShopScreenState extends State<EditShopScreen> {
   Widget _buildFormFields() {
     // Default fields for all categories
     List<Widget> defaultFields = [
-      _buildTextField('State', 'state', state),
-      _buildTextField('District', 'district', district),
+      //state and district should be dropdown
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16.0,top: 0),
+        child: DropdownButtonFormField<String>(
+          value: _selectedState,
+          decoration: InputDecoration(
+            labelText: 'State',
+            contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          items: _states.map((String state) {
+            return DropdownMenuItem<String>(  
+              value: state,
+              child: Text(state),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedState = newValue;
+              _districts = IndianLocation.getDistricts(newValue ?? '');
+              
+              // Reset the selected district
+              _selectedDistrict = null;
+              
+              // Ensure unique districts
+              Set<String> uniqueDistricts = Set<String>.from(_districts);
+              _districts = uniqueDistricts.toList();
+            });
+          },
+          validator: (value) => value == null ? 'Please select a state' : null,
+        ),
+      ),
+      
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: DropdownButtonFormField<String>(
+          value: _selectedDistrict,
+          decoration: InputDecoration(
+            labelText: 'District',
+            contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          items: _districts.map((String district) {
+            return DropdownMenuItem<String>(  
+              value: district,
+              child: Text(district),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedDistrict = newValue;
+            });
+          },
+          validator: (value) => value == null ? 'Please select a district' : null,
+        ),
+      ),
+      
       _buildTextField('City', 'city', city),
       _buildTextField('Area', 'area', area),
       _buildTextField('Zipcode', 'zipcode', zipcode),
-      _buildTextField('Services', 'services', services, isRequired: false),
     ];
 
     if (_categoryType == 'government') {
@@ -838,7 +905,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(width: 2.0),
           ),
-          helperText: (key == 'website_link' || key == 'google_map_link' || key == 'services') ? 'Optional' : null,
+          // helperText: (key == 'website_link' || key == 'google_map_link' || key == 'services') ? '' : null,
         ),
         validator: (value) {
           if (key == 'website_link' || key == 'google_map_link' || key == 'services') {
