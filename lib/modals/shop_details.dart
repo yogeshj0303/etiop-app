@@ -13,6 +13,7 @@ class ShopDetails {
   final String country;
   final String zipcode;
   final String email;
+  final String? departmentName;
   final String? mobile_no;
   final String? website_link;
   final String? google_map_link;
@@ -40,6 +41,7 @@ class ShopDetails {
     required this.ownerId,
     required this.shopName,
     this.shopImage,
+    this.departmentName,
     required this.description,
     this.services,
     required this.area,
@@ -92,9 +94,10 @@ class ShopDetails {
       description: shop['description'] ?? 'No description available',
       services: shop['services'],
       area: shop['area'] ?? 'Not specified',
-      city: shop['city'] ?? 'Unknown City',
+      city: shop['city'] ?? '',
       state: shop['state'] ?? 'Unknown State',
       district: shop['district'],
+      departmentName: shop['department_name'],
       country: shop['country'] ?? 'Unknown Country',
       zipcode: shop['zipcode'] ?? '000000',
       categoryId: shop['category_id'] ?? 0,
@@ -120,4 +123,6 @@ class ShopDetails {
       ownerEmail: shop['owner_email'],
     );
   }
+
+  String get displayCity => city.isNotEmpty ? city : 'City not available';
 }

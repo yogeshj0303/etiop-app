@@ -144,7 +144,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                             children: [
                               const SizedBox(height: 16),
                               Text(
-                                shopDetails.shopName ?? 'No Name Available',
+                                shopDetails.categoryName?.toLowerCase() == 'government'
+                                    ? shopDetails.officeName ?? 'No Office Name Available'
+                                    : shopDetails.shopName ?? 'No Name Available',
                                 style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,),
@@ -159,7 +161,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      '${shopDetails.area}, ${shopDetails.city}, ${shopDetails.state}, ${shopDetails.country}, ${shopDetails.zipcode}',
+                                      '${shopDetails.area}${shopDetails.city != null && shopDetails.city!.isNotEmpty ? ', ${shopDetails.city}' : ''}, ${shopDetails.state}, ${shopDetails.country}, ${shopDetails.zipcode}',
                                       style: const TextStyle(
                                           fontSize: 16, ),
                                     ),
@@ -175,8 +177,17 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     ElevatedButton.icon(
                                       onPressed: () {
                                         final phone = shopDetails.mobile_no;
-                                        Uri uri = Uri.parse('tel:$phone');
-                                        launch(uri.toString());
+                                        print(phone);
+                                        if (phone != null && phone.isNotEmpty) {
+                                          Uri uri = Uri.parse('tel:$phone');
+                                          launch(uri.toString());
+                                        }else{
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('No phone number available'),
+                                            ),
+                                          );
+                                        }
                                       },
                                       icon: const Icon(
                                         Icons.call,
@@ -192,8 +203,16 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     ElevatedButton.icon(
                                       onPressed: () {
                                         final email = shopDetails.email;
-                                        Uri uri = Uri.parse('mailto:$email');
-                                        launch(uri.toString());
+                                        if (email != null && email.isNotEmpty) {  
+                                          Uri uri = Uri.parse('mailto:$email');
+                                          launch(uri.toString());
+                                        }else{
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('No email available'),
+                                            ),
+                                          );
+                                        }
                                       },
                                       icon: const Icon(Icons.mail),
                                       label: const Text('Email',
@@ -205,9 +224,16 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     ElevatedButton.icon(
                                       onPressed: () {
                                         final website = shopDetails.website_link;
-                                        if (website != null && website.isNotEmpty) {
+                                        print(website);
+                                        if (website != null && website.isNotEmpty) {  
                                           Uri uri = Uri.parse(website);
                                           launch(uri.toString());
+                                        }else{
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('No website available'),
+                                            ),
+                                          );
                                         }
                                       },
                                       icon: const Icon(Icons.link),
@@ -224,9 +250,15 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                         if (url != null && url.isNotEmpty) {
                                           Uri uri = Uri.parse(url);
                                           launch(uri.toString());
+                                        }else{
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('No direction available'),
+                                            ),
+                                          );
                                         }
                                       },
-                                      icon: const Icon(Icons.map, ),
+                                      icon: const Icon(Icons.map,),
                                       label: const Text('Direction'
                                           , style: TextStyle(
                                               fontSize: 14, fontWeight: FontWeight.bold,
@@ -276,6 +308,51 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 ),)),
                               ],
                              ),
+                             const SizedBox(height: 4),
+                             //if shopDetails.categoryName?.toLowerCase() == 'government' then show department name and officer name
+                             if (shopDetails.categoryName?.toLowerCase() == 'government') ...[
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Department:',
+                                    style: TextStyle(
+                                        fontSize: 18, fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      shopDetails.departmentName ?? 'No Department Name Available',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                    ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Officer:',
+                                    style: TextStyle(
+                                        fontSize: 18, fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      shopDetails.officerName ?? 'No Officer Name Available',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                  ),
+                                  ),
+                                  ),
+                                ],
+                              ),
+                             ],
                               // const Text(
                               //   'Services:',
                               //   style: TextStyle(

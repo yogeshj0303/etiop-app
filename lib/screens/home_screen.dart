@@ -548,7 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ShopsGridView(
-                            title: 'Highlights of Banda',
+                            title: 'Highlights of $_selectedDistrict',
                           ),
                         ),
                       );

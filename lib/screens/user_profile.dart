@@ -150,6 +150,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               return Shop.fromJson({
                 ...shopData['shop'],
                 'requirements': shopData['requirements'],
+                'category_name': shopData['shop']['category_name'],
               });
             }).toList();
           });
@@ -361,8 +362,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   'gender': gender,
                                   'dob': dob,
                                   'address': address,
-                                  'state': state,
-                                  'district': district,
+                                  'state': state ?? '',
+                                  'district': district ?? '',
+                                  'category_name': shops.isNotEmpty ? shops[0].categoryName ?? '' : '',
                                 },
                               ),
                             ),

@@ -105,7 +105,10 @@ class _UserShopScreenState extends State<UserShopScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditShopScreen(shop: shop),
+        builder: (context) => EditShopScreen(
+          shop: shop,
+          categoryName: shop.categoryName ?? '',
+        ),
       ),
     );
 

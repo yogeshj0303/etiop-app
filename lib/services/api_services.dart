@@ -323,8 +323,11 @@ class ApiService {
   Future<List<dynamic>> fetchNotifications(int userId) async {
     final response = await http.post(Uri.parse('$_baseUrl/get-notification?user_id=$userId'));
 
+    print(response.body);
+    print("the user id is $userId");
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
+      print(data);
       if (data['status'] == 'success') {
         return data['data'];
       } else {

@@ -81,7 +81,9 @@ class _ShopsCarouselState extends State<ShopsCarousel> {
                                 child: Text(
                                   shop.shopName ?? "Shop Name",
                                   textAlign: TextAlign.center,
+                                  maxLines: 2,
                                   style: TextStyle(
+                                    overflow: TextOverflow.ellipsis,
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                   ),

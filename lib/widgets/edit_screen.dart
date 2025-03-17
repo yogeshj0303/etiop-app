@@ -9,8 +9,9 @@ import 'dart:convert';
 
 class EditShopScreen extends StatefulWidget {
   final Shop shop;
+  final String categoryName;
 
-  const EditShopScreen({super.key, required this.shop});
+  const EditShopScreen({super.key, required this.shop, required this.categoryName});
 
   @override
   _EditShopScreenState createState() => _EditShopScreenState();
@@ -33,6 +34,8 @@ class _EditShopScreenState extends State<EditShopScreen> {
   String? country = '';
   String? zipcode = '';
   String? description = '';
+  String? mobileNo = '';
+  String? email = '';
   String? websiteLink = '';
   String? googleMapLink = '';
   String? shopImageUrl = '';
@@ -47,6 +50,18 @@ class _EditShopScreenState extends State<EditShopScreen> {
   List<String> _states = [];
   List<String> _districts = [];
 
+  // Add services variable
+  String? services = '';
+
+  // Add departmentName variable
+  String? departmentName = '';
+
+  // Add officeName variable
+  String? officeName = '';
+
+  // Add officerName variable
+  String? officerName = '';
+
   @override
   void initState() {
     super.initState();
@@ -57,49 +72,54 @@ class _EditShopScreenState extends State<EditShopScreen> {
 
   void _initializeData() {
     // Initialize all data from Shop model
-    shopName = widget.shop.shopName;
-    shopNo = widget.shop.shopNo;
-    area = widget.shop.area;
-    city = widget.shop.city;
-    state = widget.shop.state;
-    district = widget.shop.district;
-    country = widget.shop.country;
-    zipcode = widget.shop.zipcode;
-    websiteLink = widget.shop.websiteLink;
-    googleMapLink = widget.shop.googleMapLink;
-    description = widget.shop.description;
-    
-    // Initialize shop image
-    if (widget.shop.shopImage != null) {
-      shopImageUrl = 'https://etiop.acttconnect.com/${widget.shop.shopImage}';
-    }
+    setState(() {
+      shopName = widget.shop.shopName;
+      shopNo = widget.shop.shopNo;
+      area = widget.shop.area;
+      city = widget.shop.city;
+      state = widget.shop.state;
+      district = widget.shop.district;
+      country = widget.shop.country;
+      zipcode = widget.shop.zipcode;
+      websiteLink = widget.shop.websiteLink;
+      googleMapLink = widget.shop.googleMapLink;
+      description = widget.shop.description;
+      mobileNo = widget.shop.mobileNo;
+      email = widget.shop.email;
+      departmentName = widget.shop.departmentName;
+      officeName = widget.shop.officeName;
+      officerName = widget.shop.officerName;
+      
+      // Initialize shop image
+      if (widget.shop.shopImage != null) {
+        shopImageUrl = 'https://etiop.acttconnect.com/${widget.shop.shopImage}';
+      }
 
-    // Initialize catalog images
-    catalogImageUrls = [];
-    if (widget.shop.catlog_0 != null) {
-      catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_0}');
-    }
-    if (widget.shop.catlog_1 != null) {
-      catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_1}');
-    }
-    if (widget.shop.catlog_2 != null) {
-      catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_2}');
-    }
-    if (widget.shop.catlog_3 != null) {
-      catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_3}');
-    }
-    if (widget.shop.catlog_4 != null) {
-      catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_4}');
-    }
+      // Initialize catalog images
+      catalogImageUrls = [];
+      if (widget.shop.catlog_0 != null) {
+        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_0}');
+      }
+      if (widget.shop.catlog_1 != null) {
+        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_1}');
+      }
+      if (widget.shop.catlog_2 != null) {
+        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_2}');
+      }
+      if (widget.shop.catlog_3 != null) {
+        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_3}');
+      }
+      if (widget.shop.catlog_4 != null) {
+        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_4}');
+      }
+    });
   }
 
-  // Add method to determine category type
+  // Modify this method to use widget.categoryName
   void _determineCategoryType() {
-    if (widget.shop.categoryName != null) {
-      setState(() {
-        _categoryType = widget.shop.categoryName!.toLowerCase();
-      });
-    }
+    setState(() {
+      _categoryType = widget.categoryName.toLowerCase();
+    });
   }
 
   // Add method to initialize location data
@@ -157,21 +177,29 @@ class _EditShopScreenState extends State<EditShopScreen> {
           'owner_id': widget.shop.ownerId.toString(),
           'category_id': widget.shop.categoryId.toString(),
           'subcategory_id': widget.shop.subcategoryId.toString(),
+          'shop_name': shopName ?? '',
+          'shop_no': shopNo ?? '',
+          'area': area ?? '',
+          'city': city ?? '',
+          'state': _selectedState ?? '',
+          'district': _selectedDistrict ?? '',
+          'country': country ?? '',
+          'zipcode': zipcode ?? '',
+          'description': description ?? '',
+          'services': services ?? '',
+          'website_link': websiteLink ?? '',
+          'google_map_link': googleMapLink ?? '',
+          'mobile_no': mobileNo ?? '',
+          'email': email ?? '',
+          'department_name': departmentName ?? '',
+          'office_name': officeName ?? '',
+          'officer_name': officerName ?? '',
         };
 
         // Add fields based on category type
         if (_categoryType == 'government') {
           fields.addAll({
-            'department_name': widget.shop.departmentName ?? '',
             'govt_name': widget.shop.govtName ?? '',
-            'office_name': widget.shop.officeName ?? '',
-            'officer_name': widget.shop.officerName ?? '',
-            'mobile_no': widget.shop.mobileNo ?? '',
-            'email': widget.shop.email ?? '',
-            'area': area ?? '',
-            'description': description ?? '',
-            'website_link': websiteLink ?? '',
-            'google_map_link': googleMapLink ?? '',
           });
         } else if (_categoryType == 'public') {
           fields.addAll({
@@ -247,8 +275,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
               zipcode: zipcode,
               shopStatus: widget.shop.shopStatus,
               description: description,
-              services: widget.shop.services,
-              departmentName: widget.shop.departmentName,
+              departmentName: departmentName,
               websiteLink: websiteLink,
               googleMapLink: googleMapLink,
               shopImage: _shopImage != null ? _shopImage!.path : widget.shop.shopImage,
@@ -269,8 +296,9 @@ class _EditShopScreenState extends State<EditShopScreen> {
               ),
             );
 
-            // Return the updated shop object and pop the screen
-            Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen()));
+            // Navigate to the UserProfileScreen in the bottom bar
+            Navigator.pop(context);
+            Navigator.pop(context);
           }
         } else {
           // Handle different error status codes
@@ -406,18 +434,28 @@ class _EditShopScreenState extends State<EditShopScreen> {
   }
 
   Widget _buildFormFields() {
+    // Default fields for all categories
+    List<Widget> defaultFields = [
+      _buildTextField('State', 'state', state),
+      _buildTextField('District', 'district', district),
+      _buildTextField('City', 'city', city),
+      _buildTextField('Area', 'area', area),
+      _buildTextField('Zipcode', 'zipcode', zipcode),
+      _buildTextField('Services', 'services', services, isRequired: false),
+    ];
+
     if (_categoryType == 'government') {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextField('Department Name', 'department_name', widget.shop.departmentName),
-          _buildTextField('Office Name', 'office_name', widget.shop.officeName),
-          _buildTextField('Officer Name', 'officer_name', widget.shop.officerName),
-          _buildTextField('Mobile Number', 'mobile_number', widget.shop.mobileNo),
+          _buildTextField('Department Name', 'department_name', departmentName),
+          _buildTextField('Office Name', 'office_name', officeName),
+          _buildTextField('Officer Name', 'officer_name', officerName),
+          _buildTextField('Mobile Number', 'mobile_no', mobileNo),
           _buildTextField('Email', 'email', widget.shop.email),
           _buildTextField('Description', 'description', description),
           _buildTextField('Website', 'website_link', websiteLink, isRequired: false),
-          _buildTextField('Office Address', 'area', area),
+          ...defaultFields,
           _buildTextField('Google Map Location', 'google_map_link', googleMapLink, isRequired: false),
         ],
       );
@@ -426,11 +464,11 @@ class _EditShopScreenState extends State<EditShopScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTextField('Spot Name', 'shop_name', shopName),
-          _buildTextField('Contact Number', 'mobile_no', widget.shop.mobileNo),
+          _buildTextField('Contact Number', 'mobile_no', mobileNo),
           _buildTextField('Email', 'email', widget.shop.email),
           _buildTextField('Description', 'description', description),
           _buildTextField('Website', 'website_link', websiteLink, isRequired: false),
-          _buildTextField('Spot Address', 'area', area),
+          ...defaultFields,
           _buildTextField('Google Map Location', 'google_map_link', googleMapLink, isRequired: false),
         ],
       );
@@ -442,6 +480,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
           _buildTextField('Shop No', 'shop_no', shopNo),
           _buildTextField('Description', 'description', description),
           _buildTextField('Website Link', 'website_link', websiteLink, isRequired: false),
+          ...defaultFields,
           _buildTextField('Google Map Link', 'google_map_link', googleMapLink, isRequired: false),
         ],
       );
@@ -790,7 +829,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
         initialValue: initialValue,
         decoration: InputDecoration(
           labelText: label,
-          alignLabelWithHint: key == 'description',
+          alignLabelWithHint: key == 'description' || key == 'services',
           contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
@@ -799,10 +838,10 @@ class _EditShopScreenState extends State<EditShopScreen> {
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(width: 2.0),
           ),
-          helperText: (key == 'website_link' || key == 'google_map_link') ? 'Optional' : null,
+          helperText: (key == 'website_link' || key == 'google_map_link' || key == 'services') ? 'Optional' : null,
         ),
         validator: (value) {
-          if (key == 'website_link' || key == 'google_map_link') {
+          if (key == 'website_link' || key == 'google_map_link' || key == 'services') {
             return null;
           }
           if (value?.isEmpty ?? true) {
@@ -845,6 +884,24 @@ class _EditShopScreenState extends State<EditShopScreen> {
                 break;
               case 'google_map_link':
                 googleMapLink = value;
+                break;
+              case 'services':
+                services = value;
+                break;
+              case 'mobile_no':
+                mobileNo = value;
+                break;
+              case 'email':
+                email = value;
+                break;
+              case 'department_name':
+                departmentName = value;
+                break;
+              case 'office_name':
+                officeName = value;
+                break;
+              case 'officer_name':
+                officerName = value;
                 break;
             }
           });

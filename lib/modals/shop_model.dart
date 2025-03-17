@@ -14,7 +14,7 @@ class Shop {
   final String? shopImage;
   final String? shopStatus;
   final String? description;
-  final String? services;
+  // final String? services;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final ShopOwner? shopOwner;
@@ -56,7 +56,7 @@ class Shop {
     required this.shopImage,
     required this.shopStatus,
     required this.description,
-    required this.services,
+    // required this.services,
     required this.createdAt,
     required this.updatedAt,
     required this.shopOwner,
@@ -114,7 +114,7 @@ class Shop {
       shopImage: json['shop_image'],
       shopStatus: json['shop_status'],
       description: json['description'],
-      services: json['services'],
+      // services: json['services'],
       createdAt: DateTime.tryParse(json['created_at'].toString()),
       updatedAt: DateTime.tryParse(json['updated_at'].toString()),
       shopOwner: json['shop_owner']!=null?ShopOwner.fromJson(json['shop_owner']):null,
@@ -161,7 +161,7 @@ class Shop {
       'department_name': departmentName,
       'shop_status': shopStatus,
       'description': description,
-      'services': services,
+      // 'services': services,
     };
   }
 
@@ -188,7 +188,7 @@ class Shop {
       'shop_status': shopStatus,
       'department_name': departmentName,
       'description': description,
-      'services': services,
+      // 'services': services,
       'requirements': requirements,
       'website_link': websiteLink,
       'google_map_link': googleMapLink,

@@ -137,7 +137,10 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                shop.shopName,
+                                //if it is government then show office name
+                                shop.categoryId == 6
+                                    ? shop.officeName ?? 'No Office Name Available'
+                                    : shop.shopName,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,

@@ -92,12 +92,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
         notification['message'],
       ),
       trailing: Text(
-        '12:00 PM', // Replace with actual timestamp if available
+        _formatTimestamp(notification['created_at']), // Use created_at for timestamp
         style: const TextStyle(fontSize: 12),
       ),
-      onTap: () {
-        // Handle notification click, navigate to a detail page if needed
-      },
+      onTap: () {            },
     );
+  }
+
+  // Update the method to format the created_at timestamp
+  String _formatTimestamp(String? createdAt) {
+    if (createdAt == null) {
+      return 'No timestamp';
+    }
+    try {
+      final DateTime dateTime = DateTime.parse(createdAt);
+      final String formattedTime = TimeOfDay.fromDateTime(dateTime).format(context);
+      return formattedTime;
+    } catch (e) {
+      return 'Invalid date';
+    }
   }
 }

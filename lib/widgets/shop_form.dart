@@ -57,10 +57,38 @@ class _AddShopState extends State<AddShop> {
   String? _selectedState;
   String? _selectedDistrict;
 
+  // Add a TextEditingController for the pincode
+  TextEditingController pincodeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _fetchCategories(); // Fetch categories when the screen loads
+    // Initialize other controllers if needed
+  }
+
+  @override
+  void dispose() {
+    // Dispose of the pincode controller
+    pincodeController.dispose();
+    // Dispose of other controllers
+    shopNameController.dispose();
+    shopNoController.dispose();
+    areaController.dispose();
+    cityController.dispose();
+    stateController.dispose();
+    descriptionController.dispose();
+    websiteLinkController.dispose();
+    googleMapLinkController.dispose();
+    departmentNameController.dispose();
+    officeNameController.dispose();
+    officerNameController.dispose();
+    mobileNumberController.dispose();
+    emailController.dispose();
+    spotNameController.dispose();
+    contactNumberController.dispose();
+    spotEmailController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchCategories() async {
@@ -164,10 +192,11 @@ class _AddShopState extends State<AddShop> {
           'category_id': _selectedCategory?.toString() ?? '',
           'subcategory_id': _selectedSubCategory ?? '0',
           'country': 'India',
-          'zipcode': '462022',
+          'zipcode': _formData['pincode'] ?? '',
           'shop_status': 'approved',
           'district': _selectedDistrict ?? '',
           'state': _selectedState ?? '',
+          'city': cityController.text,
         };
 
         // Add fields based on category type
@@ -178,6 +207,7 @@ class _AddShopState extends State<AddShop> {
             'officer_name': officerNameController.text,
             'shop_name': departmentNameController.text,
             'area': areaController.text,
+            'city': cityController.text,
             'description': descriptionController.text,
             'website_link': websiteLinkController.text,
             'google_map_link': googleMapLinkController.text,
@@ -193,6 +223,7 @@ class _AddShopState extends State<AddShop> {
             'website_link': websiteLinkController.text,
             'google_map_link': googleMapLinkController.text,
             'contact_number': contactNumberController.text,
+            'city': cityController.text,
             'email': spotEmailController.text,
             'services': '', // Add empty services field
           });
@@ -373,7 +404,7 @@ class _AddShopState extends State<AddShop> {
                             _buildTextField('Email ID', 'email', emailController, 14, const Icon(Icons.email, size: 18)),
                             _buildTextField('Description', 'description', descriptionController, 14, const Icon(Icons.description, size: 18)),
                             _buildTextField('Website', 'website_link', websiteLinkController, 14, const Icon(Icons.link, size: 18), isRequired: false),
-                                DropdownButtonFormField<String>(
+                            DropdownButtonFormField<String>(
                               decoration: InputDecoration(
                                 labelText: 'State',
                                 prefixIcon: const Icon(Icons.location_city, size: 18),
@@ -420,6 +451,9 @@ class _AddShopState extends State<AddShop> {
                               validator: (value) => value == null ? 'Please select a district' : null,
                             ),
                             const SizedBox(height: 14),
+                            //add city field
+                            _buildTextField('City', 'city', cityController, 14, const Icon(Icons.location_city, size: 18)),
+                            _buildTextField('Pincode', 'pincode', pincodeController, 14, const Icon(Icons.pin_drop, size: 18)),
                             _buildTextField('Office Address', 'area', areaController, 14, const Icon(Icons.location_on, size: 18)),
                             _buildTextField('Google Map Location', 'google_map_link', googleMapLinkController, 14, const Icon(Icons.map, size: 18), isRequired: false),
                           ] else if (_categoryType == 'public') ...[
@@ -428,7 +462,7 @@ class _AddShopState extends State<AddShop> {
                             _buildTextField('Email ID', 'email', spotEmailController, 14, const Icon(Icons.email, size: 18)),
                             _buildTextField('Description', 'description', descriptionController, 14, const Icon(Icons.description, size: 18)),
                             _buildTextField('Website', 'website_link', websiteLinkController, 14, const Icon(Icons.link, size: 18), isRequired: false),
-                                DropdownButtonFormField<String>(
+                            DropdownButtonFormField<String>(
                               decoration: InputDecoration(
                                 labelText: 'State',
                                 prefixIcon: const Icon(Icons.location_city, size: 18),
@@ -475,6 +509,9 @@ class _AddShopState extends State<AddShop> {
                               validator: (value) => value == null ? 'Please select a district' : null,
                             ),
                             const SizedBox(height: 14),
+                            //add city field
+                            _buildTextField('City', 'city', cityController, 14, const Icon(Icons.location_city, size: 18)),
+                            _buildTextField('Pincode', 'pincode', pincodeController, 14, const Icon(Icons.pin_drop, size: 18)),
                             _buildTextField('Spot Address', 'area', areaController, 14, const Icon(Icons.location_on, size: 18)),
                             _buildTextField('Google Map Location', 'google_map_link', googleMapLinkController, 14, const Icon(Icons.map, size: 18), isRequired: false),
                           ] else ...[
@@ -528,6 +565,9 @@ class _AddShopState extends State<AddShop> {
                               validator: (value) => value == null ? 'Please select a district' : null,
                             ),
                             const SizedBox(height: 14),
+                            //add city field
+                            _buildTextField('City', 'city', cityController, 14, const Icon(Icons.location_city, size: 18)),
+                            _buildTextField('Pincode', 'pincode', pincodeController, 14, const Icon(Icons.pin_drop, size: 18)),
                             _buildTextField('Address', 'area', areaController, 14, const Icon(Icons.location_city, size: 18)),
                             _buildTextField('Description', 'description', descriptionController, 14, const Icon(Icons.description, size: 18)),
                             _buildTextField('Website Link', 'website_link', websiteLinkController, 14, const Icon(Icons.link, size: 18), isRequired: false),
