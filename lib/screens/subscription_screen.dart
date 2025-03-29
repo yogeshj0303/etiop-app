@@ -134,49 +134,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  void _proceedToPayment() async {
-    setState(() => _isLoading = true);
-    
-    try {
-      final result = await PaymentService.purchasePackage(
-        amount: _selectedPlan == 'monthly' ? 100.0 : 100.0,
-        durationType: _selectedPlan == 'monthly' ? 'monthly' : 'annual',
-        orderId: 'ORD${DateTime.now().millisecondsSinceEpoch}',
-        transactionId: 'TXN${DateTime.now().millisecondsSinceEpoch}',
-      );
-
-      if (result['success'] == true) {
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Success'),
-            content: Text(result['message'] ?? 'Subscription activated successfully'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context, true);
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Payment failed')),
-        );
-      }
-    } catch (e) {
-      print('Payment error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error processing payment: $e')),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
