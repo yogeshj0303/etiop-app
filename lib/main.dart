@@ -3,6 +3,9 @@ import 'package:etiop_application/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:etiop_application/screens/subcategory_screen.dart';
+import 'package:etiop_application/services/payment_service.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +29,7 @@ class MyApp extends StatelessWidget {
           category: ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>
         ),
       },
+      navigatorKey: PaymentService.navigatorKey,
     );
   }
 }

@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:etiop_application/screens/login_screen.dart';
 import 'package:etiop_application/screens/main_screen.dart';
+import 'package:etiop_application/screens/privacy_policy_screen.dart';
 import 'package:etiop_application/screens/service_category_screen.dart';
 import 'package:etiop_application/screens/shop_details_screen.dart';
 import 'package:etiop_application/screens/sub_category_screen.dart';
+import 'package:etiop_application/screens/subscription_screen.dart';
 import 'package:etiop_application/screens/support_screen.dart';
+import 'package:etiop_application/screens/terms_conditions_screen.dart';
 import 'package:etiop_application/services/api_services.dart';
 import 'package:etiop_application/widgets/shops_card.dart';
 import 'package:etiop_application/widgets/shops_grid.dart';
@@ -318,18 +321,18 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context) => UserProfileScreen(),
             ),
           );
-        } else if (index == 3) {
+        }else if (index == 3) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ComingSoonScreen(),
+              builder: (context) => PrivacyPolicyScreen (),
             ),
           );
         } else if (index == 4) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ComingSoonScreen(),
+              builder: (context) => TermsConditionsScreen(),
             ),
           );
         } else if (index == 5) {

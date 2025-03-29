@@ -35,6 +35,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String? _selectedState;
   String? _selectedDistrict;
 
+  // Add a boolean to track password visibility
+  bool _isPasswordVisible = false;
+
   // Function to pick an image
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -254,8 +257,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   const SizedBox(height: 14),
                   _buildTextField(
-                      _passwordController, "Password", "Enter your password",
-                      isPassword: true),
+                    _passwordController,
+                    "Password",
+                    "Enter your password",
+                    isPassword: true,
+                    isPasswordVisible: _isPasswordVisible,
+                    togglePasswordVisibility: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
                   const SizedBox(height: 20),
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
@@ -315,10 +327,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
   // Reusable text field widget
   Widget _buildTextField(
       TextEditingController controller, String label, String validatorMessage,
-      {bool isEmail = false, bool isMobile = false, bool isPassword = false}) {
+      {bool isEmail = false, bool isMobile = false, bool isPassword = false, bool isPasswordVisible = false, VoidCallback? togglePasswordVisibility}) {
     return TextFormField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword && !isPasswordVisible,
       keyboardType: isMobile
           ? TextInputType.phone
           : (isEmail ? TextInputType.emailAddress : TextInputType.text),
@@ -329,6 +341,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: togglePasswordVisibility,
+              )
+            : null,
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {

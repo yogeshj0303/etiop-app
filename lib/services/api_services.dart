@@ -10,6 +10,7 @@ import '../modals/shop_details.dart';
 import '../modals/shop_model.dart';
 import '../modals/sub_category.dart';
 import '../modals/sub_category_related_shops_model.dart';
+import '../services/payment_service.dart';
 
 class ApiService {
   static const String baseUrl = 'https://etiop.acttconnect.com/api/';
@@ -218,9 +219,19 @@ class ApiService {
     List<File> catalogueImages,
   ) async {
     try {
+      // Check for active subscription
+      bool hasSubscription = await PaymentService.hasActiveSubscription();
+      if (!hasSubscription) {
+        return {
+          'success': false,
+          'requiresSubscription': true,
+          'message': 'Active subscription required to create a shop'
+        };
+      }
+
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://etiop.acttconnect.com/api/shop-add'),
+        Uri.parse('${baseUrl}shop-add'),
       );
 
       // Add text fields
@@ -250,11 +261,17 @@ class ApiService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body) as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to create shop: ${response.body}');
+        return {
+          'success': false,
+          'message': 'Failed to create shop: ${response.body}'
+        };
       }
     } catch (e) {
       print('Error in createShop: $e');
-      throw Exception('Failed to create shop: $e');
+      return {
+        'success': false,
+        'message': 'Failed to create shop: $e'
+      };
     }
   }
 
@@ -338,8 +355,8 @@ class ApiService {
     }
   }
 
-  static Future<String?> _getUserId() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<String?> getUserId() async {
+    final prefs = await SharedPreferences.getInstance();
     return prefs.getString('id');
   }
 
@@ -435,7 +452,7 @@ class ApiService {
   ) async {
     try {
       // Add user_id if available
-      final String? userId = await ApiService._getUserId();
+      final String? userId = await getUserId();
       if (userId != null) {
         shopData['user_id'] = userId;
       }
@@ -493,6 +510,37 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Failed to connect to the server');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchUserDetails() async {
+    try {
+      final userId = await getUserId();
+      
+      if (userId == null) {
+        return {'success': false, 'message': 'User ID not found'};
+      }
+      
+      final response = await http.get(
+        Uri.parse('https://etiop.acttconnect.com/api/get-user?user_id=$userId'),
+        headers: {'Accept': 'application/json'},
+      );
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'data': data,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to fetch user details'
+        };
+      }
+    } catch (e) {
+      print('Error fetching user details: $e');
+      return {'success': false, 'message': 'Error: $e'};
     }
   }
 }
