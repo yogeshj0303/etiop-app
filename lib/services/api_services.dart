@@ -48,7 +48,10 @@ class ApiService {
         return jsonDecode(response.body);
       } else if (response.statusCode == 401) {
         return {'success': false, 'message': jsonDecode(response.body)['message']};
-      } else {
+      }else if(response.statusCode == 422){
+        return {'success': false, 'message': jsonDecode(response.body)['message']};
+      }
+       else {
         throw Exception('Failed to register user: ${response.statusCode}');
       }
     } catch (e) {
@@ -219,15 +222,15 @@ class ApiService {
     List<File> catalogueImages,
   ) async {
     try {
-      // Check for active subscription
-      bool hasSubscription = await PaymentService.hasActiveSubscription();
-      if (!hasSubscription) {
-        return {
-          'success': false,
-          'requiresSubscription': true,
-          'message': 'Active subscription required to create a shop'
-        };
-      }
+      // // Check for active subscription
+      // bool hasSubscription = await PaymentService.hasActiveSubscription();
+      // if (!hasSubscription) {
+      //   return {
+      //     'success': false,
+      //     'requiresSubscription': true,
+      //     'message': 'Active subscription required to create a shop'
+      //   };
+      // }
 
       var request = http.MultipartRequest(
         'POST',

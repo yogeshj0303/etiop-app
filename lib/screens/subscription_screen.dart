@@ -1,3 +1,4 @@
+import 'package:etiop_application/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -90,21 +91,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       );
       
       if (result['success'] == true) {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: const Text('Success'),
-            content: Text(result['message'] ?? 'Subscription activated successfully'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context, true);
-                },
-                child: const Text('OK'),
-              ),
-            ],
+        Navigator.pushReplacement(context, 
+          MaterialPageRoute(
+            builder: (context) => const MainScreen(),
           ),
         );
       } else {
@@ -227,8 +216,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
             const SizedBox(height: 32),
             _buildPlanSelector(),
-            const SizedBox(height: 32),
-            _buildFeaturesList(),
+            // const SizedBox(height: 32),
+            // _buildFeaturesList(),
           ],
         ),
       ),
@@ -515,14 +504,33 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final finalPrice = price - discount;
       
       var options = {
-        'key': 'rzp_test_JyaG2v7ojg9mwa',  // Replace with your actual Razorpay key
-        'amount': finalPrice * 100, // Amount in smallest currency unit (paise)
+        'key': 'rzp_live_NbVPc9MoKWgylW',  // Replace with your actual Razorpay live key
+        'amount': finalPrice * 100,
         'name': 'ETIOP Subscription',
         'description': '${_selectedPlan.toUpperCase()} Plan',
         'prefill': {
           'contact': await getUserMobileNumber(),
           'email': await getUserEmail(),
         },
+        'method': {
+          'netbanking': true,
+          'card': true,
+          'upi': true,
+          'wallet': true,
+        },
+        'theme': {
+          'color': '#673AB7',
+        },
+        'config': {
+          'display': {
+            'blocks': {
+              'upi': {
+                'apps': ['google_pay', 'bhim', 'paytm'],
+                'preference': ['google_pay', 'bhim', 'paytm']
+              }
+            }
+          }
+        }
       };
 
       _razorpay.open(options);

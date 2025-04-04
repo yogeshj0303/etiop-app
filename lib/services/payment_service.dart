@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:etiop_application/screens/subscription_screen.dart';
+import 'package:etiop_application/widgets/shop_form.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../modals/subscription_model.dart';
@@ -32,7 +33,6 @@ class PaymentService {
         final user = data['user'];
         
         if (user != null) {
-          // Check payment status and expiry date
           final paymentStatus = user['payment_status'];
           final expiryDate = user['expiry_date'] != null 
             ? DateTime.parse(user['expiry_date'])
@@ -41,35 +41,22 @@ class PaymentService {
           final isActive = paymentStatus == 'active' && 
                           expiryDate != null && 
                           expiryDate.isAfter(DateTime.now());
+          if (isActive && navigatorKey.currentContext != null) {
+            await Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(builder: (context) => const AddShop())
+            );
+          }
           
-          if (!isActive) {
-            // Show dialog for inactive subscription
-            await showDialog(
-              context: navigatorKey.currentContext!,
-              barrierDismissible: false,
-              builder: (context) => AlertDialog(
-                title: const Text('Subscription Required'),
-                content: const Text('Please subscribe to access this feature.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => SubscriptionScreen()));
-                    },
-                    child: const Text('Subscribe Now'),
-                  ),
-                ],
-              ),
+          else if (!isActive && navigatorKey.currentContext != null) {
+            await Navigator.push(
+              navigatorKey.currentContext!,
+              MaterialPageRoute(builder: (context) => const SubscriptionScreen())
             );
           }
           return isActive;
         }
       }
-      
       return false;
     } catch (e) {
       print('Error checking subscription: $e');

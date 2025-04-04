@@ -1,4 +1,4 @@
-package com.example.etiop_application
+package com.atc.etiop
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

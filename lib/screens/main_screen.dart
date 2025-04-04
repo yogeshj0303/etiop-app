@@ -3,6 +3,7 @@ import 'package:etiop_application/screens/user_profile.dart';
 import 'package:etiop_application/widgets/shop_form.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:etiop_application/services/payment_service.dart';
 
 import '../widgets/shops_grid.dart';
 import 'home_screen.dart';
@@ -105,9 +106,12 @@ class _MainScreenState extends State<MainScreen> {
             // Slight scale effect when FAB is selected
             duration: const Duration(milliseconds: 250),
             child: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddShop()));
+              onPressed: () async {
+                final hasSubscription = await PaymentService.hasActiveSubscription();
+                if (hasSubscription) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddShop()));
+                }
                 // Handle the action for the Add button
                 print("Add button pressed");
               },
