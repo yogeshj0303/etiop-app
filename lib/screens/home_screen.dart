@@ -267,10 +267,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildDrawerItem(CupertinoIcons.home, 'Home', 0),
                 _buildDrawerItem(CupertinoIcons.cube_box, 'Category', 1),
                 _buildDrawerItem(CupertinoIcons.person, 'Profile', 2),
+                //supscription screen
+                _buildDrawerItem(Icons.subscriptions, 'Subscription', 3),
                 _buildDrawerItem(
-                    Icons.privacy_tip_outlined, 'Privacy Policy', 3),
-                _buildDrawerItem(Icons.add_to_drive, 'Terms & Conditions', 4),
-                _buildDrawerItem(Icons.logout, 'Logout', 5),
+                    Icons.privacy_tip_outlined, 'Privacy Policy', 4),
+                _buildDrawerItem(Icons.add_to_drive, 'Terms & Conditions', 5),
+                _buildDrawerItem(Icons.logout, 'Logout', 6),
               ],
             ),
           ),
@@ -321,21 +323,28 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context) => UserProfileScreen(),
             ),
           );
-        }else if (index == 3) {
+        } else if (index == 3) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PrivacyPolicyScreen (),
+              builder: (context) => SubscriptionScreen(),
             ),
           );
         } else if (index == 4) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TermsConditionsScreen(),
+              builder: (context) => PrivacyPolicyScreen(),
             ),
           );
         } else if (index == 5) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TermsConditionsScreen(),
+            ),
+          );
+        } else if (index == 6) {
           //use shared preference to clear the user data
           SharedPreferences.getInstance().then((prefs) {
             prefs.clear();

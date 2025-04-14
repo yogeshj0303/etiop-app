@@ -11,7 +11,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(Icons.arrow_back_ios_new,size: 18,),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18,
+          ),
         ),
         title: const Text('Privacy Policy'),
         elevation: 1,
@@ -30,13 +33,13 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   _buildBulletPoint(
                     'Personal Information',
                     'We may collect personal details such as your name, email '
-                    'address, phone number, and location when you register or '
-                    'use our services.',
+                        'address, phone number, and location when you register or '
+                        'use our services.',
                   ),
                   _buildBulletPoint(
                     'Usage Data',
                     'We gather data on how you access and interact with our app, '
-                    'including device information, IP address, and browsing patterns.',
+                        'including device information, IP address, and browsing patterns.',
                   ),
                 ],
               ),
@@ -46,12 +49,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   _buildBulletPoint(
                     'Service Delivery',
                     'To provide you with seamless access to government services, '
-                    'private sector resources, and public utilities.',
+                        'private sector resources, and public utilities.',
                   ),
                   _buildBulletPoint(
                     'Communication',
                     'To send you updates, notifications, and promotional '
-                    'materials related to our services.',
+                        'materials related to our services.',
                   ),
                   _buildBulletPoint(
                     'Improvement',
@@ -189,7 +192,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
             'Ayushman Bhavan, Near Sri Nath Vihar\n'
             'Sarvodaya Nagar, Chilla Road\n'
             'Banda, UP - 210001\n\n'
-            'Phone: +91 8299003168\n'
             'Email: etiop2706@gmail.com',
             style: TextStyle(fontSize: 16),
           ),
@@ -207,4 +209,4 @@ class PrivacyPolicyScreen extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -26,8 +26,8 @@ class MyApp extends StatelessWidget {
       home: const SplashScreen(),
       routes: {
         '/subcategory': (context) => SubcategoryScreen(
-          category: ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>
-        ),
+            category: ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>),
       },
       navigatorKey: PaymentService.navigatorKey,
     );

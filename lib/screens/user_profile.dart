@@ -11,6 +11,7 @@ import '../widgets/shop_form.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
 import 'edit_profile_screen.dart';
+import 'order_history_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -67,7 +68,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? avatarPath = prefs.getString('avatar');
       print('Raw avatar path from SharedPreferences: $avatarPath');
-      
+
       setState(() {
         firstName = prefs.getString('name') ?? "User";
         lastName = prefs.getString('last_name') ?? "Name";
@@ -98,13 +99,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           }
         }
       });
-      print('Loaded user data: firstName=$firstName, lastName=$lastName, email=$email, mobile=$mobileNumber'); // Debug print
+      print(
+          'Loaded user data: firstName=$firstName, lastName=$lastName, email=$email, mobile=$mobileNumber'); // Debug print
     } catch (e) {
       print('Error loading user data: $e');
     }
   }
-
-
 
   Future<void> _handleMyBusinessesClick() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -113,7 +113,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     if (userId != null) {
       await _fetchShops(userId); // Extract fetch logic to separate method
-      
+
       if (shops.isNotEmpty) {
         final result = await Navigator.push(
           context,
@@ -121,7 +121,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             builder: (context) => UserShopScreen(shops: shops),
           ),
         );
-        
+
         // Reload shops data when returning from UserShopScreen
         if (result == true) {
           await _fetchShops(userId);
@@ -137,7 +137,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Future<void> _fetchShops(String userId) async {
     try {
       var response = await http.get(
-        Uri.parse('https://etiop.acttconnect.com/api/requirements-get-byowner/$userId'),
+        Uri.parse(
+            'https://etiop.acttconnect.com/api/requirements-get-byowner/$userId'),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -322,8 +323,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     CircleAvatar(
                       radius: 55,
                       backgroundImage: avatar.isNotEmpty
-                          ? NetworkImage('https://etiop.acttconnect.com/$avatar')
-                          : const AssetImage('assets/images/profile_placeholder.png') as ImageProvider,
+                          ? NetworkImage(
+                              'https://etiop.acttconnect.com/$avatar')
+                          : const AssetImage(
+                                  'assets/images/profile_placeholder.png')
+                              as ImageProvider,
                     ),
                   ],
                 ),
@@ -364,12 +368,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   'address': address,
                                   'state': state ?? '',
                                   'district': district ?? '',
-                                  'category_name': shops.isNotEmpty ? shops[0].categoryName ?? '' : '',
+                                  'category_name': shops.isNotEmpty
+                                      ? shops[0].categoryName ?? ''
+                                      : '',
                                 },
                               ),
                             ),
                           );
-                          
+
                           if (result == true) {
                             await _loadUserData(); // Reload user data if profile was updated
                           }
@@ -377,7 +383,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         icon: const Icon(Icons.edit, size: 18),
                         label: const Text('Edit Profile'),
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
                           textStyle: const TextStyle(fontSize: 14),
                         ),
                       ),
@@ -425,6 +432,58 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OrderHistoryScreen(),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Color(4292815168).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.history,
+                          color: Color(4292815168),
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Text(
+                        'Order History',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.grey[400],
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             // Profile Info Sections
             _buildProfileInfoSection("Mobile Number", mobileNumber),
             _buildProfileInfoSection("Gender", gender),
@@ -454,6 +513,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
+            // Order History Section
+
             // Sign Out Button
             SizedBox(
               width: double.infinity,
@@ -484,7 +545,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget _buildProfileInfoSection(String title, String value) {
     // Format the date if this is the date of birth section
     String displayValue = title == "Date of Birth" ? _formatDate(value) : value;
-    
+
     return Card(
       clipBehavior: Clip.none,
       margin: const EdgeInsets.only(bottom: 12.0),

@@ -8,7 +8,8 @@ import '../services/api_services.dart';
 import 'package:flutter/material.dart';
 
 class PaymentService {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
   static const String baseUrl = 'https://etiop.acttconnect.com/api/';
 
   // Check subscription status
@@ -16,7 +17,7 @@ class PaymentService {
     try {
       final apiService = ApiService();
       final userId = await apiService.getUserId();
-      
+
       if (userId == null) {
         return false;
       }
@@ -31,28 +32,38 @@ class PaymentService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
         final user = data['user'];
-        
+
         if (user != null) {
-          final paymentStatus = user['payment_status'];
-          final expiryDate = user['expiry_date'] != null 
-            ? DateTime.parse(user['expiry_date'])
-            : null;
-          
-          final isActive = paymentStatus == 'active' && 
-                          expiryDate != null && 
-                          expiryDate.isAfter(DateTime.now());
-          if (isActive && navigatorKey.currentContext != null) {
-            await Navigator.push(
-              navigatorKey.currentContext!,
-              MaterialPageRoute(builder: (context) => const AddShop())
-            );
+          final createdAt = DateTime.parse(user['created_at']);
+          final oneMonthTrial = createdAt.add(const Duration(days: 30));
+
+          // If within trial period, consider as active subscription
+          if (DateTime.now().isBefore(oneMonthTrial)) {
+            if (navigatorKey.currentContext != null) {
+              await Navigator.push(navigatorKey.currentContext!,
+                  MaterialPageRoute(builder: (context) => const AddShop()));
+            }
+            return true;
           }
-          
-          else if (!isActive && navigatorKey.currentContext != null) {
+
+          // If trial period is over, check for paid subscription
+          final paymentStatus = user['payment_status'];
+          final expiryDate = user['expiry_date'] != null
+              ? DateTime.parse(user['expiry_date'])
+              : null;
+
+          final isActive = paymentStatus == 'active' &&
+              expiryDate != null &&
+              expiryDate.isAfter(DateTime.now());
+
+          if (isActive && navigatorKey.currentContext != null) {
+            await Navigator.push(navigatorKey.currentContext!,
+                MaterialPageRoute(builder: (context) => const AddShop()));
+          } else if (!isActive && navigatorKey.currentContext != null) {
             await Navigator.push(
-              navigatorKey.currentContext!,
-              MaterialPageRoute(builder: (context) => const SubscriptionScreen())
-            );
+                navigatorKey.currentContext!,
+                MaterialPageRoute(
+                    builder: (context) => const SubscriptionScreen()));
           }
           return isActive;
         }
@@ -66,7 +77,7 @@ class PaymentService {
 
   static Future<Map<String, dynamic>> purchasePackage({
     required double amount,
-    required String durationType,  // 'annual' or 'monthly'
+    required String durationType, // 'annual' or 'monthly'
     required String orderId,
     required String transactionId,
   }) async {
@@ -74,14 +85,15 @@ class PaymentService {
       // Get user ID
       final apiService = ApiService();
       final userId = await apiService.getUserId();
-      
+
       if (userId == null) {
         return {'success': false, 'message': 'User ID not found'};
       }
-      
+
       print('Purchasing package: $durationType for user $userId');
-      print('Transaction details: Order ID: $orderId, Transaction ID: $transactionId');
-      
+      print(
+          'Transaction details: Order ID: $orderId, Transaction ID: $transactionId');
+
       // Prepare request body
       final body = jsonEncode({
         'user_id': int.parse(userId),
@@ -90,7 +102,7 @@ class PaymentService {
         'order_id': orderId,
         'trasaction_id': transactionId,
       });
-      
+
       // Make API request
       final response = await http.post(
         Uri.parse('https://etiop.acttconnect.com/api/purchase-package'),
@@ -100,24 +112,29 @@ class PaymentService {
         },
         body: body,
       );
-      
+
       print('API Response Status: ${response.statusCode}');
       print('API Response Body: ${response.body}');
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        
+
         // Save subscription status to preferences for local access
         final prefs = await SharedPreferences.getInstance();
         prefs.setBool('has_subscription', true);
         prefs.setString('subscription_type', durationType);
-        prefs.setString('subscription_expiry', DateTime.now().add(
-          durationType == 'annual' ? const Duration(days: 365) : const Duration(days: 30)
-        ).toIso8601String());
-        
+        prefs.setString(
+            'subscription_expiry',
+            DateTime.now()
+                .add(durationType == 'annual'
+                    ? const Duration(days: 365)
+                    : const Duration(days: 30))
+                .toIso8601String());
+
         return {
           'success': true,
-          'message': 'Your ${durationType == 'annual' ? 'annual' : 'monthly'} subscription has been activated successfully!',
+          'message':
+              'Your ${durationType == 'annual' ? 'annual' : 'monthly'} subscription has been activated successfully!',
           'data': responseData
         };
       } else {
@@ -131,4 +148,4 @@ class PaymentService {
       return {'success': false, 'message': 'Error purchasing package: $e'};
     }
   }
-} 
+}
