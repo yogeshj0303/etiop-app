@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:etiop_application/services/notification_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../modals/banner_model.dart';
@@ -26,7 +27,7 @@ class ApiService {
       String state,
       String district) async {
     final url = Uri.parse(baseUrl + 'user-register');
-    
+
     var request = http.MultipartRequest('POST', url)
       ..fields['name'] = name
       ..fields['last_name'] = lastName
@@ -47,11 +48,16 @@ class ApiService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 401) {
-        return {'success': false, 'message': jsonDecode(response.body)['message']};
-      }else if(response.statusCode == 422){
-        return {'success': false, 'message': jsonDecode(response.body)['message']};
-      }
-       else {
+        return {
+          'success': false,
+          'message': jsonDecode(response.body)['message']
+        };
+      } else if (response.statusCode == 422) {
+        return {
+          'success': false,
+          'message': jsonDecode(response.body)['message']
+        };
+      } else {
         throw Exception('Failed to register user: ${response.statusCode}');
       }
     } catch (e) {
@@ -62,22 +68,37 @@ class ApiService {
   static Future<Map<String, dynamic>> loginUser(
       String email, String password) async {
     final url = Uri.parse(baseUrl + 'user-login');
+
+    // Get FCM token
+    final NotificationService notificationService = NotificationService();
+    final String? fcmToken = await notificationService.getToken();
+
+    // Print FCM token for debugging
+    print('FCM Token: $fcmToken');
+
     final body = jsonEncode({
       'email': email,
       'password': password,
+      'firebase_token': fcmToken, // Changed from fcm_token to firebase_token
     });
 
     try {
       final response = await http.post(url,
           headers: {'Content-Type': 'application/json'}, body: body);
 
+      print('Login Response: ${response.body}'); // Debug print
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 401) {
-        return {'success': false, 'message': jsonDecode(response.body)['message']};
+        return {
+          'success': false,
+          'message': jsonDecode(response.body)['message']
+        };
       }
       return {'success': false, 'message': 'An error occurred'};
     } catch (e) {
+      print('Login Error: $e'); // Debug print
       return {'success': false, 'message': 'Error logging in user: $e'};
     }
   }
@@ -250,17 +271,17 @@ class ApiService {
         ));
       }
 
-    // Add catalogue images
-    for (var i = 0; i < catalogueImages.length; i++) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'catlog_$i',
-        catalogueImages[i].path,
-      ));
-    }
+      // Add catalogue images
+      for (var i = 0; i < catalogueImages.length; i++) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'catlog_$i',
+          catalogueImages[i].path,
+        ));
+      }
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body) as Map<String, dynamic>;
       } else {
@@ -271,10 +292,7 @@ class ApiService {
       }
     } catch (e) {
       print('Error in createShop: $e');
-      return {
-        'success': false,
-        'message': 'Failed to create shop: $e'
-      };
+      return {'success': false, 'message': 'Failed to create shop: $e'};
     }
   }
 
@@ -338,10 +356,12 @@ class ApiService {
       throw Exception('Failed to fetch data from API');
     }
   }
-    static const String _baseUrl = 'https://etiop.acttconnect.com/api';
+
+  static const String _baseUrl = 'https://etiop.acttconnect.com/api';
 
   Future<List<dynamic>> fetchNotifications(int userId) async {
-    final response = await http.post(Uri.parse('$_baseUrl/get-notification?user_id=$userId'));
+    final response = await http
+        .post(Uri.parse('$_baseUrl/get-notification?user_id=$userId'));
 
     print(response.body);
     print("the user id is $userId");
@@ -461,9 +481,9 @@ class ApiService {
       }
 
       // Create URL with query parameters
-      final uri = Uri.parse('${baseUrl}shop-data-update/$shopId')
-          .replace(queryParameters: shopData.map((key, value) => 
-              MapEntry(key, value.toString())));
+      final uri = Uri.parse('${baseUrl}shop-data-update/$shopId').replace(
+          queryParameters:
+              shopData.map((key, value) => MapEntry(key, value.toString())));
 
       // Create request with final URL
       var request = http.MultipartRequest('POST', uri);
@@ -484,10 +504,10 @@ class ApiService {
       }
 
       request.headers['Accept'] = 'application/json';
-      
+
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body);
       } else {
@@ -501,11 +521,12 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> resetPassword(String email) async {
-    final url = Uri.parse('https://etiop.acttconnect.com/api/forgot-password-api?email=$email');
-    
+    final url = Uri.parse(
+        'https://etiop.acttconnect.com/api/forgot-password-api?email=$email');
+
     try {
       final response = await http.post(url);
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return json.decode(response.body);
       } else {
@@ -519,16 +540,16 @@ class ApiService {
   Future<Map<String, dynamic>> fetchUserDetails() async {
     try {
       final userId = await getUserId();
-      
+
       if (userId == null) {
         return {'success': false, 'message': 'User ID not found'};
       }
-      
+
       final response = await http.get(
         Uri.parse('https://etiop.acttconnect.com/api/get-user?user_id=$userId'),
         headers: {'Accept': 'application/json'},
       );
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         return {
@@ -536,10 +557,7 @@ class ApiService {
           'data': data,
         };
       } else {
-        return {
-          'success': false,
-          'message': 'Failed to fetch user details'
-        };
+        return {'success': false, 'message': 'Failed to fetch user details'};
       }
     } catch (e) {
       print('Error fetching user details: $e');

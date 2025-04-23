@@ -16,7 +16,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   bool _isLoading = false;
   String _selectedPlan = 'monthly';
   bool _autoDebit = true;
-  
+
   // Plan details
   final Map<String, Map<String, dynamic>> _planDetails = {
     'monthly': {
@@ -73,10 +73,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     return prefs.getString('email');
   }
 
-
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     setState(() => _isLoading = true);
-    
+
     try {
       final planDetails = _planDetails[_selectedPlan]!;
       final price = planDetails['price'];
@@ -86,12 +85,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final result = await PaymentService.purchasePackage(
         amount: finalPrice.toDouble(),
         durationType: _selectedPlan == 'monthly' ? 'monthly' : 'annual',
-        orderId: response.orderId ?? 'ORD${DateTime.now().millisecondsSinceEpoch}',
-        transactionId: response.paymentId ?? 'TXN${DateTime.now().millisecondsSinceEpoch}',
+        orderId:
+            response.orderId ?? 'ORD${DateTime.now().millisecondsSinceEpoch}',
+        transactionId:
+            response.paymentId ?? 'TXN${DateTime.now().millisecondsSinceEpoch}',
       );
-      
+
       if (result['success'] == true) {
-        Navigator.pushReplacement(context, 
+        Navigator.pushReplacement(
+          context,
           MaterialPageRoute(
             builder: (context) => const MainScreen(),
           ),
@@ -119,7 +121,72 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('External wallet selected: ${response.walletName}')),
+      SnackBar(
+          content: Text('External wallet selected: ${response.walletName}')),
+    );
+  }
+
+  Widget _buildTrialBanner() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).primaryColor,
+            Theme.of(context).primaryColor.withOpacity(0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).primaryColor.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.card_giftcard,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  '1 Month Free Trial',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Try all premium features free for 30 days',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -136,6 +203,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              _buildTrialBanner(),
               _buildSubscriptionCard(),
               const SizedBox(height: 24),
               _buildSubscriptionDetails(),
@@ -245,15 +313,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     final price = details['price'];
     final discount = details['discount'];
     final finalPrice = price - discount;
-    
+
     return GestureDetector(
       onTap: () => setState(() => _selectedPlan = plan),
       child: AnimatedContainer(
-        
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.05) : Colors.transparent,
+          color: isSelected
+              ? Theme.of(context).primaryColor.withOpacity(0.05)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -261,16 +330,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected 
-                  ? Theme.of(context).primaryColor.withOpacity(0.1)
-                  : Colors.grey.shade100,
+                color: isSelected
+                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 plan == 'monthly' ? Icons.business : Icons.business_center,
-                color: isSelected 
-                  ? Theme.of(context).primaryColor
-                  : Colors.grey.shade600,
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey.shade600,
               ),
             ),
             const SizedBox(width: 16),
@@ -285,9 +354,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: isSelected 
-                            ? Theme.of(context).primaryColor
-                            : Colors.black87,
+                          color: isSelected
+                              ? Theme.of(context).primaryColor
+                              : Colors.black87,
                         ),
                       ),
                       if (plan == 'yearly') ...[
@@ -327,7 +396,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             Radio(
               value: plan,
               groupValue: _selectedPlan,
-              onChanged: (value) => setState(() => _selectedPlan = value as String),
+              onChanged: (value) =>
+                  setState(() => _selectedPlan = value as String),
               activeColor: Theme.of(context).primaryColor,
             ),
           ],
@@ -337,7 +407,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildFeaturesList() {
-    final features = _planDetails[_selectedPlan]?['features'] as List<String>? ?? [];
+    final features =
+        _planDetails[_selectedPlan]?['features'] as List<String>? ?? [];
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -357,36 +428,39 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          ...features.map((feature) => Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.check,
-                    color: Theme.of(context).primaryColor,
-                    size: 16,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    feature,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey.shade700,
-                      height: 1.4,
+          ...features
+              .map((feature) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            color: Theme.of(context).primaryColor,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            feature,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey.shade700,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-          )).toList(),
+                  ))
+              .toList(),
         ],
       ),
     );
@@ -469,29 +543,29 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
         ),
         child: _isLoading
-          ? const SizedBox(
-              height: 24,
-              width: 24,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  'Continue to Payment',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
                 ),
-                SizedBox(width: 8),
-                Icon(Icons.arrow_forward, size: 20),
-              ],
-            ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Continue to Payment',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward, size: 20),
+                ],
+              ),
       ),
     );
   }
@@ -502,9 +576,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final price = planDetails['price'];
       final discount = planDetails['discount'];
       final finalPrice = price - discount;
-      
+
       var options = {
-        'key': 'rzp_live_NbVPc9MoKWgylW',  // Replace with your actual Razorpay live key
+        'key':
+            'rzp_live_NbVPc9MoKWgylW', // Replace with your actual Razorpay live key
         'amount': finalPrice * 100,
         'name': 'ETIOP Subscription',
         'description': '${_selectedPlan.toUpperCase()} Plan',
@@ -534,7 +609,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       };
 
       _razorpay.open(options);
-      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
@@ -613,4 +687,4 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       ),
     );
   }
-}  
+}

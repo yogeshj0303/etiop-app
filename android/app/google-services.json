@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "670155865500",
+    "project_id": "etiop-b0051",
+    "storage_bucket": "etiop-b0051.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:670155865500:android:73486d46ba9a6c4000dc59",
+        "android_client_info": {
+          "package_name": "com.atc.etiop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCw4K-4y5TIFc6cVTLWaDFKjQQ3cytqpWQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
