@@ -12,8 +12,8 @@ class PaymentService {
       GlobalKey<NavigatorState>();
   static const String baseUrl = 'https://etiop.acttconnect.com/api/';
 
-  // Check subscription status
-  static Future<bool> hasActiveSubscription() async {
+  // Check if user is in trial period
+  static Future<bool> isInTrialPeriod() async {
     try {
       final apiService = ApiService();
       final userId = await apiService.getUserId();
@@ -37,40 +37,14 @@ class PaymentService {
           final createdAt = DateTime.parse(user['created_at']);
           final oneMonthTrial = createdAt.add(const Duration(days: 30));
 
-          // If within trial period, consider as active subscription
-          if (DateTime.now().isBefore(oneMonthTrial)) {
-            if (navigatorKey.currentContext != null) {
-              await Navigator.push(navigatorKey.currentContext!,
-                  MaterialPageRoute(builder: (context) => const AddShop()));
-            }
-            return true;
-          }
-
-          // If trial period is over, check for paid subscription
-          final paymentStatus = user['payment_status'];
-          final expiryDate = user['expiry_date'] != null
-              ? DateTime.parse(user['expiry_date'])
-              : null;
-
-          final isActive = paymentStatus == 'active' &&
-              expiryDate != null &&
-              expiryDate.isAfter(DateTime.now());
-
-          if (isActive && navigatorKey.currentContext != null) {
-            await Navigator.push(navigatorKey.currentContext!,
-                MaterialPageRoute(builder: (context) => const AddShop()));
-          } else if (!isActive && navigatorKey.currentContext != null) {
-            await Navigator.push(
-                navigatorKey.currentContext!,
-                MaterialPageRoute(
-                    builder: (context) => const SubscriptionScreen()));
-          }
-          return isActive;
+          // Check if within trial period
+          return DateTime.now().isBefore(oneMonthTrial);
         }
       }
+
       return false;
     } catch (e) {
-      print('Error checking subscription: $e');
+      print('Error checking trial period: $e');
       return false;
     }
   }

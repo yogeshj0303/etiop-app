@@ -194,7 +194,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose Subscription'),
+        title: const Text('Register Your Business'),
         elevation: 1,
       ),
       body: SingleChildScrollView(

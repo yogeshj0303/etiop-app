@@ -107,14 +107,9 @@ class _MainScreenState extends State<MainScreen> {
             // Slight scale effect when FAB is selected
             duration: const Duration(milliseconds: 250),
             child: FloatingActionButton(
-              onPressed: () async {
-                final hasSubscription =
-                    await PaymentService.hasActiveSubscription();
-                if (hasSubscription) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AddShop()));
-                }
-                print("Add button pressed");
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const AddShop()));
               },
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50), // Fully rounded button
@@ -122,7 +117,8 @@ class _MainScreenState extends State<MainScreen> {
               elevation: 8, // Elevation for depth
               child: Icon(CupertinoIcons.add, // Cupertino icon for add
                   size: 20, // Slightly bigger icon for the FAB
-                  color: Colors.white),
+                  color: Colors.white,
+                  ),
             ),
           ),
         ),

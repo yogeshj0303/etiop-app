@@ -10,6 +10,7 @@ import 'package:etiop_application/screens/subscription_screen.dart';
 import 'package:etiop_application/screens/support_screen.dart';
 import 'package:etiop_application/screens/terms_conditions_screen.dart';
 import 'package:etiop_application/services/api_services.dart';
+import 'package:etiop_application/widgets/shop_form.dart';
 import 'package:etiop_application/widgets/shops_card.dart';
 import 'package:etiop_application/widgets/shops_grid.dart';
 import 'package:flutter/cupertino.dart';
@@ -327,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SubscriptionScreen(),
+              builder: (context) => AddShop(),
             ),
           );
         } else if (index == 4) {
