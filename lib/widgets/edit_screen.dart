@@ -296,6 +296,8 @@ class _EditShopScreenState extends State<EditShopScreen> {
               shopOwner: widget.shop.shopOwner,
               createdAt: widget.shop.createdAt,
               updatedAt: widget.shop.updatedAt,
+              paymentStatus: widget.shop.paymentStatus,
+              expiryDate: widget.shop.expiryDate,
             );
 
             ScaffoldMessenger.of(context).showSnackBar(

@@ -1,9 +1,14 @@
 import 'package:etiop_application/widgets/shop_requirment.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../modals/shop_model.dart';
 import '../services/api_services.dart'; // Import the API services
+import '../screens/subscription_screen.dart';
 import 'edit_screen.dart';
 
 class UserShopScreen extends StatefulWidget {
@@ -17,6 +22,7 @@ class UserShopScreen extends StatefulWidget {
 
 class _UserShopScreenState extends State<UserShopScreen> {
   late List<Shop> shops;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -30,6 +36,52 @@ class _UserShopScreenState extends State<UserShopScreen> {
     }
   }
 
+  Future<void> _renewSubscription(Shop shop) async {
+    try {
+      setState(() => _isLoading = true);
+      
+      // Navigate to subscription screen
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SubscriptionScreen(),
+        ),
+      );
+
+      // If subscription was successful, refresh the shop data
+      if (result == true) {
+        final prefs = await SharedPreferences.getInstance();
+        final userId = prefs.getString('id');
+        if (userId != null) {
+          final response = await http.get(
+            Uri.parse('https://etiop.in/api/requirements-get-byowner/$userId'),
+          );
+
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            final data = jsonDecode(response.body);
+            if (data['success']) {
+              setState(() {
+                final List shopsList = data['data']['shops'];
+                shops = shopsList.map((shopData) {
+                  return Shop.fromJson({
+                    ...shopData['shop'],
+                    'requirements': shopData['requirements'],
+                    'category_name': shopData['shop']['category_name'],
+                  });
+                }).toList();
+              });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   // Function to delete the shop
   Future<void> _deleteShop(BuildContext context, int shopId) async {
@@ -143,120 +195,213 @@ class _UserShopScreenState extends State<UserShopScreen> {
         ),
         elevation: 1,
       ),
-      body: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // Two columns in the grid
-          crossAxisSpacing: 14.0, // Space between columns
-          mainAxisSpacing: 14.0, // Space between rows
-          childAspectRatio: 1, // Aspect ratio for grid items
-        ),
-        padding: const EdgeInsets.all(12.0),
-        itemCount: shops.length,  // Use local shops list
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemCount: shops.length,
         itemBuilder: (context, index) {
-          Shop shop = shops[index];  // Use local shops list
-          // Update the image URL construction
+          Shop shop = shops[index];
           String imageUrl = shop.fullImageUrl ?? '';
 
-          return GestureDetector(
-            onTap: () {
-              print('Shop: ${shop.toJson()}'); 
-              print('Shop requirements: ${shop.requirements}'); // Debug print
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ShopRequirementsScreen(
-                    shopId: shop.id,
-                    requirements: shop.requirements ?? [],
-                  ),
-                ),
-              );
-            },
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
             child: Card(
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10), // Rounded corners
+                borderRadius: BorderRadius.circular(16),
               ),
-              elevation: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10), // Clip image corners
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl, // Use image URL
-                            height: 100,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          (loadingProgress.expectedTotalBytes ??
-                                              1)
-                                      : null,
+              elevation: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        height: 180,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                        ),
+                        child: imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Center(
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Center(
-                              child: Icon(
-                                Icons.broken_image,
-                                size: 50,
+                              )
+                            : const Center(
+                                child: Icon(
+                                  Icons.store,
+                                  size: 50,
+                                  color: Colors.grey,
+                                ),
                               ),
-                            ),
-                          )
-                        : const Icon(
-                            Icons.broken_image,
-                            size: 50,
-                          ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Padding(
+                      ),
+                      if (shop.paymentStatus != 'Active')
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0, vertical: 8.0),
-                            child: Text(
-                              shop.shopName ?? 'Shop Name',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              'Expired',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
                               ),
-                              overflow: TextOverflow.ellipsis, // Handle text overflow
                             ),
                           ),
                         ),
-                        // Popup menu for Edit and Delete options
-                        PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              _navigateToEditScreen(shop);
-                            } else if (value == 'delete') {
-                              // Delete the shop
-                              _deleteShop(context, shop.id);
-                            }
-                          },
-                          itemBuilder: (BuildContext context) {
-                            return [
-                              const PopupMenuItem<String>(
-                                value: 'edit',
-                                child: Text('Edit'),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                shop.shopName ?? 'Shop Name',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const PopupMenuItem<String>(
-                                value: 'delete',
-                                child: Text('Delete'),
+                            ),
+                            if (shop.paymentStatus == 'Active')
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert, size: 24),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                onSelected: (value) {
+                                  if (value == 'edit') {
+                                    _navigateToEditScreen(shop);
+                                  } else if (value == 'delete') {
+                                    _deleteShop(context, shop.id);
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  return [
+                                    const PopupMenuItem<String>(
+                                      value: 'edit',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit, size: 20),
+                                          SizedBox(width: 12),
+                                          Text('Edit Shop'),
+                                        ],
+                                      ),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'delete',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete, size: 20, color: Colors.red),
+                                          SizedBox(width: 12),
+                                          Text('Delete Shop', style: TextStyle(color: Colors.red)),
+                                        ],
+                                      ),
+                                    ),
+                                  ];
+                                },
                               ),
-                            ];
-                          },
+                          ],
                         ),
+                        if (shop.expiryDate != null) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: shop.paymentStatus == 'Active'
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: shop.paymentStatus == 'Active'
+                                      ? Colors.green
+                                      : Colors.red,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Expires: ${shop.expiryDate}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: shop.paymentStatus == 'Active'
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        if (shop.paymentStatus != 'Active')
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () => _renewSubscription(shop),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Renew Subscription',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );

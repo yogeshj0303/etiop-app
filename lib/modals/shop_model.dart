@@ -14,6 +14,8 @@ class Shop {
   final String? shopImage;
   final String? shopStatus;
   final String? description;
+  final String? paymentStatus;
+  final String? expiryDate;
   // final String? services;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -56,6 +58,8 @@ class Shop {
     required this.shopImage,
     required this.shopStatus,
     required this.description,
+    required this.paymentStatus,
+    required this.expiryDate,
     // required this.services,
     required this.createdAt,
     required this.updatedAt,
@@ -114,6 +118,8 @@ class Shop {
       shopImage: json['shop_image'],
       shopStatus: json['shop_status'],
       description: json['description'],
+      paymentStatus: json['payment_status'],
+      expiryDate: json['expiry_date'],
       // services: json['services'],
       createdAt: DateTime.tryParse(json['created_at'].toString()),
       updatedAt: DateTime.tryParse(json['updated_at'].toString()),
