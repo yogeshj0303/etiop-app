@@ -104,7 +104,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // Create multipart request with the correct API endpoint
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://etiop.acttconnect.com/api/user/update/$userId'),
+        Uri.parse('https://etiop.in/api/user/update/$userId'),
       );
 
       // Add text fields
@@ -214,7 +214,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           backgroundImage: _imageFile != null
                               ? FileImage(_imageFile!) as ImageProvider
                               : (widget.currentAvatar.isNotEmpty
-                                  ? NetworkImage('https://etiop.acttconnect.com/${widget.currentAvatar}')
+                                  ? NetworkImage('https://etiop.in/${widget.currentAvatar}')
                                   : const AssetImage('assets/images/default_avatar.png')) as ImageProvider,
                         ),
                       ),

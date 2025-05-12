@@ -26,6 +26,7 @@ class _MainScreenState extends State<MainScreen> {
     const NotificationScreen(),
     const UserProfileScreen(),
   ];
+  
 
   // Method to handle bottom navigation item selection
   void _onItemTapped(int index) {

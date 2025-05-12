@@ -167,7 +167,7 @@ class Shop {
 
   String? get fullImageUrl {
     if (shopImage == null) return null;
-    return 'https://etiop.acttconnect.com/$shopImage';
+    return 'https://etiop.in/$shopImage';
   }
 
   Map<String, dynamic> toJson() {

@@ -20,7 +20,7 @@ class _ServiceCategoryScreenState extends State<ServiceCategoryScreen> {
   List<Subcategory> subcategories = [];
   bool isLoading = true;
   List<Shop> shops = [];
-  final String baseUrl = 'https://etiop.acttconnect.com/';
+  final String baseUrl = 'https://etiop.in/';
 
   @override
   void initState() {

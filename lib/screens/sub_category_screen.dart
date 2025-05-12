@@ -100,7 +100,7 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
                           // Rounded corners for image
                           child: subcategory.subcategoryImage?.isNotEmpty == true
                               ? Image.network(
-                                  "https://etiop.acttconnect.com/${subcategory.subcategoryImage}",
+                                  "https://etiop.in/${subcategory.subcategoryImage}",
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: 120, // Fixed height for the image

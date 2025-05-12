@@ -69,7 +69,7 @@ class _ShopsCarouselState extends State<ShopsCarousel> {
                             children: [
                               (shop.shopImage ?? "").isNotEmpty
                                   ? Image.network(
-                                      "https://etiop.acttconnect.com/${shop.shopImage}",
+                                      "https://etiop.in/${shop.shopImage}",
                                       fit: BoxFit.fill,
                                       height: 120,
                                       width: double.infinity,

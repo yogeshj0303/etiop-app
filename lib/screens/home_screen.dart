@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    final url = 'https://etiop.acttconnect.com/api/shop-search/$query';
+    final url = 'https://etiop.in/api/shop-search/$query';
     try {
       setState(() {
         _isLoading = true;

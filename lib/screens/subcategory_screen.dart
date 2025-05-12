@@ -16,7 +16,7 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
   final ApiService _apiService = ApiService();
   List<Subcategory> subcategories = [];
   bool isLoading = true;
-  final String baseUrl = 'https://etiop.acttconnect.com/';
+  final String baseUrl = 'https://etiop.in/';
 
   @override
   void initState() {

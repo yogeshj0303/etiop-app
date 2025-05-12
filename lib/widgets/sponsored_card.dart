@@ -40,7 +40,7 @@ class _SponsoredCarouselState extends State<SponsoredCarousel> {
           itemCount: banners.length,
           itemBuilder: (context, index, realIndex) {
             final banner = banners[index];
-            final imageUrl = "https://etiop.acttconnect.com/${banner.bannerDoc}";
+            final imageUrl = "https://etiop.in/${banner.bannerDoc}";
             return GestureDetector(
               onTap: () {
                 // Implement action on banner tap if needed

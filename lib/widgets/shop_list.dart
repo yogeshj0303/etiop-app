@@ -190,7 +190,7 @@ class _ShopListScreenState extends State<ShopListScreen> {
                                       ),
                                       child: shop.shopImage != null
                                           ? Image.network(
-                                              'https://etiop.acttconnect.com/${shop.shopImage}',
+                                              'https://etiop.in/${shop.shopImage}',
                                               width: double.infinity,
                                               // Full width of the card
                                               height: 100,

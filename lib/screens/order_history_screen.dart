@@ -36,7 +36,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       }
 
       final response = await http.post(
-        Uri.parse('https://etiop.acttconnect.com/api/get-payment-history'),
+        Uri.parse('https://etiop.in/api/get-payment-history'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

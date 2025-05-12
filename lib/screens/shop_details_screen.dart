@@ -54,7 +54,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
-                    'https://etiop.acttconnect.com/${catalogImages[index]}',
+                    'https://etiop.in/${catalogImages[index]}',
                     width: 160,
                     height: 160,
                     fit: BoxFit.contain,
@@ -114,7 +114,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               height: 200,
                               color: Colors.white,
                               child: Image.network(
-                                'https://etiop.acttconnect.com/${shopDetails.shopImage}',
+                                'https://etiop.in/${shopDetails.shopImage}',
                                 width: double.infinity,
                                 fit: BoxFit.fill,
                                 errorBuilder: (context, error, stackTrace) {
@@ -477,7 +477,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Image.network(
-            'https://etiop.acttconnect.com/$imagePath',
+            'https://etiop.in/$imagePath',
             fit: BoxFit.scaleDown,
             errorBuilder: (context, error, stackTrace) {
               return Container(

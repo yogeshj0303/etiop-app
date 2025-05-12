@@ -97,7 +97,7 @@ class _ShopsGridViewState extends State<ShopsGridView> {
                                   ? Container(
                                       width: double.infinity,
                                       child: Image.network(
-                                        "https://etiop.acttconnect.com/${shop.shopImage}",
+                                        "https://etiop.in/${shop.shopImage}",
                                         fit: BoxFit.fill,
                                       ),
                                     )

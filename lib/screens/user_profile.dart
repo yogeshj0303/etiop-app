@@ -45,7 +45,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   DateTime? _selectedDate;
 
   // Add this at the class level
-  final String baseUrl = 'https://etiop.acttconnect.com';
+  final String baseUrl = 'https://etiop.in';
 
   @override
   void initState() {
@@ -138,7 +138,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     try {
       var response = await http.get(
         Uri.parse(
-            'https://etiop.acttconnect.com/api/requirements-get-byowner/$userId'),
+            'https://etiop.in/api/requirements-get-byowner/$userId'),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -324,7 +324,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       radius: 55,
                       backgroundImage: avatar.isNotEmpty
                           ? NetworkImage(
-                              'https://etiop.acttconnect.com/$avatar')
+                              'https://etiop.in/$avatar')
                           : const AssetImage(
                                   'assets/images/profile_placeholder.png')
                               as ImageProvider,

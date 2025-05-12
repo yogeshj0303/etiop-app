@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 class PaymentService {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
-  static const String baseUrl = 'https://etiop.acttconnect.com/api/';
+  static const String baseUrl = 'https://etiop.in/api/';
 
   // Check if user is in trial period
   static Future<bool> isInTrialPeriod() async {
@@ -79,7 +79,7 @@ class PaymentService {
 
       // Make API request
       final response = await http.post(
-        Uri.parse('https://etiop.acttconnect.com/api/purchase-package'),
+        Uri.parse('https://etiop.in/api/purchase-package'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -120,6 +120,24 @@ class PaymentService {
     } catch (e) {
       print('Error during package purchase: $e');
       return {'success': false, 'message': 'Error purchasing package: $e'};
+    }
+  }
+
+  static Future<bool> hasActiveSubscription() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final hasSubscription = prefs.getBool('has_subscription') ?? false;
+      final subscriptionExpiry = prefs.getString('subscription_expiry');
+      
+      if (!hasSubscription || subscriptionExpiry == null) {
+        return false;
+      }
+
+      final expiryDate = DateTime.parse(subscriptionExpiry);
+      return DateTime.now().isBefore(expiryDate);
+    } catch (e) {
+      print('Error checking subscription status: $e');
+      return false;
     }
   }
 }

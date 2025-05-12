@@ -100,7 +100,7 @@ class _RelatedShopsScreenState extends State<RelatedShopsScreen> {
                       ? Image.network(
                           shop.shopImage.startsWith('http')
                               ? shop.shopImage
-                              : 'https://etiop.acttconnect.com/${shop.shopImage}',
+                              : 'https://etiop.in/${shop.shopImage}',
                           height: 120,
                           width: double.infinity,
                           fit: BoxFit.contain,

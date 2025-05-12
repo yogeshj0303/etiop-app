@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BannerService {
-  static const String apiUrl = "https://etiop.acttconnect.com/api/banners-get";
+  static const String apiUrl = "https://etiop.in/api/banners-get";
 
   // Fetch banners from API and store them in SharedPreferences
   Future<void> fetchAndStoreBanners() async {

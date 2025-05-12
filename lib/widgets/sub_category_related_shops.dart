@@ -17,7 +17,7 @@ class SubCategoryRelatedShops extends StatefulWidget {
 
 class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
   late Future<List<SubCategoryRelatedShopModel>> _relatedShops;
-  final String baseUrl = 'https://etiop.acttconnect.com/';
+  final String baseUrl = 'https://etiop.in/';
 
   @override
   void initState() {

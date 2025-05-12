@@ -99,7 +99,7 @@ class _AddShopState extends State<AddShop> {
 
     try {
       final response = await http
-          .get(Uri.parse('https://etiop.acttconnect.com/api/all-categories'));
+          .get(Uri.parse('https://etiop.in/api/all-categories'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -124,7 +124,7 @@ class _AddShopState extends State<AddShop> {
     });
     try {
       final response = await http.get(Uri.parse(
-          'https://etiop.acttconnect.com/api/subcategories-by-cat/$categoryId'));
+          'https://etiop.in/api/subcategories-by-cat/$categoryId'));
       if (response.statusCode == 200 || response.statusCode == 201) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -181,25 +181,29 @@ class _AddShopState extends State<AddShop> {
       });
 
       try {
-        // Check if in trial period
-        final isInTrial = await PaymentService.isInTrialPeriod();
-        if (!isInTrial) {
-          setState(() {
-            _isLoading = false;
-          });
-          if (!mounted) return;
+        // First check if user has active subscription
+        final hasActiveSubscription = await PaymentService.hasActiveSubscription();
+        
+        // If no active subscription, check trial period
+        if (!hasActiveSubscription) {
+          final isInTrial = await PaymentService.isInTrialPeriod();
+          if (!isInTrial) {
+            setState(() {
+              _isLoading = false;
+            });
+            if (!mounted) return;
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
-          );
-          return;
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+            );
+            return;
+          }
         }
 
         final prefs = await SharedPreferences.getInstance();
         final userId = prefs.getString('id') ?? '';
-        final durationType = prefs.getString('subscription_type') ??
-            'monthly'; // Get subscription type
+        final durationType = prefs.getString('subscription_type') ?? 'monthly';
 
         // Base request body with common fields
         final Map<String, String> requestBody = {
@@ -209,11 +213,11 @@ class _AddShopState extends State<AddShop> {
           'subcategory_id': _selectedSubCategory ?? '0',
           'country': 'India',
           'zipcode': _formData['pincode'] ?? '',
-          'shop_status': 'approved',
+          'shop_status': 'pending', // Set initial status as pending
           'district': _selectedDistrict ?? '',
           'state': _selectedState ?? '',
           'city': cityController.text,
-          'duration_type': durationType, // Add duration_type to request
+          'duration_type': durationType,
         };
 
         // Add fields based on category type
@@ -230,7 +234,7 @@ class _AddShopState extends State<AddShop> {
             'google_map_link': googleMapLinkController.text,
             'mobile_number': mobileNumberController.text,
             'email': emailController.text,
-            'services': '', // Add empty services field
+            'services': '',
           });
         } else if (_categoryType == 'public') {
           requestBody.addAll({
@@ -242,7 +246,7 @@ class _AddShopState extends State<AddShop> {
             'contact_number': contactNumberController.text,
             'city': cityController.text,
             'email': spotEmailController.text,
-            'services': '', // Add empty services field
+            'services': '',
           });
         } else {
           // Private business
@@ -254,7 +258,7 @@ class _AddShopState extends State<AddShop> {
             'description': descriptionController.text,
             'website_link': websiteLinkController.text,
             'google_map_link': googleMapLinkController.text,
-            'services': '', // Add empty services field
+            'services': '',
           });
         }
 
@@ -266,21 +270,30 @@ class _AddShopState extends State<AddShop> {
               : [],
         );
 
+        if (result.containsKey('requiresSubscription') && result['requiresSubscription'] == true) {
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+          );
+          return;
+        }
+
         if (result.containsKey('success') && result['success'] == true) {
           if (!mounted) return;
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                  result['message']?.toString() ?? "Shop created successfully"),
+              content: Text(result['message']?.toString() ?? "Shop created successfully"),
+              duration: const Duration(seconds: 5),
             ),
           );
         } else {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                  result['message']?.toString() ?? "Failed to create shop"),
+              content: Text(result['message']?.toString() ?? "Failed to create shop"),
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -288,7 +301,10 @@ class _AddShopState extends State<AddShop> {
         print('Exception occurred: $e');
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${e.toString()}")),
+          SnackBar(
+            content: Text("Error: ${e.toString()}"),
+            backgroundColor: Colors.red,
+          ),
         );
       } finally {
         setState(() {

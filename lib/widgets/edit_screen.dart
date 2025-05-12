@@ -93,25 +93,25 @@ class _EditShopScreenState extends State<EditShopScreen> {
       
       // Initialize shop image
       if (widget.shop.shopImage != null) {
-        shopImageUrl = 'https://etiop.acttconnect.com/${widget.shop.shopImage}';
+        shopImageUrl = 'https://etiop.in/${widget.shop.shopImage}';
       }
 
       // Initialize catalog images
       catalogImageUrls = [];
       if (widget.shop.catlog_0 != null) {
-        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_0}');
+        catalogImageUrls.add('https://etiop.in/${widget.shop.catlog_0}');
       }
       if (widget.shop.catlog_1 != null) {
-        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_1}');
+        catalogImageUrls.add('https://etiop.in/${widget.shop.catlog_1}');
       }
       if (widget.shop.catlog_2 != null) {
-        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_2}');
+        catalogImageUrls.add('https://etiop.in/${widget.shop.catlog_2}');
       }
       if (widget.shop.catlog_3 != null) {
-        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_3}');
+        catalogImageUrls.add('https://etiop.in/${widget.shop.catlog_3}');
       }
       if (widget.shop.catlog_4 != null) {
-        catalogImageUrls.add('https://etiop.acttconnect.com/${widget.shop.catlog_4}');
+        catalogImageUrls.add('https://etiop.in/${widget.shop.catlog_4}');
       }
     });
   }
@@ -178,7 +178,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
       try {
         var request = http.MultipartRequest(
           'POST',
-          Uri.parse('https://etiop.acttconnect.com/api/shop-data-update/${widget.shop.id}'),
+          Uri.parse('https://etiop.in/api/shop-data-update/${widget.shop.id}'),
         );
 
         // Add common fields

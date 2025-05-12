@@ -14,7 +14,7 @@ import '../modals/sub_category_related_shops_model.dart';
 import '../services/payment_service.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://etiop.acttconnect.com/api/';
+  static const String baseUrl = 'https://etiop.in/api/';
 
   static Future<Map<String, dynamic>> registerUser(
       String name,
@@ -213,7 +213,7 @@ class ApiService {
   Future<ShopByCity> fetchShopsByCity(String cityName) async {
     // Define the API endpoint to get shops by city
     final url =
-        Uri.parse('https://etiop.acttconnect.com/api/shop-by-city/$cityName');
+        Uri.parse('https://etiop.in/api/shop-by-city/$cityName');
 
     try {
       // Send the GET request to the API
@@ -243,15 +243,15 @@ class ApiService {
     List<File> catalogueImages,
   ) async {
     try {
-      // // Check for active subscription
-      // bool hasSubscription = await PaymentService.hasActiveSubscription();
-      // if (!hasSubscription) {
-      //   return {
-      //     'success': false,
-      //     'requiresSubscription': true,
-      //     'message': 'Active subscription required to create a shop'
-      //   };
-      // }
+      // Check for active subscription
+      bool hasSubscription = await PaymentService.hasActiveSubscription();
+      if (!hasSubscription) {
+        return {
+          'success': false,
+          'requiresSubscription': true,
+          'message': 'Active subscription required to create a shop'
+        };
+      }
 
       var request = http.MultipartRequest(
         'POST',
@@ -283,7 +283,12 @@ class ApiService {
       var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body) as Map<String, dynamic>;
+        final responseData = json.decode(response.body) as Map<String, dynamic>;
+        return {
+          'success': true,
+          'message': 'Shop created successfully. Waiting for admin approval.',
+          'data': responseData
+        };
       } else {
         return {
           'success': false,
@@ -334,7 +339,7 @@ class ApiService {
       int subCategoryId) async {
     final response = await http.get(
       Uri.parse(
-          'https://etiop.acttconnect.com/api/related-Sub-cat-shops/$subCategoryId'),
+          'https://etiop.in/api/related-Sub-cat-shops/$subCategoryId'),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -357,7 +362,7 @@ class ApiService {
     }
   }
 
-  static const String _baseUrl = 'https://etiop.acttconnect.com/api';
+  static const String _baseUrl = 'https://etiop.in/api';
 
   Future<List<dynamic>> fetchNotifications(int userId) async {
     final response = await http
@@ -522,18 +527,34 @@ class ApiService {
 
   static Future<Map<String, dynamic>> resetPassword(String email) async {
     final url = Uri.parse(
-        'https://etiop.acttconnect.com/api/forgot-password-api?email=$email');
+        'https://etiop.in/api/forgot-password-api?email=$email');
 
     try {
+      print('Making API call to: ${url.toString()}');
       final response = await http.post(url);
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return json.decode(response.body);
+        final responseData = json.decode(response.body);
+        return responseData;
+      } else if (response.statusCode == 404) {
+        return {
+          'status': 'error',
+          'message': 'Email not found or service unavailable'
+        };
       } else {
-        throw Exception('Failed to reset password');
+        return {
+          'status': 'error',
+          'message': 'Failed to reset password. Server returned ${response.statusCode}'
+        };
       }
     } catch (e) {
-      throw Exception('Failed to connect to the server');
+      print('Exception during reset password: $e');
+      return {
+        'status': 'error',
+        'message': 'Network error: Unable to connect to server'
+      };
     }
   }
 
@@ -546,7 +567,7 @@ class ApiService {
       }
 
       final response = await http.get(
-        Uri.parse('https://etiop.acttconnect.com/api/get-user?user_id=$userId'),
+        Uri.parse('https://etiop.in/api/get-user?user_id=$userId'),
         headers: {'Accept': 'application/json'},
       );
 
