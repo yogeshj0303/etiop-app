@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-  import '../services/api_services.dart'; // Import the ApiService
-
+import '../services/api_services.dart'; // Import the ApiService
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -23,7 +23,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> _fetchNotifications() async {
     try {
-      final notifications = await _apiService.fetchNotifications(29); // Use the correct user ID
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('id');
+      
+      if (userId == null) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final notifications = await _apiService.fetchNotifications(int.parse(userId));
       setState(() {
         _notifications = notifications;
         _isLoading = false;
@@ -57,22 +67,52 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.separated(
-              itemCount: _notifications.length,
-              itemBuilder: (context, index) {
-                return _buildNotificationItem(_notifications[index]);
-              },
-              separatorBuilder: (context, index) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Divider(
-                    color: Colors.grey,
-                    thickness: 0.5,
-                    height: 1,
+          : _notifications.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.notifications_off_outlined,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No Notifications',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'You don\'t have any notifications yet',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                )
+              : ListView.separated(
+                  itemCount: _notifications.length,
+                  itemBuilder: (context, index) {
+                    return _buildNotificationItem(_notifications[index]);
+                  },
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Divider(
+                        color: Colors.grey,
+                        thickness: 0.5,
+                        height: 1,
+                      ),
+                    );
+                  },
+                ),
     );
   }
 

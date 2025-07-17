@@ -34,4 +34,4 @@ class Subscription {
       paymentMethod: json['payment_method'],
     );
   }
-} 
+}

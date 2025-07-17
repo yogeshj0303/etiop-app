@@ -33,12 +33,27 @@ class PaymentService {
         final data = json.decode(response.body);
         final user = data['user'];
 
-        if (user != null) {
-          final createdAt = DateTime.parse(user['created_at']);
-          final oneMonthTrial = createdAt.add(const Duration(days: 30));
+        if (user != null && user['created_at'] != null) {
+          try {
+            // Parse the created_at date from the API response
+            final createdAt = DateTime.parse(user['created_at']);
+            final oneMonthTrial = createdAt.add(const Duration(days: 30));
+            final now = DateTime.now();
 
-          // Check if within trial period
-          return DateTime.now().isBefore(oneMonthTrial);
+            // Check if within trial period
+            final isInTrial = now.isBefore(oneMonthTrial);
+            
+            print('Trial period check:');
+            print('Account created at: $createdAt');
+            print('Trial ends at: $oneMonthTrial');
+            print('Current time: $now');
+            print('Is in trial: $isInTrial');
+
+            return isInTrial;
+          } catch (e) {
+            print('Error parsing dates: $e');
+            return false;
+          }
         }
       }
 

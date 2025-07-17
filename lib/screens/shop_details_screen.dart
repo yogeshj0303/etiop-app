@@ -76,7 +76,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
         centerTitle: true,
         elevation: 1,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, ),
+          icon: const Icon(
+            Icons.arrow_back,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -84,7 +86,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
         title: const Text(
           'Shop Details',
           style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, ),
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SafeArea(
@@ -98,7 +102,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
             } else {
               final shopDetails = snapshot.data!;
               _debugPrintCatalogData(shopDetails);
-        
+
               return Stack(
                 children: [
                   SingleChildScrollView(
@@ -109,7 +113,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(0),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
                               width: MediaQuery.of(context).size.width,
                               height: 200,
                               color: Colors.white,
@@ -124,7 +129,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     child: const Icon(Icons.error),
                                   );
                                 },
-                                loadingBuilder: (context, child, loadingProgress) {
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
                                   return Container(
                                     height: 200,
@@ -144,14 +150,18 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                             children: [
                               const SizedBox(height: 16),
                               Text(
-                                shopDetails.categoryName?.toLowerCase() == 'government'
-                                    ? shopDetails.officeName ?? 'No Office Name Available'
-                                    : shopDetails.shopName ?? 'No Name Available',
+                                shopDetails.categoryName?.toLowerCase() ==
+                                        'government'
+                                    ? shopDetails.officeName ??
+                                        'No Office Name Available'
+                                    : shopDetails.shopName ??
+                                        'No Name Available',
                                 style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                  
+
                               const SizedBox(height: 8),
                               HtmlWidget(shopDetails.description),
                               const SizedBox(height: 16),
@@ -163,7 +173,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     child: Text(
                                       '${shopDetails.area}${shopDetails.city != null && shopDetails.city!.isNotEmpty ? ', ${shopDetails.city}' : ''}, ${shopDetails.state}, ${shopDetails.country}, ${shopDetails.zipcode}',
                                       style: const TextStyle(
-                                          fontSize: 16, ),
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -181,10 +192,12 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                         if (phone != null && phone.isNotEmpty) {
                                           Uri uri = Uri.parse('tel:$phone');
                                           launch(uri.toString());
-                                        }else{
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
                                             const SnackBar(
-                                              content: Text('No phone number available'),
+                                              content: Text(
+                                                  'No phone number available'),
                                             ),
                                           );
                                         }
@@ -195,7 +208,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                       label: const Text(
                                         'Contact',
                                         style: TextStyle(
-                                            fontSize: 14, fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -203,13 +217,15 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     ElevatedButton.icon(
                                       onPressed: () {
                                         final email = shopDetails.email;
-                                        if (email != null && email.isNotEmpty) {  
+                                        if (email != null && email.isNotEmpty) {
                                           Uri uri = Uri.parse('mailto:$email');
                                           launch(uri.toString());
-                                        }else{
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
                                             const SnackBar(
-                                              content: Text('No email available'),
+                                              content:
+                                                  Text('No email available'),
                                             ),
                                           );
                                         }
@@ -217,21 +233,26 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                       icon: const Icon(Icons.mail),
                                       label: const Text('Email',
                                           style: TextStyle(
-                                              fontSize: 14, fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
                                           )),
                                     ),
                                     const SizedBox(width: 8),
                                     ElevatedButton.icon(
                                       onPressed: () {
-                                        final website = shopDetails.website_link;
+                                        final website =
+                                            shopDetails.website_link;
                                         print(website);
-                                        if (website != null && website.isNotEmpty) {  
+                                        if (website != null &&
+                                            website.isNotEmpty) {
                                           Uri uri = Uri.parse(website);
                                           launch(uri.toString());
-                                        }else{
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
                                             const SnackBar(
-                                              content: Text('No website available'),
+                                              content:
+                                                  Text('No website available'),
                                             ),
                                           );
                                         }
@@ -239,9 +260,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                       icon: const Icon(Icons.link),
                                       label: const Text('Website',
                                           style: TextStyle(
-                                              fontSize: 14, fontWeight: FontWeight.bold,
-                                          )
-                                      ),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          )),
                                     ),
                                     const SizedBox(width: 8),
                                     ElevatedButton.icon(
@@ -250,18 +271,23 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                         if (url != null && url.isNotEmpty) {
                                           Uri uri = Uri.parse(url);
                                           launch(uri.toString());
-                                        }else{
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
                                             const SnackBar(
-                                              content: Text('No direction available'),
+                                              content: Text(
+                                                  'No direction available'),
                                             ),
                                           );
                                         }
                                       },
-                                      icon: const Icon(Icons.map,),
-                                      label: const Text('Direction'
-                                          , style: TextStyle(
-                                              fontSize: 14, fontWeight: FontWeight.bold,
+                                      icon: const Icon(
+                                        Icons.map,
+                                      ),
+                                      label: const Text('Direction',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
                                           )),
                                     ),
                                   ],
@@ -274,7 +300,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
-                                  const SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               // Add category and subcategory information
                               Row(
                                 children: [
@@ -298,61 +324,70 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
-                             Row(
-                              children: [
-                                const Icon(Icons.category, size: 20),
-                                const SizedBox(width: 8),
-                                Expanded(child: Text('${shopDetails.subCategoryName ?? 'N/A'}', style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black,
-                                ),)),
-                              ],
-                             ),
-                             const SizedBox(height: 4),
-                             //if shopDetails.categoryName?.toLowerCase() == 'government' then show department name and officer name
-                             if (shopDetails.categoryName?.toLowerCase() == 'government') ...[
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  const Text(
-                                    'Department:',
-                                    style: TextStyle(
-                                        fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Text(
-                                      shopDetails.departmentName ?? 'No Department Name Available',
-                                      style: TextStyle(
-                                          fontSize: 16,
+                                  const Icon(Icons.category, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                      child: Text(
+                                    '${shopDetails.subCategoryName ?? 'N/A'}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
                                     ),
-                                    ),
-                                  ),
+                                  )),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Officer:',
-                                    style: TextStyle(
-                                        fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Text(
-                                      shopDetails.officerName ?? 'No Officer Name Available',
+                              //if shopDetails.categoryName?.toLowerCase() == 'government' then show department name and officer name
+                              if (shopDetails.categoryName?.toLowerCase() ==
+                                  'government') ...[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Department:',
                                       style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8.0),
+                                      child: Text(
+                                        shopDetails.departmentName ??
+                                            'No Department Name Available',
+                                        style: TextStyle(
                                           fontSize: 16,
-                                  ),
-                                  ),
-                                  ),
-                                ],
-                              ),
-                             ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Officer:',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8.0),
+                                      child: Text(
+                                        shopDetails.officerName ??
+                                            'No Officer Name Available',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                               // const Text(
                               //   'Services:',
                               //   style: TextStyle(
@@ -365,13 +400,18 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               //   const Text('No services available'),
                               const SizedBox(height: 8),
                               // Catalog Images Section
-                              if ([shopDetails.catlog_0, shopDetails.catlog_1, 
-                                  shopDetails.catlog_2, shopDetails.catlog_3, 
-                                  shopDetails.catlog_4].any((img) => img != null)) ...[
+                              if ([
+                                shopDetails.catlog_0,
+                                shopDetails.catlog_1,
+                                shopDetails.catlog_2,
+                                shopDetails.catlog_3,
+                                shopDetails.catlog_4
+                              ].any((img) => img != null)) ...[
                                 const Text(
                                   'Catalogue Images:',
                                   style: TextStyle(
-                                      fontSize: 18, fontWeight: FontWeight.bold),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 8),
                                 SizedBox(
@@ -380,15 +420,20 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     scrollDirection: Axis.horizontal,
                                     children: [
                                       if (shopDetails.catlog_0 != null)
-                                        _buildCatalogImage(shopDetails.catlog_0!),
+                                        _buildCatalogImage(
+                                            shopDetails.catlog_0!),
                                       if (shopDetails.catlog_1 != null)
-                                        _buildCatalogImage(shopDetails.catlog_1!),
+                                        _buildCatalogImage(
+                                            shopDetails.catlog_1!),
                                       if (shopDetails.catlog_2 != null)
-                                        _buildCatalogImage(shopDetails.catlog_2!),
+                                        _buildCatalogImage(
+                                            shopDetails.catlog_2!),
                                       if (shopDetails.catlog_3 != null)
-                                        _buildCatalogImage(shopDetails.catlog_3!),
+                                        _buildCatalogImage(
+                                            shopDetails.catlog_3!),
                                       if (shopDetails.catlog_4 != null)
-                                        _buildCatalogImage(shopDetails.catlog_4!),
+                                        _buildCatalogImage(
+                                            shopDetails.catlog_4!),
                                     ],
                                   ),
                                 ),
@@ -405,7 +450,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                   categoryId: shopDetails.categoryId,
                                 ),
                               ),
-                              const SizedBox(height: 100), // Add extra padding here
+                              const SizedBox(
+                                  height: 100), // Add extra padding here
                             ],
                           ),
                         ),
@@ -429,16 +475,19 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                           isScrollControlled: true,
                           useSafeArea: true,
                           shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(16.0)),
                           ),
                           builder: (context) => DraggableScrollableSheet(
-                            initialChildSize: 0.9, // Takes up 90% of screen height
+                            initialChildSize:
+                                0.9, // Takes up 90% of screen height
                             minChildSize: 0.5, // Minimum 50% of screen height
                             maxChildSize: 0.95, // Maximum 95% of screen height
                             expand: false,
                             builder: (context, scrollController) => Padding(
                               padding: EdgeInsets.only(
-                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom,
                               ),
                               child: SingleChildScrollView(
                                 controller: scrollController,
@@ -450,7 +499,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                       },
                       label: const Text('Send Requirement',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           )),
                     ),
                   ),

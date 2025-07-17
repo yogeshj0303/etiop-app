@@ -243,14 +243,18 @@ class ApiService {
     List<File> catalogueImages,
   ) async {
     try {
-      // Check for active subscription
+      // Check for active subscription or trial period
       bool hasSubscription = await PaymentService.hasActiveSubscription();
       if (!hasSubscription) {
-        return {
-          'success': false,
-          'requiresSubscription': true,
-          'message': 'Active subscription required to create a shop'
-        };
+        // If no subscription, check trial period
+        bool isInTrial = await PaymentService.isInTrialPeriod();
+        if (!isInTrial) {
+          return {
+            'success': false,
+            'requiresSubscription': true,
+            'message': 'Active subscription required to create a shop'
+          };
+        }
       }
 
       var request = http.MultipartRequest(

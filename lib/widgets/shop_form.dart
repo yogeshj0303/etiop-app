@@ -199,6 +199,7 @@ class _AddShopState extends State<AddShop> {
             );
             return;
           }
+          // If user is in trial period, continue with shop creation
         }
 
         final prefs = await SharedPreferences.getInstance();
