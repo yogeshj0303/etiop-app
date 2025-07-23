@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login_screen.dart'; // Import the LoginScreen
+import 'guideline_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -39,7 +40,29 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(seconds: 2)); // Splash screen duration
 
     final prefs = await SharedPreferences.getInstance();
+    final bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
     final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (!hasSeenGuideline) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GuidelineScreen(
+            onComplete: () async {
+              await prefs.setBool('hasSeenGuideline', true);
+              final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => isLoggedIn ? const MainScreen() : const LoginScreen(),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
 
     // Navigate to the appropriate screen based on login status
     if (isLoggedIn) {
