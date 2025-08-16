@@ -318,6 +318,7 @@ class _AddShopState extends State<AddShop> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -437,19 +438,19 @@ class _AddShopState extends State<AddShop> {
                           // Conditional form fields based on category type
                           if (_categoryType == 'government') ...[
                             _buildTextField(
-                                AppLocalizations.of(context)!.name,
+                                l10n.departmentName,
                                 'department_name',
                                 departmentNameController,
                                 14,
                                 const Icon(Icons.business, size: 18)),
                             _buildTextField(
-                                AppLocalizations.of(context)!.name,
+                                l10n.officeName,
                                 'office_name',
                                 officeNameController,
                                 14,
                                 const Icon(Icons.business_center, size: 18)),
                             _buildTextField(
-                                AppLocalizations.of(context)!.name,
+                                l10n.officerName,
                                 'officer_name',
                                 officerNameController,
                                 14,
@@ -474,7 +475,7 @@ class _AddShopState extends State<AddShop> {
                                 14,
                                 const Icon(Icons.description, size: 18)),
                             _buildTextField(
-                                AppLocalizations.of(context)!.name,
+                                l10n.websiteLink,
                                 'website_link',
                                 websiteLinkController,
                                 14,
@@ -482,7 +483,7 @@ class _AddShopState extends State<AddShop> {
                                 isRequired: false),
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
-                                labelText: 'State',
+                                labelText: l10n.state,
                                 prefixIcon:
                                     const Icon(Icons.location_city, size: 18),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -539,22 +540,22 @@ class _AddShopState extends State<AddShop> {
                             ),
                             const SizedBox(height: 14),
                             //add city field
-                            _buildTextField('City', 'city', cityController, 14,
+                            _buildTextField(l10n.city, 'city', cityController, 14,
                                 const Icon(Icons.location_city, size: 18)),
                             _buildTextField(
-                                'Pincode',
+                                l10n.zipcode,
                                 'pincode',
                                 pincodeController,
                                 14,
                                 const Icon(Icons.pin_drop, size: 18)),
                             _buildTextField(
-                                'Office Address',
+                                l10n.officeAddress,
                                 'area',
                                 areaController,
                                 14,
                                 const Icon(Icons.location_on, size: 18)),
                             _buildTextField(
-                                'Google Map Location',
+                                l10n.googleMapLocation,
                                 'google_map_link',
                                 googleMapLinkController,
                                 14,
@@ -562,32 +563,32 @@ class _AddShopState extends State<AddShop> {
                                 isRequired: false),
                           ] else if (_categoryType == 'public') ...[
                             _buildTextField(
-                                'Spot Name',
+                                l10n.spotName,
                                 'spot_name',
                                 spotNameController,
                                 14,
                                 const Icon(Icons.place, size: 18)),
                             _buildTextField(
-                                'Contact Number',
+                                l10n.contactNumber,
                                 'contact_number',
                                 contactNumberController,
                                 14,
                                 const Icon(Icons.phone, size: 18),
                                 keyboardType: TextInputType.number),
                             _buildTextField(
-                                'Email ID',
+                                l10n.emailId,
                                 'email',
                                 spotEmailController,
                                 14,
                                 const Icon(Icons.email, size: 18)),
                             _buildTextField(
-                                'Description',
+                                l10n.description,
                                 'description',
                                 descriptionController,
                                 14,
                                 const Icon(Icons.description, size: 18)),
                             _buildTextField(
-                                'Website',
+                                l10n.websiteLink,
                                 'website_link',
                                 websiteLinkController,
                                 14,
@@ -652,22 +653,22 @@ class _AddShopState extends State<AddShop> {
                             ),
                             const SizedBox(height: 14),
                             //add city field
-                            _buildTextField('City', 'city', cityController, 14,
+                            _buildTextField(l10n.city, 'city', cityController, 14,
                                 const Icon(Icons.location_city, size: 18)),
                             _buildTextField(
-                                'Pincode',
+                                l10n.zipcode,
                                 'pincode',
                                 pincodeController,
                                 14,
                                 const Icon(Icons.pin_drop, size: 18)),
                             _buildTextField(
-                                'Spot Address',
+                                l10n.spotAddress,
                                 'area',
                                 areaController,
                                 14,
                                 const Icon(Icons.location_on, size: 18)),
                             _buildTextField(
-                                'Google Map Location',
+                                l10n.googleMapLocation,
                                 'google_map_link',
                                 googleMapLinkController,
                                 14,
@@ -676,13 +677,13 @@ class _AddShopState extends State<AddShop> {
                           ] else ...[
                             // Original private business form fields
                             _buildTextField(
-                                'Shop Name',
+                                l10n.shopName,
                                 'shop_name',
                                 shopNameController,
                                 14,
                                 const Icon(Icons.storefront, size: 18)),
                             _buildTextField(
-                                'Shop No',
+                                l10n.shopNo,
                                 'shop_no',
                                 shopNoController,
                                 14,
@@ -746,31 +747,31 @@ class _AddShopState extends State<AddShop> {
                             ),
                             const SizedBox(height: 14),
                             //add city field
-                            _buildTextField('City', 'city', cityController, 14,
+                            _buildTextField(l10n.city, 'city', cityController, 14,
                                 const Icon(Icons.location_city, size: 18)),
                             _buildTextField(
-                                'Pincode',
+                                l10n.zipcode,
                                 'pincode',
                                 pincodeController,
                                 14,
                                 const Icon(Icons.pin_drop, size: 18)),
-                            _buildTextField('Address', 'area', areaController,
+                            _buildTextField(l10n.address, 'area', areaController,
                                 14, const Icon(Icons.location_city, size: 18)),
                             _buildTextField(
-                                'Description',
+                                l10n.description,
                                 'description',
                                 descriptionController,
                                 14,
                                 const Icon(Icons.description, size: 18)),
                             _buildTextField(
-                                'Website Link',
+                                l10n.websiteLink,
                                 'website_link',
                                 websiteLinkController,
                                 14,
                                 const Icon(Icons.link, size: 18),
                                 isRequired: false),
                             _buildTextField(
-                                'Google Map Link',
+                                l10n.googleMapLink,
                                 'google_map_link',
                                 googleMapLinkController,
                                 14,
@@ -782,7 +783,7 @@ class _AddShopState extends State<AddShop> {
 
                           // Image picker sections
                           Text(
-                            'Main Photo',
+                            l10n.mainPhoto,
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
                           ),
@@ -812,8 +813,8 @@ class _AddShopState extends State<AddShop> {
                                           size: 40,
                                         ),
                                         const SizedBox(height: 10),
-                                        const Text(
-                                          'Pick an Image',
+                                        Text(
+                                          l10n.pickAnImage,
                                         ),
                                       ],
                                     )
@@ -859,7 +860,7 @@ class _AddShopState extends State<AddShop> {
 
                           // Catalogue images section
                           Text(
-                            'Catalogue Images',
+                            l10n.catalogueImages,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -942,8 +943,8 @@ class _AddShopState extends State<AddShop> {
                               ),
                               child: _isLoading
                                   ? const CircularProgressIndicator()
-                                  : const Text(
-                                      'Submit',
+                                  : Text(
+                                      l10n.submit,
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -958,7 +959,7 @@ class _AddShopState extends State<AddShop> {
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Text(
-                                'Please select a category to view the form',
+                                l10n.pleaseSelectCategory,
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.grey[600],

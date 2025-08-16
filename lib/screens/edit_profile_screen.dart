@@ -48,7 +48,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _emailController.text = widget.userData['email'] ?? '';
     _mobileController.text = widget.userData['mobile_number'] ?? '';
     _addressController.text = widget.userData['address'] ?? '';
-    _selectedGender = widget.userData['gender'];
+    
+    // Map stored gender values to localized values
+    final storedGender = widget.userData['gender'];
+    if (storedGender == 'Male' || storedGender == 'पुरुष') {
+      _selectedGender = 'Male';
+    } else if (storedGender == 'Female' || storedGender == 'महिला') {
+      _selectedGender = 'Female';
+    } else if (storedGender == 'Other' || storedGender == 'अन्य') {
+      _selectedGender = 'Other';
+    } else {
+      _selectedGender = null;
+    }
+    
     _selectedState = widget.userData['state'];
     _selectedDistrict = widget.userData['district'];
     
@@ -170,9 +182,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  String _formatDate(DateTime? date) {
-    final l10n = AppLocalizations.of(context)!;
-    if (date == null) return l10n.selectDate;
+  String _formatDate(DateTime? date, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (date == null) return l10n?.selectDate ?? 'Select Date';
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
@@ -220,7 +232,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ? FileImage(_imageFile!) as ImageProvider
                               : (widget.currentAvatar.isNotEmpty
                                   ? NetworkImage('https://etiop.in/${widget.currentAvatar}')
-                                  : const AssetImage('assets/images/default_avatar.png')) as ImageProvider,
+                                  : null),
+                          child: (_imageFile == null && (widget.currentAvatar.isEmpty || widget.currentAvatar == "Not specified"))
+                              ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                              : null,
                         ),
                       ),
                       Positioned(
@@ -331,9 +346,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       prefixIcon: const Icon(Icons.person_outline),
                     ),
                     items: [
-                      DropdownMenuItem(value: l10n.male, child: Text(l10n.male)),
-                      DropdownMenuItem(value: l10n.female, child: Text(l10n.female)),
-                      DropdownMenuItem(value: l10n.other, child: Text(l10n.other)),
+                      DropdownMenuItem(value: 'Male', child: Text(l10n.male)),
+                      DropdownMenuItem(value: 'Female', child: Text(l10n.female)),
+                      DropdownMenuItem(value: 'Other', child: Text(l10n.other)),
                     ],
                     onChanged: (value) {
                       setState(() => _selectedGender = value);
@@ -370,7 +385,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         prefixIcon: const Icon(Icons.calendar_today_outlined),
                       ),
                       child: Text(
-                        _formatDate(_selectedDate),
+                        _formatDate(_selectedDate, context),
                         style: TextStyle(
                           color: _selectedDate == null ? Colors.grey.shade600 : Colors.black,
                         ),

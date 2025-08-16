@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:etiop_application/widgets/related_shops.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../modals/shop_details.dart';
 import '../services/api_services.dart';
 import '../widgets/contact_form.dart';
@@ -24,7 +25,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
     _shopDetailsFuture = ApiService().fetchShopDetails(widget.shopId);
   }
 
-  Widget _buildCatalogImages(ShopDetails shopDetails) {
+  Widget _buildCatalogImages(ShopDetails shopDetails, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     List<String?> catalogImages = [
       shopDetails.catlog_0,
       shopDetails.catlog_1,
@@ -38,9 +40,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Catalog Images:',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          l10n.catalogImages,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         SizedBox(
@@ -71,6 +73,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -83,9 +86,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          'Shop Details',
-          style: TextStyle(
+        title: Text(
+          l10n.shopDetails,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -98,7 +101,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError || !snapshot.hasData) {
-              return const Center(child: Text('Failed to load shop details.'));
+              return Center(child: Text(l10n.failedToLoadShopDetails));
             } else {
               final shopDetails = snapshot.data!;
               _debugPrintCatalogData(shopDetails);
@@ -153,9 +156,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 shopDetails.categoryName?.toLowerCase() ==
                                         'government'
                                     ? shopDetails.officeName ??
-                                        'No Office Name Available'
+                                        l10n.noOfficeNameAvailable
                                     : shopDetails.shopName ??
-                                        'No Name Available',
+                                        l10n.noNameAvailable,
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -195,9 +198,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
                                               content: Text(
-                                                  'No phone number available'),
+                                                  l10n.noPhoneNumberAvailable),
                                             ),
                                           );
                                         }
@@ -205,9 +208,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                       icon: const Icon(
                                         Icons.call,
                                       ),
-                                      label: const Text(
-                                        'Contact',
-                                        style: TextStyle(
+                                      label: Text(
+                                        l10n.contact,
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -223,16 +226,16 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
                                               content:
-                                                  Text('No email available'),
+                                                  Text(l10n.noEmailAvailable),
                                             ),
                                           );
                                         }
                                       },
                                       icon: const Icon(Icons.mail),
-                                      label: const Text('Email',
-                                          style: TextStyle(
+                                      label: Text(l10n.email,
+                                          style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           )),
@@ -250,16 +253,16 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
                                               content:
-                                                  Text('No website available'),
+                                                  Text(l10n.noWebsiteAvailable),
                                             ),
                                           );
                                         }
                                       },
                                       icon: const Icon(Icons.link),
-                                      label: const Text('Website',
-                                          style: TextStyle(
+                                      label: Text(l10n.website,
+                                          style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           )),
@@ -274,9 +277,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
                                               content: Text(
-                                                  'No direction available'),
+                                                  l10n.noDirectionAvailable),
                                             ),
                                           );
                                         }
@@ -284,8 +287,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                       icon: const Icon(
                                         Icons.map,
                                       ),
-                                      label: const Text('Direction',
-                                          style: TextStyle(
+                                      label: Text(l10n.direction,
+                                          style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           )),
@@ -294,9 +297,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Text(
-                                "Category:",
-                                style: TextStyle(
+                              Text(
+                                l10n.categoryLabel,
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
@@ -318,9 +321,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              const Text(
-                                'Sub Category:',
-                                style: TextStyle(
+                              Text(
+                                l10n.subCategoryLabel,
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
@@ -345,9 +348,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Department:',
-                                      style: TextStyle(
+                                    Text(
+                                      l10n.department,
+                                      style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -356,7 +359,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                       padding: const EdgeInsets.only(left: 8.0),
                                       child: Text(
                                         shopDetails.departmentName ??
-                                            'No Department Name Available',
+                                            l10n.noDepartmentNameAvailable,
                                         style: TextStyle(
                                           fontSize: 16,
                                         ),
@@ -369,8 +372,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Officer:',
-                                      style: TextStyle(
+                                      l10n.officer,
+                                      style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -379,7 +382,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                       padding: const EdgeInsets.only(left: 8.0),
                                       child: Text(
                                         shopDetails.officerName ??
-                                            'No Officer Name Available',
+                                            l10n.noOfficerNameAvailable,
                                         style: TextStyle(
                                           fontSize: 16,
                                         ),
@@ -407,9 +410,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 shopDetails.catlog_3,
                                 shopDetails.catlog_4
                               ].any((img) => img != null)) ...[
-                                const Text(
-                                  'Catalogue Images:',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.catalogueImages,
+                                  style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -439,9 +442,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                 ),
                                 const SizedBox(height: 16),
                               ],
-                              const Text(
-                                'Related Services:',
-                                style: TextStyle(
+                              Text(
+                                l10n.relatedServices,
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               Container(
@@ -497,8 +500,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                           ),
                         );
                       },
-                      label: const Text('Send Requirement',
-                          style: TextStyle(
+                      label: Text(l10n.sendRequirement,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           )),
