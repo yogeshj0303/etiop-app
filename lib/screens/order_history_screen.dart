@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../services/api_services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       if (userId == null) {
         setState(() {
           _isLoading = false;
-          _error = 'User ID not found';
+          _error = AppLocalizations.of(context)!.userIDNotFound;
         });
         return;
       }
@@ -53,13 +54,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       } else {
         setState(() {
           _isLoading = false;
-          _error = 'Failed to load payment history';
+          _error = AppLocalizations.of(context)!.networkError;
         });
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = 'Error: $e';
+        _error = AppLocalizations.of(context)!.unknownError;
       });
     }
   }
@@ -76,8 +77,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             fit: BoxFit.contain,
           ),
           const SizedBox(height: 24),
-          const Text(
-            'No Orders Yet',
+          Text(
+            AppLocalizations.of(context)!.noData,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -85,8 +86,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Your order history will appear here\nonce you make a purchase',
+          Text(
+            AppLocalizations.of(context)!.noData,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -110,7 +111,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            _error ?? 'An error occurred',
+            _error ?? AppLocalizations.of(context)!.unknownError,
             style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 24),
@@ -126,7 +127,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               backgroundColor: const Color(4292815168),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: const Text('Retry'),
+            child: Text(AppLocalizations.of(context)!.retry),
           ),
         ],
       ),
@@ -153,7 +154,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    'Order ID: ${payment['order_id']}',
+                    '${AppLocalizations.of(context)!.order} ID: ${payment['order_id']}',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -189,9 +190,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Amount',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.price,
+                      style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
                       ),
@@ -210,9 +211,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text(
-                      'Plan',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.category,
+                      style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
                       ),
@@ -252,8 +253,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Order History',
+        title: Text(
+          AppLocalizations.of(context)!.orderHistory,
           style: TextStyle(
               fontWeight: FontWeight.w600, fontSize: 20, color: Colors.white),
         ),

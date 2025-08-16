@@ -339,7 +339,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ? NetworkImage(
                               'https://etiop.in/$avatar')
                           : const AssetImage(
-                                  'assets/images/profile_placeholder.png')
+                                  'assets/images/profile_placeholder.jpg')
                               as ImageProvider,
                     ),
                   ],

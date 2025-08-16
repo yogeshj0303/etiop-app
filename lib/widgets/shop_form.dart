@@ -65,10 +65,14 @@ class _AddShopState extends State<AddShop> {
   // Add a TextEditingController for the pincode
   TextEditingController pincodeController = TextEditingController();
 
+  // Add a variable to track the last language code to detect language changes
+  String _lastLanguageCode = '';
+
   @override
   void initState() {
     super.initState();
     _fetchCategories(); // Only fetch categories on init
+    _lastLanguageCode = Provider.of<LanguageProvider>(context, listen: false).currentLanguageCode;
   }
 
   @override
@@ -318,667 +322,6 @@ class _AddShopState extends State<AddShop> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(AppLocalizations.of(context)!.addShop,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            size: 18,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        elevation: 1,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-
-                        // Category Dropdown
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 10),
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: AppLocalizations.of(context)!.category,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 20.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                            ),
-                            value: _selectedCategory,
-                            onChanged: (newValue) {
-                              setState(() {
-                                _selectedCategory = newValue;
-                                _selectedSubCategory = null;
-
-                                // Determine category type
-                                if (newValue != null) {
-                                  final category = _categories.firstWhere(
-                                    (cat) => cat['id'].toString() == newValue,
-                                    orElse: () => null,
-                                  );
-                                  if (category != null) {
-                                    _categoryType = category['category_name']
-                                        .toString()
-                                        .toLowerCase();
-                                  }
-                                }
-                              });
-                              if (newValue != null) {
-                                _fetchSubCategories(int.parse(newValue));
-                              }
-                            },
-                            items: _categories.map((category) {
-                              return DropdownMenuItem<String>(
-                                value: category['id'].toString(),
-                                child: Text(category['category_name']),
-                              );
-                            }).toList(),
-                            validator: (value) => value == null
-                                ? AppLocalizations.of(context)!.categoryRequired
-                                : null,
-                          ),
-                        ),
-
-                        // Show the rest of the form only if a category is selected
-                        if (_selectedCategory != null) ...[
-                          // Subcategory Dropdown
-                          if (_subCategories.isNotEmpty)
-                            DropdownButtonFormField<int>(
-                              decoration: InputDecoration(
-                                labelText: AppLocalizations.of(context)!.subcategory,
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
-                              value: _selectedSubCategory != null
-                                  ? int.tryParse(_selectedSubCategory!)
-                                  : null,
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  _selectedSubCategory = newValue?.toString();
-                                });
-                              },
-                              items: _subCategories.map<DropdownMenuItem<int>>(
-                                  (dynamic subCategory) {
-                                final Subcategory sub =
-                                    subCategory as Subcategory;
-                                return DropdownMenuItem<int>(
-                                  value: sub.id,
-                                  child: Text(sub.subcategoryName ?? ''),
-                                );
-                              }).toList(),
-                              validator: (value) => value == null
-                                  ? AppLocalizations.of(context)!.subcategoryRequired
-                                  : null,
-                            ),
-                          const SizedBox(height: 16),
-
-                          // Conditional form fields based on category type
-                          if (_categoryType == 'government') ...[
-                            _buildTextField(
-                                l10n.departmentName,
-                                'department_name',
-                                departmentNameController,
-                                14,
-                                const Icon(Icons.business, size: 18)),
-                            _buildTextField(
-                                l10n.officeName,
-                                'office_name',
-                                officeNameController,
-                                14,
-                                const Icon(Icons.business_center, size: 18)),
-                            _buildTextField(
-                                l10n.officerName,
-                                'officer_name',
-                                officerNameController,
-                                14,
-                                const Icon(Icons.person, size: 18)),
-                            _buildTextField(
-                                AppLocalizations.of(context)!.mobileNumber,
-                                'mobile_number',
-                                mobileNumberController,
-                                14,
-                                const Icon(Icons.phone, size: 18),
-                                keyboardType: TextInputType.number),
-                            _buildTextField(
-                                AppLocalizations.of(context)!.email,
-                                'email',
-                                emailController,
-                                14,
-                                const Icon(Icons.email, size: 18)),
-                            _buildTextField(
-                                AppLocalizations.of(context)!.description,
-                                'description',
-                                descriptionController,
-                                14,
-                                const Icon(Icons.description, size: 18)),
-                            _buildTextField(
-                                l10n.websiteLink,
-                                'website_link',
-                                websiteLinkController,
-                                14,
-                                const Icon(Icons.link, size: 18),
-                                isRequired: false),
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: l10n.state,
-                                prefixIcon:
-                                    const Icon(Icons.location_city, size: 18),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              value: _selectedState,
-                              items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
-                                return DropdownMenuItem<String>(
-                                  value: state,
-                                  child: Text(state),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedState = newValue;
-                                  _selectedDistrict = null;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? l10n.pleaseSelectState
-                                  : null,
-                            ),
-                            const SizedBox(height: 14),
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: l10n.district,
-                                prefixIcon:
-                                    const Icon(Icons.location_city, size: 18),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              value: _selectedDistrict,
-                              items: _selectedState == null
-                                  ? []
-                                  : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
-                                      .map((String district) {
-                                      return DropdownMenuItem<String>(
-                                        value: district,
-                                        child: Text(district),
-                                      );
-                                    }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedDistrict = newValue;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? l10n.pleaseSelectDistrict
-                                  : null,
-                            ),
-                            const SizedBox(height: 14),
-                            //add city field
-                            _buildTextField(l10n.city, 'city', cityController, 14,
-                                const Icon(Icons.location_city, size: 18)),
-                            _buildTextField(
-                                l10n.zipcode,
-                                'pincode',
-                                pincodeController,
-                                14,
-                                const Icon(Icons.pin_drop, size: 18)),
-                            _buildTextField(
-                                l10n.officeAddress,
-                                'area',
-                                areaController,
-                                14,
-                                const Icon(Icons.location_on, size: 18)),
-                            _buildTextField(
-                                l10n.googleMapLocation,
-                                'google_map_link',
-                                googleMapLinkController,
-                                14,
-                                const Icon(Icons.map, size: 18),
-                                isRequired: false),
-                          ] else if (_categoryType == 'public') ...[
-                            _buildTextField(
-                                l10n.spotName,
-                                'spot_name',
-                                spotNameController,
-                                14,
-                                const Icon(Icons.place, size: 18)),
-                            _buildTextField(
-                                l10n.contactNumber,
-                                'contact_number',
-                                contactNumberController,
-                                14,
-                                const Icon(Icons.phone, size: 18),
-                                keyboardType: TextInputType.number),
-                            _buildTextField(
-                                l10n.emailId,
-                                'email',
-                                spotEmailController,
-                                14,
-                                const Icon(Icons.email, size: 18)),
-                            _buildTextField(
-                                l10n.description,
-                                'description',
-                                descriptionController,
-                                14,
-                                const Icon(Icons.description, size: 18)),
-                            _buildTextField(
-                                l10n.websiteLink,
-                                'website_link',
-                                websiteLinkController,
-                                14,
-                                const Icon(Icons.link, size: 18),
-                                isRequired: false),
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: l10n.state,
-                                prefixIcon:
-                                    const Icon(Icons.location_city, size: 18),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              value: _selectedState,
-                              items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
-                                return DropdownMenuItem<String>(
-                                  value: state,
-                                  child: Text(state),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedState = newValue;
-                                  _selectedDistrict = null;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? l10n.pleaseSelectState
-                                  : null,
-                            ),
-                            const SizedBox(height: 14),
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: l10n.district,
-                                prefixIcon:
-                                    const Icon(Icons.location_city, size: 18),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              value: _selectedDistrict,
-                              items: _selectedState == null
-                                  ? []
-                                  : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
-                                      .map((String district) {
-                                      return DropdownMenuItem<String>(
-                                        value: district,
-                                        child: Text(district),
-                                      );
-                                    }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedDistrict = newValue;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? l10n.pleaseSelectDistrict
-                                  : null,
-                            ),
-                            const SizedBox(height: 14),
-                            //add city field
-                            _buildTextField(l10n.city, 'city', cityController, 14,
-                                const Icon(Icons.location_city, size: 18)),
-                            _buildTextField(
-                                l10n.zipcode,
-                                'pincode',
-                                pincodeController,
-                                14,
-                                const Icon(Icons.pin_drop, size: 18)),
-                            _buildTextField(
-                                l10n.spotAddress,
-                                'area',
-                                areaController,
-                                14,
-                                const Icon(Icons.location_on, size: 18)),
-                            _buildTextField(
-                                l10n.googleMapLocation,
-                                'google_map_link',
-                                googleMapLinkController,
-                                14,
-                                const Icon(Icons.map, size: 18),
-                                isRequired: false),
-                          ] else ...[
-                            // Original private business form fields
-                            _buildTextField(
-                                l10n.shopName,
-                                'shop_name',
-                                shopNameController,
-                                14,
-                                const Icon(Icons.storefront, size: 18)),
-                            _buildTextField(
-                                l10n.shopNo,
-                                'shop_no',
-                                shopNoController,
-                                14,
-                                const Icon(Icons.home, size: 18)),
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: l10n.state,
-                                prefixIcon:
-                                    const Icon(Icons.location_city, size: 18),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              value: _selectedState,
-                              items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
-                                return DropdownMenuItem<String>(
-                                  value: state,
-                                  child: Text(state),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedState = newValue;
-                                  _selectedDistrict = null;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? l10n.pleaseSelectState
-                                  : null,
-                            ),
-                            const SizedBox(height: 14),
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: l10n.district,
-                                prefixIcon:
-                                    const Icon(Icons.location_city, size: 18),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              value: _selectedDistrict,
-                              items: _selectedState == null
-                                  ? []
-                                  : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
-                                      .map((String district) {
-                                      return DropdownMenuItem<String>(
-                                        value: district,
-                                        child: Text(district),
-                                      );
-                                    }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedDistrict = newValue;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? l10n.pleaseSelectDistrict
-                                  : null,
-                            ),
-                            const SizedBox(height: 14),
-                            //add city field
-                            _buildTextField(l10n.city, 'city', cityController, 14,
-                                const Icon(Icons.location_city, size: 18)),
-                            _buildTextField(
-                                l10n.zipcode,
-                                'pincode',
-                                pincodeController,
-                                14,
-                                const Icon(Icons.pin_drop, size: 18)),
-                            _buildTextField(l10n.address, 'area', areaController,
-                                14, const Icon(Icons.location_city, size: 18)),
-                            _buildTextField(
-                                l10n.description,
-                                'description',
-                                descriptionController,
-                                14,
-                                const Icon(Icons.description, size: 18)),
-                            _buildTextField(
-                                l10n.websiteLink,
-                                'website_link',
-                                websiteLinkController,
-                                14,
-                                const Icon(Icons.link, size: 18),
-                                isRequired: false),
-                            _buildTextField(
-                                l10n.googleMapLink,
-                                'google_map_link',
-                                googleMapLinkController,
-                                14,
-                                const Icon(Icons.map, size: 18),
-                                isRequired: false),
-                          ],
-
-                          const SizedBox(height: 20),
-
-                          // Image picker sections
-                          Text(
-                            l10n.mainPhoto,
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 10),
-
-                          // Existing image picker code
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              width: double.infinity,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1,
-                                ),
-                              ),
-                              padding: const EdgeInsets.all(16.0),
-                              child: _shopImage == null
-                                  ? Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.image,
-                                          size: 40,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          l10n.pickAnImage,
-                                        ),
-                                      ],
-                                    )
-                                  : Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: Image.file(
-                                            File(_shopImage!.path),
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                _shopImage = null;
-                                              });
-                                            },
-                                            child: Container(
-                                              decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                              ),
-                                              padding: const EdgeInsets.all(4),
-                                              child: const Icon(
-                                                Icons.close,
-                                                size: 20,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // Catalogue images section
-                          Text(
-                            l10n.catalogueImages,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 80,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _catalogueImages!.length +
-                                  (_catalogueImages!.length < 5 ? 1 : 0),
-                              itemBuilder: (context, index) {
-                                if (index == _catalogueImages!.length) {
-                                  return GestureDetector(
-                                    onTap: _catalogueImages!.length < 5
-                                        ? _pickCatalogueImages
-                                        : null,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Colors.black,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      height: 80,
-                                      width: 80,
-                                      child: Icon(Icons.add, size: 40),
-                                    ),
-                                  );
-                                } else {
-                                  return Stack(
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 8.0),
-                                        child: Image.file(
-                                          File(_catalogueImages![index].path),
-                                          width: 80,
-                                          height: 80,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: GestureDetector(
-                                          onTap: () => _removeImage(index),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  Colors.black.withOpacity(0.5),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                              Icons.cancel,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          // Submit Button
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _submitForm,
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(double.infinity, 40),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: _isLoading
-                                  ? const CircularProgressIndicator()
-                                  : Text(
-                                      l10n.submit,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                        ] else ...[
-                          // Show a message when no category is selected
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Text(
-                                l10n.pleaseSelectCategory,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-    );
-  }
-
   Widget _buildTextField(String label, String key,
       TextEditingController controller, double fontSize, Icon icon,
       {bool isRequired = true, TextInputType? keyboardType}) {
@@ -1006,6 +349,679 @@ class _AddShopState extends State<AddShop> {
                 value?.isEmpty ?? true ? 'This field is required' : null
             : null,
         onSaved: (value) => _formData[key] = value?.trim() ?? '',
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          l10n.addShop,
+          style: const TextStyle(color: Colors.black),
+        ),
+      ),
+      body: Consumer<LanguageProvider>(
+        builder: (context, languageProvider, child) {
+          // Reset state and district selections when language changes to avoid mismatch
+          if (languageProvider.currentLanguageCode != _lastLanguageCode) {
+            _lastLanguageCode = languageProvider.currentLanguageCode;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              setState(() {
+                _selectedState = null;
+                _selectedDistrict = null;
+              });
+            });
+          }
+          
+          return _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            // Category Dropdown
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  labelText: AppLocalizations.of(context)!.category,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 20.0),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                value: _selectedCategory,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    _selectedCategory = newValue;
+                                    _selectedSubCategory = null;
+
+                                    // Determine category type
+                                    if (newValue != null) {
+                                      final category = _categories.firstWhere(
+                                        (cat) => cat['id'].toString() == newValue,
+                                        orElse: () => null,
+                                      );
+                                      if (category != null) {
+                                        _categoryType = category['category_name']
+                                            .toString()
+                                            .toLowerCase();
+                                      }
+                                    }
+                                  });
+                                  if (newValue != null) {
+                                    _fetchSubCategories(int.parse(newValue));
+                                  }
+                                },
+                                items: _categories.map((category) {
+                                  return DropdownMenuItem<String>(
+                                    value: category['id'].toString(),
+                                    child: Text(category['category_name']),
+                                  );
+                                }).toList(),
+                                validator: (value) => value == null
+                                    ? AppLocalizations.of(context)!.categoryRequired
+                                    : null,
+                              ),
+                            ),
+
+                            // Show the rest of the form only if a category is selected
+                            if (_selectedCategory != null) ...[
+                              // Subcategory Dropdown
+                              if (_subCategories.isNotEmpty)
+                                DropdownButtonFormField<int>(
+                                  decoration: InputDecoration(
+                                    labelText: AppLocalizations.of(context)!.subcategory,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                  value: _selectedSubCategory != null
+                                      ? int.tryParse(_selectedSubCategory!)
+                                      : null,
+                                  onChanged: (int? newValue) {
+                                    setState(() {
+                                      _selectedSubCategory = newValue?.toString();
+                                    });
+                                  },
+                                  items: _subCategories.map<DropdownMenuItem<int>>(
+                                      (dynamic subCategory) {
+                                    final Subcategory sub =
+                                        subCategory as Subcategory;
+                                    return DropdownMenuItem<int>(
+                                      value: sub.id,
+                                      child: Text(sub.subcategoryName ?? ''),
+                                    );
+                                  }).toList(),
+                                  validator: (value) => value == null
+                                      ? AppLocalizations.of(context)!.subcategoryRequired
+                                      : null,
+                                ),
+                              const SizedBox(height: 16),
+
+                              // Conditional form fields based on category type
+                              if (_categoryType == 'government') ...[
+                                _buildTextField(
+                                    l10n.departmentName,
+                                    'department_name',
+                                    departmentNameController,
+                                    14,
+                                    const Icon(Icons.business, size: 18)),
+                                _buildTextField(
+                                    l10n.officeName,
+                                    'office_name',
+                                    officeNameController,
+                                    14,
+                                    const Icon(Icons.business_center, size: 18)),
+                                _buildTextField(
+                                    l10n.officerName,
+                                    'officer_name',
+                                    officerNameController,
+                                    14,
+                                    const Icon(Icons.person, size: 18)),
+                                _buildTextField(
+                                    AppLocalizations.of(context)!.mobileNumber,
+                                    'mobile_number',
+                                    mobileNumberController,
+                                    14,
+                                    const Icon(Icons.phone, size: 18),
+                                    keyboardType: TextInputType.number),
+                                _buildTextField(
+                                    AppLocalizations.of(context)!.email,
+                                    'email',
+                                    emailController,
+                                    14,
+                                    const Icon(Icons.email, size: 18)),
+                                _buildTextField(
+                                    AppLocalizations.of(context)!.description,
+                                    'description',
+                                    descriptionController,
+                                    14,
+                                    const Icon(Icons.description, size: 18)),
+                                _buildTextField(
+                                    l10n.websiteLink,
+                                    'website_link',
+                                    websiteLinkController,
+                                    14,
+                                    const Icon(Icons.link, size: 18),
+                                    isRequired: false),
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: l10n.state,
+                                    prefixIcon:
+                                        const Icon(Icons.location_city, size: 18),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0)),
+                                  ),
+                                  value: _selectedState,
+                                  items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
+                                    return DropdownMenuItem<String>(
+                                      value: state,
+                                      child: Text(state),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedState = newValue;
+                                      _selectedDistrict = null;
+                                    });
+                                  },
+                                  validator: (value) => value == null
+                                      ? l10n.pleaseSelectState
+                                      : null,
+                                ),
+                                const SizedBox(height: 14),
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: l10n.district,
+                                    prefixIcon:
+                                        const Icon(Icons.location_city, size: 18),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0)),
+                                  ),
+                                  value: _selectedDistrict,
+                                  items: _selectedState == null
+                                      ? []
+                                      : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
+                                          .map((String district) {
+                                          return DropdownMenuItem<String>(
+                                            value: district,
+                                            child: Text(district),
+                                          );
+                                        }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedDistrict = newValue;
+                                    });
+                                  },
+                                  validator: (value) => value == null
+                                      ? l10n.pleaseSelectDistrict
+                                      : null,
+                                ),
+                                const SizedBox(height: 14),
+                                //add city field
+                                _buildTextField(l10n.city, 'city', cityController, 14,
+                                    const Icon(Icons.location_city, size: 18)),
+                                _buildTextField(
+                                    l10n.zipcode,
+                                    'pincode',
+                                    pincodeController,
+                                    14,
+                                    const Icon(Icons.pin_drop, size: 18)),
+                                _buildTextField(
+                                    l10n.officeAddress,
+                                    'area',
+                                    areaController,
+                                    14,
+                                    const Icon(Icons.location_on, size: 18)),
+                                _buildTextField(
+                                    l10n.googleMapLocation,
+                                    'google_map_link',
+                                    googleMapLinkController,
+                                    14,
+                                    const Icon(Icons.map, size: 18),
+                                    isRequired: false),
+                              ] else if (_categoryType == 'public') ...[
+                                _buildTextField(
+                                    l10n.spotName,
+                                    'spot_name',
+                                    spotNameController,
+                                    14,
+                                    const Icon(Icons.place, size: 18)),
+                                _buildTextField(
+                                    l10n.contactNumber,
+                                    'contact_number',
+                                    contactNumberController,
+                                    14,
+                                    const Icon(Icons.phone, size: 18),
+                                    keyboardType: TextInputType.number),
+                                _buildTextField(
+                                    l10n.emailId,
+                                    'email',
+                                    spotEmailController,
+                                    14,
+                                    const Icon(Icons.email, size: 18)),
+                                _buildTextField(
+                                    l10n.description,
+                                    'description',
+                                    descriptionController,
+                                    14,
+                                    const Icon(Icons.description, size: 18)),
+                                _buildTextField(
+                                    l10n.websiteLink,
+                                    'website_link',
+                                    websiteLinkController,
+                                    14,
+                                    const Icon(Icons.link, size: 18),
+                                    isRequired: false),
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: l10n.state,
+                                    prefixIcon:
+                                        const Icon(Icons.location_city, size: 18),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0)),
+                                  ),
+                                  value: _selectedState,
+                                  items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
+                                    return DropdownMenuItem<String>(
+                                      value: state,
+                                      child: Text(state),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedState = newValue;
+                                      _selectedDistrict = null;
+                                    });
+                                  },
+                                  validator: (value) => value == null
+                                      ? l10n.pleaseSelectState
+                                      : null,
+                                ),
+                                const SizedBox(height: 14),
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: l10n.district,
+                                    prefixIcon:
+                                        const Icon(Icons.location_city, size: 18),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0)),
+                                  ),
+                                  value: _selectedDistrict,
+                                  items: _selectedState == null
+                                      ? []
+                                      : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
+                                          .map((String district) {
+                                          return DropdownMenuItem<String>(
+                                            value: district,
+                                            child: Text(district),
+                                          );
+                                        }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedDistrict = newValue;
+                                    });
+                                  },
+                                  validator: (value) => value == null
+                                      ? l10n.pleaseSelectDistrict
+                                      : null,
+                                ),
+                                const SizedBox(height: 14),
+                                //add city field
+                                _buildTextField(l10n.city, 'city', cityController, 14,
+                                    const Icon(Icons.location_city, size: 18)),
+                                _buildTextField(
+                                    l10n.zipcode,
+                                    'pincode',
+                                    pincodeController,
+                                    14,
+                                    const Icon(Icons.pin_drop, size: 18)),
+                                _buildTextField(
+                                    l10n.spotAddress,
+                                    'area',
+                                    areaController,
+                                    14,
+                                    const Icon(Icons.location_on, size: 18)),
+                                _buildTextField(
+                                    l10n.googleMapLocation,
+                                    'google_map_link',
+                                    googleMapLinkController,
+                                    14,
+                                    const Icon(Icons.map, size: 18),
+                                    isRequired: false),
+                              ] else ...[
+                                // Original private business form fields
+                                _buildTextField(
+                                    l10n.shopName,
+                                    'shop_name',
+                                    shopNameController,
+                                    14,
+                                    const Icon(Icons.storefront, size: 18)),
+                                _buildTextField(
+                                    l10n.shopNo,
+                                    'shop_no',
+                                    shopNoController,
+                                    14,
+                                    const Icon(Icons.home, size: 18)),
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: l10n.state,
+                                    prefixIcon:
+                                        const Icon(Icons.location_city, size: 18),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0)),
+                                  ),
+                                  value: _selectedState,
+                                  items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
+                                    return DropdownMenuItem<String>(
+                                      value: state,
+                                      child: Text(state),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedState = newValue;
+                                      _selectedDistrict = null;
+                                    });
+                                  },
+                                  validator: (value) => value == null
+                                      ? l10n.pleaseSelectState
+                                      : null,
+                                ),
+                                const SizedBox(height: 14),
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: l10n.district,
+                                    prefixIcon:
+                                        const Icon(Icons.location_city, size: 18),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0)),
+                                  ),
+                                  value: _selectedDistrict,
+                                  items: _selectedState == null
+                                      ? []
+                                      : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
+                                          .map((String district) {
+                                          return DropdownMenuItem<String>(
+                                            value: district,
+                                            child: Text(district),
+                                          );
+                                        }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedDistrict = newValue;
+                                    });
+                                  },
+                                  validator: (value) => value == null
+                                      ? l10n.pleaseSelectDistrict
+                                      : null,
+                                ),
+                                const SizedBox(height: 14),
+                                //add city field
+                                _buildTextField(l10n.city, 'city', cityController, 14,
+                                    const Icon(Icons.location_city, size: 18)),
+                                _buildTextField(
+                                    l10n.zipcode,
+                                    'pincode',
+                                    pincodeController,
+                                    14,
+                                    const Icon(Icons.pin_drop, size: 18)),
+                                _buildTextField(l10n.address, 'area', areaController,
+                                    14, const Icon(Icons.location_city, size: 18)),
+                                _buildTextField(
+                                    l10n.description,
+                                    'description',
+                                    descriptionController,
+                                    14,
+                                    const Icon(Icons.description, size: 18)),
+                                _buildTextField(
+                                    l10n.websiteLink,
+                                    'website_link',
+                                    websiteLinkController,
+                                    14,
+                                    const Icon(Icons.link, size: 18),
+                                    isRequired: false),
+                                _buildTextField(
+                                    l10n.googleMapLink,
+                                    'google_map_link',
+                                    googleMapLinkController,
+                                    14,
+                                    const Icon(Icons.map, size: 18),
+                                    isRequired: false),
+                              ],
+
+                              const SizedBox(height: 20),
+
+                              // Image picker sections
+                              Text(
+                                l10n.mainPhoto,
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Existing image picker code
+                              GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: _shopImage == null
+                                      ? Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.image,
+                                              size: 40,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              l10n.pickAnImage,
+                                            ),
+                                          ],
+                                        )
+                                      : Stack(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              child: Image.file(
+                                                File(_shopImage!.path),
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 8,
+                                              right: 8,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _shopImage = null;
+                                                  });
+                                                },
+                                                child: Container(
+                                                  decoration: const BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  padding: const EdgeInsets.all(4),
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // Catalogue images section
+                              Text(
+                                l10n.catalogueImages,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                height: 80,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _catalogueImages!.length +
+                                      (_catalogueImages!.length < 5 ? 1 : 0),
+                                  itemBuilder: (context, index) {
+                                    if (index == _catalogueImages!.length) {
+                                      return GestureDetector(
+                                        onTap: _catalogueImages!.length < 5
+                                            ? _pickCatalogueImages
+                                            : null,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.black,
+                                              width: 1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          height: 80,
+                                          width: 80,
+                                          child: Icon(Icons.add, size: 40),
+                                        ),
+                                      );
+                                    } else {
+                                      return Stack(
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 8.0),
+                                            child: Image.file(
+                                              File(_catalogueImages![index].path),
+                                              width: 80,
+                                              height: 80,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: GestureDetector(
+                                              onTap: () => _removeImage(index),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      Colors.black.withOpacity(0.5),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.cancel,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              // Submit Button
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: _isLoading ? null : _submitForm,
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size(double.infinity, 40),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: _isLoading
+                                      ? const CircularProgressIndicator()
+                                      : Text(
+                                          l10n.submit,
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ] else ...[
+                              // Show a message when no category is selected
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text(
+                                    l10n.pleaseSelectCategory,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+        },
       ),
     );
   }

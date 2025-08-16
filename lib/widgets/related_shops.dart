@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../modals/related_shops.dart';
 import '../screens/shop_details_screen.dart';
 import '../services/api_services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RelatedShopsScreen extends StatefulWidget {
   final int categoryId;
@@ -33,14 +34,14 @@ class _RelatedShopsScreenState extends State<RelatedShopsScreen> {
             print(snapshot.stackTrace);
             return Center(
               child: Text(
-                'An error occurred: ${snapshot.error}',
+                AppLocalizations.of(context)!.networkError,
                 textAlign: TextAlign.center,
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'No related shops found.',
+                AppLocalizations.of(context)!.noShopsAvailable,
                 style: TextStyle(fontSize: 16, ),
               ),
             );
@@ -107,16 +108,16 @@ class _RelatedShopsScreenState extends State<RelatedShopsScreen> {
                           errorBuilder: (context, error, stackTrace) => Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
+                              children: [
+                                const Icon(
                                   Icons.image_not_supported,
                                   size: 40,
                                   color: Colors.grey,
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
-                                  'Image not available',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.noData,
+                                  style: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 12,
                                   ),

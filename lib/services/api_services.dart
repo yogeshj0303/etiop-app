@@ -331,10 +331,18 @@ class ApiService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => Subcategory.fromJson(json)).toList();
+      } else if (response.statusCode == 404) {
+        // Handle 404 specifically - no subcategories found for this category
+        final responseData = jsonDecode(response.body);
+        final message = responseData['message'] ?? 'No subcategories found for this category';
+        throw Exception(message);
       } else {
-        throw Exception('Failed to load subcategories');
+        throw Exception('Failed to load subcategories: ${response.statusCode}');
       }
     } catch (e) {
+      if (e.toString().contains('No subcategories found')) {
+        rethrow; // Re-throw 404 errors as-is
+      }
       throw Exception('Error fetching subcategories: $e');
     }
   }
@@ -359,10 +367,12 @@ class ApiService {
         throw responseData['message'] ?? 'Failed to load shops';
       }
     } else if (response.statusCode == 404) {
+      // Handle 404 specifically - no shops found for this subcategory
       final responseData = json.decode(response.body);
-      throw responseData['message'];
+      final message = responseData['message'] ?? 'No shops found for this subcategory';
+      throw Exception(message);
     } else {
-      throw Exception('Failed to fetch data from API');
+      throw Exception('Failed to fetch data from API: ${response.statusCode}');
     }
   }
 

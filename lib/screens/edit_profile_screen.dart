@@ -24,6 +24,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -37,6 +38,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isLoading = false;
   String? _selectedState;
   String? _selectedDistrict;
+  String? _lastLanguageCode; // Track language changes
 
   @override
   void initState() {
@@ -80,6 +82,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     }
   }
+
+           void _updateLocationSelectionsForLanguage(String languageCode) {
+           if (languageCode != _lastLanguageCode) {
+             _lastLanguageCode = languageCode;
+             // Reset state and district selections when language changes to avoid mismatch
+             WidgetsBinding.instance.addPostFrameCallback((_) {
+               setState(() {
+                 _selectedState = null;
+                 _selectedDistrict = null;
+               });
+             });
+           }
+         }
 
   void _onStateChanged(String? state) {
     setState(() {
@@ -193,301 +208,286 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          l10n.editProfile,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        elevation: 0, // Modern design often uses less elevation
+        title: Text(
+          l10n.editProfile,
+          style: const TextStyle(color: Colors.black),
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Profile Image Section with gradient background
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Theme.of(context).primaryColor.withOpacity(0.2),
-                            width: 4,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 65,
-                          backgroundColor: Colors.white,
-                          backgroundImage: _imageFile != null
-                              ? FileImage(_imageFile!) as ImageProvider
-                              : (widget.currentAvatar.isNotEmpty
-                                  ? NetworkImage('https://etiop.in/${widget.currentAvatar}')
-                                  : null),
-                          child: (_imageFile == null && (widget.currentAvatar.isEmpty || widget.currentAvatar == "Not specified"))
-                              ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                              : null,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                            onPressed: _pickImage,
-                            constraints: const BoxConstraints(
-                              minHeight: 40,
-                              minWidth: 40,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-            // Form Section
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+      body: Consumer<LanguageProvider>(
+        builder: (context, languageProvider, child) {
+          // Update state and district selections when language changes
+          _updateLocationSelectionsForLanguage(languageProvider.currentLanguageCode);
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      l10n.personalInformation,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  // Profile Image Section
+                  Center(
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundImage: _imageFile != null
+                              ? FileImage(_imageFile!)
+                              : (widget.currentAvatar.isNotEmpty
+                                  ? NetworkImage(widget.currentAvatar) as ImageProvider
+                                  : const AssetImage('assets/images/profile_placeholder.jpg') as ImageProvider),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(4292815168),
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.camera_alt, color: Colors.white),
+                              onPressed: _pickImage,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  // Name Row
-                  Row(
+                  const SizedBox(height: 32),
+                  // Form Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _firstNameController,
-                          decoration: InputDecoration(
-                            labelText: l10n.firstName,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            prefixIcon: const Icon(Icons.person_outline),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          l10n.personalInformation,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: _lastNameController,
-                          decoration: InputDecoration(
-                            labelText: l10n.lastName,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 16),
+                      // Name Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _firstNameController,
+                              decoration: InputDecoration(
+                                labelText: l10n.firstName,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                prefixIcon: const Icon(Icons.person_outline),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Contact Information
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: l10n.email,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.email_outlined),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _mobileController,
-                    decoration: InputDecoration(
-                      labelText: l10n.mobileNumber,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.phone_outlined),
-                    ),
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 16),
-                  // Gender Dropdown
-                  DropdownButtonFormField<String>(
-                    value: _selectedGender,
-                    decoration: InputDecoration(
-                      labelText: l10n.gender,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.person_outline),
-                    ),
-                    items: [
-                      DropdownMenuItem(value: 'Male', child: Text(l10n.male)),
-                      DropdownMenuItem(value: 'Female', child: Text(l10n.female)),
-                      DropdownMenuItem(value: 'Other', child: Text(l10n.other)),
-                    ],
-                    onChanged: (value) {
-                      setState(() => _selectedGender = value);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  // Date of Birth
-                  InkWell(
-                    onTap: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate ?? DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              dialogBackgroundColor: Colors.white,
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextField(
+                              controller: _lastNameController,
+                              decoration: InputDecoration(
+                                labelText: l10n.lastName,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                             ),
-                            child: child!,
-                          );
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Contact Information
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: l10n.email,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.email_outlined),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _mobileController,
+                        decoration: InputDecoration(
+                          labelText: l10n.mobileNumber,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.phone_outlined),
+                        ),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+                      // Gender Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: InputDecoration(
+                          labelText: l10n.gender,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.person_outline),
+                        ),
+                        items: [
+                          DropdownMenuItem(value: 'Male', child: Text(l10n.male)),
+                          DropdownMenuItem(value: 'Female', child: Text(l10n.female)),
+                          DropdownMenuItem(value: 'Other', child: Text(l10n.other)),
+                        ],
+                        onChanged: (value) {
+                          setState(() => _selectedGender = value);
                         },
-                      );
-                      if (picked != null) {
-                        setState(() => _selectedDate = picked);
-                      }
-                    },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: l10n.dateOfBirth,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.calendar_today_outlined),
                       ),
-                      child: Text(
-                        _formatDate(_selectedDate, context),
-                        style: TextStyle(
-                          color: _selectedDate == null ? Colors.grey.shade600 : Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  // State Dropdown
-                  DropdownButtonFormField<String>(
-                    value: _selectedState,
-                    decoration: InputDecoration(
-                      labelText: l10n.state,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.map_outlined),
-                    ),
-                    items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
-                      return DropdownMenuItem<String>(
-                        value: state,
-                        child: Text(state),
-                      );
-                    }).toList(),
-                    onChanged: _onStateChanged,
-                  ),
-                  const SizedBox(height: 16),
-                  // District Dropdown
-                  DropdownButtonFormField<String>(
-                    value: _selectedDistrict,
-                    decoration: InputDecoration(
-                      labelText: l10n.city,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.location_city_outlined),
-                    ),
-                    items: _selectedState == null
-                        ? []
-                        : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!).map((String district) {
-                            return DropdownMenuItem<String>(
-                              value: district,
-                              child: Text(district),
-                            );
-                          }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedDistrict = newValue;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  // Address
-                  TextField(
-                    controller: _addressController,
-                    decoration: InputDecoration(
-                      labelText: l10n.address,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      prefixIcon: const Icon(Icons.location_on_outlined),
-                    ),
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 24),
-                  // Update Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _updateProfile,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Text(
-                              l10n.update,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                      const SizedBox(height: 16),
+                      // Date of Birth
+                      InkWell(
+                        onTap: () async {
+                          final DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDate ?? DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  dialogBackgroundColor: Colors.white,
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+                          if (picked != null) {
+                            setState(() => _selectedDate = picked);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: l10n.dateOfBirth,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                    ),
+                            prefixIcon: const Icon(Icons.calendar_today_outlined),
+                          ),
+                          child: Text(
+                            _formatDate(_selectedDate, context),
+                            style: TextStyle(
+                              color: _selectedDate == null ? Colors.grey.shade600 : Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      // State Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedState,
+                        decoration: InputDecoration(
+                          labelText: l10n.state,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.map_outlined),
+                        ),
+                        items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
+                          return DropdownMenuItem<String>(
+                            value: state,
+                            child: Text(state),
+                          );
+                        }).toList(),
+                        onChanged: _onStateChanged,
+                      ),
+                      const SizedBox(height: 16),
+                      // District Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedDistrict,
+                        decoration: InputDecoration(
+                          labelText: l10n.city,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.location_city_outlined),
+                        ),
+                        items: _selectedState == null
+                            ? []
+                            : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!).map((String district) {
+                                return DropdownMenuItem<String>(
+                                  value: district,
+                                  child: Text(district),
+                                );
+                              }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedDistrict = newValue;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      // Address
+                      TextField(
+                        controller: _addressController,
+                        decoration: InputDecoration(
+                          labelText: l10n.address,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.location_on_outlined),
+                        ),
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 24),
+                      // Update Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _updateProfile,
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : Text(
+                                  l10n.update,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
