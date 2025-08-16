@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -16,7 +18,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             size: 18,
           ),
         ),
-        title: const Text('Privacy Policy'),
+        title: Text(l10n.privacyPolicy),
         elevation: 1,
       ),
       body: SingleChildScrollView(
@@ -25,74 +27,71 @@ class PrivacyPolicyScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildIntroduction(),
+              _buildIntroduction(context),
               const SizedBox(height: 24),
               _buildSection(
-                'Information We Collect',
+                context,
+                l10n.informationWeCollect,
                 [
                   _buildBulletPoint(
-                    'Personal Information',
-                    'We may collect personal details such as your name, email '
-                        'address, phone number, and location when you register or '
-                        'use our services.',
+                    context,
+                    l10n.personalInformation,
+                    l10n.personalInfoDescription,
                   ),
                   _buildBulletPoint(
-                    'Usage Data',
-                    'We gather data on how you access and interact with our app, '
-                        'including device information, IP address, and browsing patterns.',
+                    context,
+                    l10n.usageData,
+                    l10n.usageDataDescription,
                   ),
                 ],
               ),
               _buildSection(
-                'How We Use Your Information',
+                context,
+                l10n.howWeUseYourInformation,
                 [
                   _buildBulletPoint(
-                    'Service Delivery',
-                    'To provide you with seamless access to government services, '
-                        'private sector resources, and public utilities.',
+                    context,
+                    l10n.serviceDelivery,
+                    l10n.serviceDeliveryDescription,
                   ),
                   _buildBulletPoint(
-                    'Communication',
-                    'To send you updates, notifications, and promotional '
-                        'materials related to our services.',
+                    context,
+                    l10n.communication,
+                    l10n.communicationDescription,
                   ),
                   _buildBulletPoint(
-                    'Improvement',
-                    'To analyze usage patterns and enhance user experience.',
+                    context,
+                    l10n.improvement,
+                    l10n.improvementDescription,
                   ),
                 ],
               ),
               _buildSection(
-                'Data Sharing',
+                context,
+                l10n.dataSharing,
                 [
                   Text(
-                    'We do not sell or rent your personal information to third '
-                    'parties. We may share your information with trusted partners '
-                    'who assist us in providing our services while ensuring that '
-                    'they comply with privacy regulations.',
+                    l10n.dataSharingDescription,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ],
               ),
               _buildSection(
-                'Security of Your Information',
+                context,
+                l10n.securityOfYourInformation,
                 [
                   Text(
-                    'We implement appropriate security measures to protect your '
-                    'data from unauthorized access or disclosure. However, no '
-                    'method of transmission over the internet or electronic '
-                    'storage is 100% secure.',
+                    l10n.securityDescription,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ],
               ),
               _buildSection(
-                'Your Rights',
+                context,
+                l10n.yourRights,
                 [
                   Text(
-                    'You have the right to access, correct, or delete your '
-                    'personal information at any time. For any inquiries '
-                    'regarding your data, please contact us through the app.',
+                    l10n.rightsDescription,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ],
@@ -105,22 +104,22 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIntroduction() {
+  Widget _buildIntroduction(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: const Text(
-        'At ETIOP, we value your privacy and are committed to protecting your '
-        'personal information. This Privacy Policy outlines how we collect, use, '
-        'disclose, and safeguard your information when you use our app.',
-        style: TextStyle(
-          fontSize: 16,
-          height: 1.5,
+              child: Text(
+          l10n.privacyPolicyIntro,
+          style: const TextStyle(
+            fontSize: 16,
+            height: 1.5,
+          ),
         ),
-      ),
     );
   }
 
-  Widget _buildSection(String title, List<Widget> content) {
+  Widget _buildSection(BuildContext context, String title, List<Widget> content) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 24.0),
       child: Column(
@@ -134,14 +133,15 @@ class PrivacyPolicyScreen extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           ...content,
         ],
       ),
     );
   }
 
-  Widget _buildBulletPoint(String title, String content) {
+  Widget _buildBulletPoint(BuildContext context, String title, String content) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: RichText(
@@ -164,6 +164,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
   }
 
   Widget _buildContactSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24.0),
       padding: const EdgeInsets.all(16.0),
@@ -174,17 +175,17 @@ class PrivacyPolicyScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Contact Us',
-            style: TextStyle(
+          Text(
+            l10n.contact,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'If you have any questions about our Privacy Policy, please contact us at:',
-            style: TextStyle(fontSize: 16),
+          Text(
+            l10n.questionsAboutPrivacy,
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -200,9 +201,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
             onPressed: () {
               // Add email functionality here
             },
-            child: const Text(
+            child: Text(
               'etiop2706@gmail.com',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ],

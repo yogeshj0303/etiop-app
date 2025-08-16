@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/payment_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({Key? key}) : super(key: key);
@@ -17,87 +18,94 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   String _selectedPlan = 'monthly';
   bool _autoDebit = true;
 
-  // Plan details
-  final Map<String, Map<String, dynamic>> _planDetails = {
-    'monthly': {
-      'price': 100,
-      'period': 'month',
-      'discount': 0,
-      'features': [
-        'Register up to 5 businesses',
-        'Business compliance monitoring',
-        'Document management system',
-        'Priority customer support',
-        'Basic analytics dashboard',
-      ],
-    },
-    'yearly': {
-      'price': 1100,
-      'period': 'year',
-      'discount': 0,
-      'features': [
-        'Register unlimited businesses',
-        'Advanced compliance monitoring',
-        'Document management system',
-        'Priority customer support 24/7',
-        'Advanced analytics & reporting',
-        'Bulk registration discount',
-        'Dedicated account manager',
-      ],
-    },
-    '3years': {
-      'price': 3000,
-      'period': '3 years',
-      'discount': 300,
-      'features': [
-        'Register unlimited businesses',
-        'Advanced compliance monitoring',
-        'Document management system',
-        'Priority customer support 24/7',
-        'Advanced analytics & reporting',
-        'Bulk registration discount',
-        'Dedicated account manager',
-        '3-year commitment savings',
-      ],
-    },
-    '5years': {
-      'price': 4500,
-      'period': '5 years',
-      'discount': 1000,
-      'features': [
-        'Register unlimited businesses',
-        'Advanced compliance monitoring',
-        'Document management system',
-        'Priority customer support 24/7',
-        'Advanced analytics & reporting',
-        'Bulk registration discount',
-        'Dedicated account manager',
-        '5-year commitment savings',
-        'Premium support priority',
-      ],
-    },
-    '10years': {
-      'price': 8000,
-      'period': '10 years',
-      'discount': 3000,
-      'features': [
-        'Register unlimited businesses',
-        'Advanced compliance monitoring',
-        'Document management system',
-        'Priority customer support 24/7',
-        'Advanced analytics & reporting',
-        'Bulk registration discount',
-        'Dedicated account manager',
-        '10-year commitment savings',
-        'Premium support priority',
-        'Lifetime access benefits',
-      ],
-    },
-  };
+  // Plan details - will be populated with localized strings in initState
+  late Map<String, Map<String, dynamic>> _planDetails;
+
+
+
+  void _initializePlanDetails() {
+    _planDetails = {
+      'monthly': {
+        'price': 100,
+        'period': 'month',
+        'discount': 0,
+        'features': [
+          'Register up to 5 businesses',
+          'Business compliance monitoring',
+          'Document management system',
+          'Priority customer support',
+          'Basic analytics dashboard',
+        ],
+      },
+      'yearly': {
+        'price': 1100,
+        'period': 'year',
+        'discount': 0,
+        'features': [
+          'Register unlimited businesses',
+          'Advanced compliance monitoring',
+          'Document management system',
+          'Priority customer support 24/7',
+          'Advanced analytics & reporting',
+          'Bulk registration discount',
+          'Dedicated account manager',
+        ],
+      },
+      '3years': {
+        'price': 3000,
+        'period': '3 years',
+        'discount': 300,
+        'features': [
+          'Register unlimited businesses',
+          'Advanced compliance monitoring',
+          'Document management system',
+          'Priority customer support 24/7',
+          'Advanced analytics & reporting',
+          'Bulk registration discount',
+          'Dedicated account manager',
+          '3-year commitment savings',
+        ],
+      },
+      '5years': {
+        'price': 4500,
+        'period': '5 years',
+        'discount': 1000,
+        'features': [
+          'Register unlimited businesses',
+          'Advanced compliance monitoring',
+          'Document management system',
+          'Priority customer support 24/7',
+          'Advanced analytics & reporting',
+          'Bulk registration discount',
+          'Dedicated account manager',
+          '5-year commitment savings',
+          'Premium support priority',
+        ],
+      },
+      '10years': {
+        'price': 8000,
+        'period': '10 years',
+        'discount': 3000,
+        'features': [
+          'Register unlimited businesses',
+          'Advanced compliance monitoring',
+          'Document management system',
+          'Priority customer support 24/7',
+          'Advanced analytics & reporting',
+          'Bulk registration discount',
+          'Dedicated account manager',
+          '10-year commitment savings',
+          'Premium support priority',
+          'Lifetime access benefits',
+        ],
+      },
+    };
+  }
 
   @override
   void initState() {
     super.initState();
+    _initializePlanDetails();
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -122,6 +130,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
 
     try {
@@ -176,7 +185,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     } catch (e) {
       print('Payment error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error processing payment: $e')),
+        SnackBar(content: Text('${l10n.error}: $e')),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -184,12 +193,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Payment failed: ${response.message}')),
+      SnackBar(content: Text('${l10n.payment} failed: ${response.message}')),
     );
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
           content: Text('External wallet selected: ${response.walletName}')),
@@ -197,6 +208,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildTrialBanner() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 24),
@@ -235,19 +247,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   '1 Month Free Trial',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Try all premium features free for 30 days',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                   ),
@@ -262,9 +274,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Your Business'),
+        title: Text(l10n.business),
         elevation: 1,
       ),
       body: SingleChildScrollView(
@@ -287,6 +300,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildSubscriptionCard() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -324,7 +338,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Official Registration',
+                    l10n.business,
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.w600,
@@ -382,6 +396,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildPlanOption(String plan, {required bool isSelected}) {
+    final l10n = AppLocalizations.of(context)!;
     final details = _planDetails[plan]!;
     final price = details['price'];
     final discount = details['discount'];
@@ -514,6 +529,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildFeaturesList() {
+    final l10n = AppLocalizations.of(context)!;
     final features =
         _planDetails[_selectedPlan]?['features'] as List<String>? ?? [];
     return Container(
@@ -574,6 +590,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildSubscriptionDetails() {
+    final l10n = AppLocalizations.of(context)!;
     final selectedPlanDetails = _planDetails[_selectedPlan]!;
     final price = selectedPlanDetails['price'];
     final discount = selectedPlanDetails['discount'];
@@ -589,9 +606,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Subscription Detail',
-              style: TextStyle(
+            Text(
+              l10n.subscription,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -636,6 +653,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildPaymentButton() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       height: 56,
@@ -660,17 +678,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
                     'Continue to Payment',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, size: 20),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 20),
                 ],
               ),
       ),
@@ -684,11 +702,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final discount = planDetails['discount'];
       final finalPrice = price - discount;
 
+      final l10n = AppLocalizations.of(context)!;
       var options = {
         'key':
             'rzp_live_NbVPc9MoKWgylW', // Replace with your actual Razorpay live key
         'amount': finalPrice * 100,
-        'name': 'ETIOP Subscription',
+        'name': 'ETIOP ${l10n.subscription}',
         'description': '${_selectedPlan.toUpperCase()} Plan',
         'prefill': {
           'contact': await getUserMobileNumber(),
@@ -717,20 +736,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
       _razorpay.open(options);
     } catch (e) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('${l10n.error}: $e')),
       );
     }
   }
 
   Widget _buildPlanTitle(String title, String price, bool isPro) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             color: Color(0xFF281717),
             fontSize: 16,
             fontFamily: 'Poppins_regular',
@@ -740,7 +761,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         ),
         Text(
           price,
-          style: TextStyle(
+          style: const TextStyle(
             color: Color(0xFF757575),
             fontSize: 14,
             fontFamily: 'Poppins_regular',
@@ -753,6 +774,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildEnterpriseHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Row(
@@ -771,14 +793,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               ),
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Color(0xFFE8F5E9),
+              color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(
+            child: const Text(
               "SAVE 20%",
               style: TextStyle(
                 color: Color(0xFF388E3C),

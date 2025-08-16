@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TermsConditionsScreen extends StatelessWidget {
   const TermsConditionsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -13,7 +15,7 @@ class TermsConditionsScreen extends StatelessWidget {
           },
           icon: Icon(Icons.arrow_back_ios_new,size: 18,),
         ),
-        title: const Text('Terms & Conditions'),
+        title: Text(l10n.termsConditions),
         elevation: 1,
       ),
       body: SingleChildScrollView(
@@ -23,48 +25,40 @@ class TermsConditionsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSection(
-                'Acceptance of Terms',
-                'By using ETIOP, you agree to comply with these Terms & '
-                'Conditions. If you do not agree with any part of these terms, '
-                'please refrain from using our services.',
+                context,
+                l10n.acceptanceOfTerms,
+                l10n.termsAcceptanceDescription,
               ),
               _buildSection(
-                'Services Provided',
-                'ETIOP serves as a platform for accessing various government '
-                'services, private sector resources, and public utilities. We '
-                'strive to provide accurate and timely information but do not '
-                'guarantee the completeness or reliability of the content.',
+                context,
+                l10n.servicesProvided,
+                l10n.servicesDescription,
               ),
               _buildExpandableSection(
-                'User Responsibilities',
+                context,
+                l10n.userResponsibilities,
                 [
                   _buildSubSection(
-                    'Account Security',
-                    'You are responsible for maintaining the confidentiality of '
-                    'your account credentials and for all activities under your '
-                    'account.',
+                    context,
+                    l10n.accountSecurity,
+                    l10n.accountSecurityDescription,
                   ),
                   _buildSubSection(
-                    'Prohibited Activities',
-                    'You agree not to engage in any unlawful activities or '
-                    'misuse our platform in any way that could harm others or '
-                    'disrupt services.',
+                    context,
+                    l10n.prohibitedActivities,
+                    l10n.prohibitedActivitiesDescription,
                   ),
                 ],
               ),
               _buildSection(
-                'Limitation of Liability',
-                'ETIOP shall not be liable for any direct, indirect, incidental, '
-                'or consequential damages arising from your use of our app or '
-                'services. We do not guarantee uninterrupted access or error-free '
-                'performance.',
+                context,
+                l10n.limitationOfLiability,
+                l10n.liabilityDescription,
               ),
               _buildSection(
-                'Changes to Terms',
-                'We reserve the right to modify these Terms & Conditions at any '
-                'time. Any changes will be effective immediately upon posting in '
-                'the app. Your continued use of ETIOP after such changes '
-                'constitutes acceptance of the new terms.',
+                context,
+                l10n.changesToTerms,
+                l10n.changesDescription,
               ),
               _buildContactSection(context),
             ],
@@ -74,7 +68,8 @@ class TermsConditionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, String content) {
+  Widget _buildSection(BuildContext context, String title, String content) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 24.0),
       child: Column(
@@ -88,7 +83,7 @@ class TermsConditionsScreen extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             content,
             style: const TextStyle(
@@ -101,7 +96,8 @@ class TermsConditionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildExpandableSection(String title, List<Widget> subsections) {
+  Widget _buildExpandableSection(BuildContext context, String title, List<Widget> subsections) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 24.0),
       child: Column(
@@ -115,14 +111,15 @@ class TermsConditionsScreen extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           ...subsections,
         ],
       ),
     );
   }
 
-  Widget _buildSubSection(String title, String content) {
+  Widget _buildSubSection(BuildContext context, String title, String content) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0, left: 16.0),
       child: Column(
@@ -136,7 +133,7 @@ class TermsConditionsScreen extends StatelessWidget {
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             content,
             style: const TextStyle(
@@ -150,6 +147,7 @@ class TermsConditionsScreen extends StatelessWidget {
   }
 
   Widget _buildContactSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24.0),
       padding: const EdgeInsets.all(16.0),
@@ -160,26 +158,26 @@ class TermsConditionsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Questions About Our Terms?',
-            style: TextStyle(
+          Text(
+            l10n.questionsAboutTerms,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'If you have any questions about our Terms & Conditions, please contact our support team:',
-            style: TextStyle(fontSize: 16),
+          Text(
+            l10n.contactSupportTeam,
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: () {
               // Add email functionality here
             },
-            child: const Text(
+            child: Text(
               'etiop2706@gmail.com',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ],
