@@ -4,6 +4,7 @@ import 'package:etiop_application/widgets/shop_form.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:etiop_application/services/payment_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../widgets/shops_grid.dart';
 import 'home_screen.dart';
@@ -58,6 +59,7 @@ class _MainScreenState extends State<MainScreen> {
 
   // Build the bottom navigation bar with Cupertino icons
   Widget _buildBottomNavigationBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Stack(
       clipBehavior: Clip.none,
       children: <Widget>[
@@ -78,11 +80,11 @@ class _MainScreenState extends State<MainScreen> {
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.home, size: 20),
-              label: 'Home',
+              label: l10n.home,
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.building_2_fill, size: 20),
-              label: 'Business',
+              label: l10n.business,
             ),
             // This is the middle placeholder item for the FAB
             BottomNavigationBarItem(
@@ -91,11 +93,11 @@ class _MainScreenState extends State<MainScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.bell, size: 20),
-              label: 'Notifications',
+              label: l10n.notifications,
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.profile_circled, size: 20),
-              label: 'Profile',
+              label: l10n.profile,
             ),
           ],
         ),

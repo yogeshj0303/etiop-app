@@ -6,7 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:etiop_application/screens/subcategory_screen.dart';
 import 'package:etiop_application/services/payment_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // Add this import
+import 'package:provider/provider.dart';
+import 'package:etiop_application/providers/language_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -26,20 +30,39 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: MaterialTheme(
-        GoogleFonts.getTextTheme(
-          'Poppins',
-        ),
-      ).light(),
-      home: const SplashScreen(),
-      routes: {
-        '/subcategory': (context) => SubcategoryScreen(
-            category: ModalRoute.of(context)!.settings.arguments
-                as Map<String, dynamic>),
-      },
-      navigatorKey: PaymentService.navigatorKey,
+    return ChangeNotifierProvider(
+      create: (context) => LanguageProvider(),
+      child: Consumer<LanguageProvider>(
+        builder: (context, languageProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Etiop Application',
+            locale: languageProvider.currentLocale,
+            supportedLocales: const [
+              Locale('en'), // English
+              Locale('hi'), // Hindi
+            ],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              AppLocalizations.delegate, // Crucial for AppLocalizations.of(context)
+            ],
+            theme: MaterialTheme(
+              GoogleFonts.getTextTheme(
+                'Poppins',
+              ),
+            ).light(),
+            home: const SplashScreen(),
+            routes: {
+              '/subcategory': (context) => SubcategoryScreen(
+                  category: ModalRoute.of(context)!.settings.arguments
+                      as Map<String, dynamic>),
+            },
+            navigatorKey: PaymentService.navigatorKey,
+          );
+        },
+      ),
     );
   }
 }

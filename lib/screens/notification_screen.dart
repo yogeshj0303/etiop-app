@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_services.dart'; // Import the ApiService
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'main_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -60,8 +61,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 MaterialPageRoute(builder: (context) => MainScreen()))),
         elevation: 1,
         centerTitle: true,
-        title: const Text(
-          'NOTIFICATIONS',
+        title: Text(
+          AppLocalizations.of(context)!.notifications,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
@@ -79,7 +80,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No Notifications',
+                        AppLocalizations.of(context)!.noNotifications,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -88,7 +89,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'You don\'t have any notifications yet',
+                        AppLocalizations.of(context)!.noNotificationsMessage,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[500],
@@ -142,14 +143,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
   // Update the method to format the created_at timestamp
   String _formatTimestamp(String? createdAt) {
     if (createdAt == null) {
-      return 'No timestamp';
+      return AppLocalizations.of(context)!.noTimestamp;
     }
     try {
       final DateTime dateTime = DateTime.parse(createdAt);
       final String formattedTime = TimeOfDay.fromDateTime(dateTime).format(context);
       return formattedTime;
     } catch (e) {
-      return 'Invalid date';
+      return AppLocalizations.of(context)!.invalidDate;
     }
   }
 }

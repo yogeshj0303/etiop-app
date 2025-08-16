@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
 import '../services/api_services.dart';
 
 class SupportScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _SupportScreenState extends State<SupportScreen> {
           'Support',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(4292815168), // Red color consistent with theme
+        backgroundColor: const Color(4292815168), // Red color consistent with theme
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -99,17 +100,17 @@ class _SupportScreenState extends State<SupportScreen> {
                 // Message Field
                 TextFormField(
                   controller: _messageController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     alignLabelWithHint: true,
                     // Ensures the label stays at the top
                     labelText: 'Message...',
-                    labelStyle: const TextStyle(color: Colors.black),
+                    labelStyle: TextStyle(color: Colors.black),
                     hintText: 'Enter your enquiry or issue',
-                    border: const OutlineInputBorder(),
+                    border: OutlineInputBorder(),
                     prefixIcon: Padding(
-                      padding: const EdgeInsets.only(top: 0, bottom: 90),
+                      padding: EdgeInsets.only(top: 0, bottom: 90),
                       // Aligns the prefix icon to the top
-                      child: const Icon(Icons.message),
+                      child: Icon(Icons.message),
                     ),
                   ),
                   maxLines: 5,
@@ -130,7 +131,7 @@ class _SupportScreenState extends State<SupportScreen> {
                         onPressed: _submitEnquiry,
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 50),
-                          backgroundColor: Color(4292815168), // Red background
+                          backgroundColor: const Color(4292815168), // Red background
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -152,7 +153,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     onTap: () => launch('tel:$tollFreeNumber'),
                     child: Text(
                       'Call Us: $tollFreeNumber',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color(4292815168),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

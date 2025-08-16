@@ -17,6 +17,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../widgets/all_categories.dart';
 import '../widgets/comming_soon.dart';
@@ -140,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: _buildAppBar(context),
       body: SafeArea(
@@ -152,11 +154,11 @@ class _HomeScreenState extends State<HomeScreen> {
               else if (_searchResults.isNotEmpty)
                 Expanded(child: _buildSearchResultsGrid())
               else
-                const Expanded(
+                Expanded(
                   child: Center(
                     child: Text(
-                      'No results found',
-                      style: TextStyle(
+                      l10n.noResultsFound,
+                      style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
@@ -170,13 +172,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSponsoredSection(),
+                        _buildSponsoredSection(l10n),
                         SizedBox(height: 8),
                         // const CityButtonsWidget(),
-                        // _buildOffersAndSales(context),
-                        _buildCategoriesSection(),
+                        // _buildOffersAndSales(context, l10n),
+                        _buildCategoriesSection(l10n),
                         SizedBox(height: 8),
-                        _buildPremiumBusinesses(),
+                        _buildPremiumBusinesses(l10n),
                       ],
                     ),
                   ),
@@ -186,11 +188,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      drawer: _buildDrawer(),
+      drawer: _buildDrawer(l10n),
     );
   }
 
   AppBar _buildAppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
       actions: [
         Padding(
@@ -229,14 +232,14 @@ class _HomeScreenState extends State<HomeScreen> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildSearchField(),
+          _buildSearchField(l10n),
         ],
       ),
     );
   }
 
   // Build drawer with navigation options
-  Drawer _buildDrawer() {
+  Drawer _buildDrawer(AppLocalizations l10n) {
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.7,
       child: Column(
@@ -265,15 +268,15 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: <Widget>[
-                _buildDrawerItem(CupertinoIcons.home, 'Home', 0),
-                _buildDrawerItem(CupertinoIcons.cube_box, 'Category', 1),
-                _buildDrawerItem(CupertinoIcons.person, 'Profile', 2),
+                _buildDrawerItem(CupertinoIcons.home, l10n.home, 0),
+                _buildDrawerItem(CupertinoIcons.cube_box, l10n.category, 1),
+                _buildDrawerItem(CupertinoIcons.person, l10n.profile, 2),
                 //supscription screen
-                _buildDrawerItem(Icons.subscriptions, 'Subscription', 3),
+                _buildDrawerItem(Icons.subscriptions, l10n.subscription, 3),
                 _buildDrawerItem(
-                    Icons.privacy_tip_outlined, 'Privacy Policy', 4),
-                _buildDrawerItem(Icons.add_to_drive, 'Terms & Conditions', 5),
-                _buildDrawerItem(Icons.logout, 'Logout', 6),
+                    Icons.privacy_tip_outlined, l10n.privacyPolicy, 4),
+                _buildDrawerItem(Icons.add_to_drive, l10n.termsConditions, 5),
+                _buildDrawerItem(Icons.logout, l10n.logout, 6),
               ],
             ),
           ),
@@ -357,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchField() {
+  Widget _buildSearchField(AppLocalizations l10n) {
     return Expanded(
       child: Row(
         children: [
@@ -369,11 +372,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search',
-                prefixIcon: const Icon(
-                  Icons.search,
-                ),
+                          decoration: InputDecoration(
+              hintText: l10n.searchHint,
+              prefixIcon: const Icon(
+                Icons.search,
+              ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(
@@ -480,14 +483,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildOffersAndSales(BuildContext context) {
+  Widget _buildOffersAndSales(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCategoryButton(context, 'Offers'),
-          _buildCategoryButton(context, 'Sales'),
+          _buildCategoryButton(context, l10n.offers),
+          _buildCategoryButton(context, l10n.sales),
         ],
       ),
     );
@@ -518,14 +521,14 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
-  Widget _buildSponsoredSection() {
+  Widget _buildSponsoredSection(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
           child: Text(
-            'Sponsored',
+            l10n.sponsored,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -537,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPremiumBusinesses() {
+  Widget _buildPremiumBusinesses(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -545,13 +548,13 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
             children: [
-              Text(
-                'Highlights of $_selectedDistrict',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                              Text(
+                  l10n.highlightsOf(_selectedDistrict),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
               const Spacer(),
               Row(
                 children: [
@@ -560,14 +563,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ShopsGridView(
-                            title: 'Highlights of $_selectedDistrict',
-                          ),
+                                                  builder: (context) => ShopsGridView(
+                          title: l10n.highlightsOf(_selectedDistrict),
+                        ),
                         ),
                       );
                     },
                     child: Text(
-                      'See all',
+                      l10n.seeAll,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).primaryColor,
@@ -589,7 +592,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoriesSection() {
+  Widget _buildCategoriesSection(AppLocalizations l10n) {
     if (_categories.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(8.0),
@@ -609,8 +612,8 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Row(
             children: [
-              const Text(
-                'Categories',
+              Text(
+                l10n.categories,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -629,7 +632,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   children: [
                     Text(
-                      'See all',
+                      l10n.seeAll,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).primaryColor,

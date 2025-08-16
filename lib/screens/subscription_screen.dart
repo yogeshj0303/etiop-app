@@ -32,9 +32,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       ],
     },
     'yearly': {
-      'price': 1200,
+      'price': 1100,
       'period': 'year',
-      'discount': 200,
+      'discount': 0,
       'features': [
         'Register unlimited businesses',
         'Advanced compliance monitoring',
@@ -43,6 +43,54 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         'Advanced analytics & reporting',
         'Bulk registration discount',
         'Dedicated account manager',
+      ],
+    },
+    '3years': {
+      'price': 3000,
+      'period': '3 years',
+      'discount': 300,
+      'features': [
+        'Register unlimited businesses',
+        'Advanced compliance monitoring',
+        'Document management system',
+        'Priority customer support 24/7',
+        'Advanced analytics & reporting',
+        'Bulk registration discount',
+        'Dedicated account manager',
+        '3-year commitment savings',
+      ],
+    },
+    '5years': {
+      'price': 4500,
+      'period': '5 years',
+      'discount': 1000,
+      'features': [
+        'Register unlimited businesses',
+        'Advanced compliance monitoring',
+        'Document management system',
+        'Priority customer support 24/7',
+        'Advanced analytics & reporting',
+        'Bulk registration discount',
+        'Dedicated account manager',
+        '5-year commitment savings',
+        'Premium support priority',
+      ],
+    },
+    '10years': {
+      'price': 8000,
+      'period': '10 years',
+      'discount': 3000,
+      'features': [
+        'Register unlimited businesses',
+        'Advanced compliance monitoring',
+        'Document management system',
+        'Priority customer support 24/7',
+        'Advanced analytics & reporting',
+        'Bulk registration discount',
+        'Dedicated account manager',
+        '10-year commitment savings',
+        'Premium support priority',
+        'Lifetime access benefits',
       ],
     },
   };
@@ -82,9 +130,31 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       final discount = planDetails['discount'];
       final finalPrice = price - discount;
 
+      // Map plan type to duration type for payment service
+      String durationType;
+      switch (_selectedPlan) {
+        case 'monthly':
+          durationType = 'monthly';
+          break;
+        case 'yearly':
+          durationType = 'yearly';
+          break;
+        case '3years':
+          durationType = '3years';
+          break;
+        case '5years':
+          durationType = '5years';
+          break;
+        case '10years':
+          durationType = '10years';
+          break;
+        default:
+          durationType = 'monthly';
+      }
+
       final result = await PaymentService.purchasePackage(
         amount: finalPrice.toDouble(),
-        durationType: _selectedPlan == 'monthly' ? 'monthly' : 'annual',
+        durationType: durationType,
         orderId:
             response.orderId ?? 'ORD${DateTime.now().millisecondsSinceEpoch}',
         transactionId:
@@ -303,6 +373,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         children: [
           _buildPlanOption('monthly', isSelected: _selectedPlan == 'monthly'),
           _buildPlanOption('yearly', isSelected: _selectedPlan == 'yearly'),
+          _buildPlanOption('3years', isSelected: _selectedPlan == '3years'),
+          _buildPlanOption('5years', isSelected: _selectedPlan == '5years'),
+          _buildPlanOption('10years', isSelected: _selectedPlan == '10years'),
         ],
       ),
     );
@@ -313,6 +386,40 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     final price = details['price'];
     final discount = details['discount'];
     final finalPrice = price - discount;
+
+    // Get plan label and icon
+    String planLabel;
+    IconData planIcon;
+    String? savingsLabel;
+    
+    switch (plan) {
+      case 'monthly':
+        planLabel = 'Professional';
+        planIcon = Icons.business;
+        break;
+      case 'yearly':
+        planLabel = 'Enterprise';
+        planIcon = Icons.business_center;
+        break;
+      case '3years':
+        planLabel = '3-Year Plan';
+        planIcon = Icons.verified_user;
+        savingsLabel = 'SAVE 10%';
+        break;
+      case '5years':
+        planLabel = '5-Year Plan';
+        planIcon = Icons.workspace_premium;
+        savingsLabel = 'SAVE 22%';
+        break;
+      case '10years':
+        planLabel = '10-Year Plan';
+        planIcon = Icons.diamond;
+        savingsLabel = 'SAVE 37%';
+        break;
+      default:
+        planLabel = 'Plan';
+        planIcon = Icons.business;
+    }
 
     return GestureDetector(
       onTap: () => setState(() => _selectedPlan = plan),
@@ -336,7 +443,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                plan == 'monthly' ? Icons.business : Icons.business_center,
+                planIcon,
                 color: isSelected
                     ? Theme.of(context).primaryColor
                     : Colors.grey.shade600,
@@ -350,7 +457,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   Row(
                     children: [
                       Text(
-                        plan == 'monthly' ? 'Professional' : 'Enterprise',
+                        planLabel,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -359,19 +466,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               : Colors.black87,
                         ),
                       ),
-                      if (plan == 'yearly') ...[
-                        const SizedBox(width: 4),
+                      if (savingsLabel != null) ...[
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 0,
-                            vertical: 0,
+                            horizontal: 8,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             color: Colors.green.shade50,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'SAVE 20%',
+                            savingsLabel,
                             style: TextStyle(
                               color: Colors.green.shade700,
                               fontSize: 10,
@@ -384,7 +491,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '₹$finalPrice/${plan == 'monthly' ? 'month' : 'year'}',
+                    '₹$finalPrice/${details['period']}',
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 14,

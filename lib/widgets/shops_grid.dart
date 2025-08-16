@@ -1,6 +1,7 @@
 import 'package:etiop_application/screens/shop_details_screen.dart';
 import 'package:etiop_application/services/api_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../modals/shop_model.dart';
 import '../screens/main_screen.dart';
@@ -42,7 +43,7 @@ class _ShopsGridViewState extends State<ShopsGridView> {
         elevation: 1,
         centerTitle: true,
         title: Text(
-          widget.title ?? 'BUSINESS',
+          widget.title ?? AppLocalizations.of(context)!.business,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
@@ -53,9 +54,9 @@ class _ShopsGridViewState extends State<ShopsGridView> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             print(snapshot.stackTrace);
-            return Center(child: Text('Failed to load shops'));
+            return Center(child: Text(AppLocalizations.of(context)!.failedToLoadShops));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No shops available'));
+            return Center(child: Text(AppLocalizations.of(context)!.noShopsAvailable));
           } else {
             final shops = snapshot.data!;
             return Padding(
@@ -109,7 +110,7 @@ class _ShopsGridViewState extends State<ShopsGridView> {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 4.0, horizontal: 4.0),
                                 child: Text(
-                                  shop.shopName ?? "Shop Name",
+                                  shop.shopName ?? AppLocalizations.of(context)!.shopName,
                                   textAlign: TextAlign.center,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,

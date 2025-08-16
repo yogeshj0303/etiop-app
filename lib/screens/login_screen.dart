@@ -1,6 +1,7 @@
 import 'package:etiop_application/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../services/api_services.dart';
 import 'forgot_pass.dart';
@@ -22,12 +23,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Login',
-          style: TextStyle(
+        title: Text(
+          l10n.login,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -55,9 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 120,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Welcome Back!',
-                    style: TextStyle(
+                  Text(
+                    l10n.welcome,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -68,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
-                      labelText: 'Email or Mobile',
+                      labelText: l10n.email,
                       hintText: 'Enter your email or mobile no.',
                       hintStyle: TextStyle(
                         color: Colors.grey,
@@ -105,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: l10n.password,
                       hintText: 'Enter your password',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -136,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: !_isPasswordVisible, // Toggle visibility
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return l10n.requiredField;
                       } else if (value.length < 8) {
                         return 'Password must be at least 8 characters long';
                       }
@@ -161,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                         child: Text(
-                          'Forgot Password?',
+                          l10n.forgotPassword,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -186,9 +189,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ), // Red button to match logo
                           ),
-                          child: const Text(
-                            'Login',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.login,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white, // White text on red button

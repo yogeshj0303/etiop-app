@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../modals/sub_category.dart';
 import '../services/api_services.dart';
@@ -285,7 +286,7 @@ class _AddShopState extends State<AddShop> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['message']?.toString() ?? "Shop created successfully"),
+              content: Text(result['message']?.toString() ?? AppLocalizations.of(context)!.shopAddedSuccessfully),
               duration: const Duration(seconds: 5),
             ),
           );
@@ -293,7 +294,7 @@ class _AddShopState extends State<AddShop> {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['message']?.toString() ?? "Failed to create shop"),
+              content: Text(result['message']?.toString() ?? AppLocalizations.of(context)!.failedToAddShop),
               backgroundColor: Colors.red,
             ),
           );
@@ -303,7 +304,7 @@ class _AddShopState extends State<AddShop> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error: ${e.toString()}"),
+            content: Text("${AppLocalizations.of(context)!.error}: ${e.toString()}"),
             backgroundColor: Colors.red,
           ),
         );
@@ -320,7 +321,7 @@ class _AddShopState extends State<AddShop> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('CREATE BUSINESS',
+        title: Text(AppLocalizations.of(context)!.addShop,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: const Icon(
@@ -352,7 +353,7 @@ class _AddShopState extends State<AddShop> {
                           padding: EdgeInsets.only(bottom: 10),
                           child: DropdownButtonFormField<String>(
                             decoration: InputDecoration(
-                              labelText: 'Select Category',
+                              labelText: AppLocalizations.of(context)!.category,
                               contentPadding: const EdgeInsets.symmetric(
                                   vertical: 10.0, horizontal: 20.0),
                               border: OutlineInputBorder(
@@ -389,7 +390,7 @@ class _AddShopState extends State<AddShop> {
                               );
                             }).toList(),
                             validator: (value) => value == null
-                                ? 'Please select a category'
+                                ? AppLocalizations.of(context)!.categoryRequired
                                 : null,
                           ),
                         ),
@@ -400,7 +401,7 @@ class _AddShopState extends State<AddShop> {
                           if (_subCategories.isNotEmpty)
                             DropdownButtonFormField<int>(
                               decoration: InputDecoration(
-                                labelText: 'Select Subcategory',
+                                labelText: AppLocalizations.of(context)!.subcategory,
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 20.0),
                                 border: OutlineInputBorder(
@@ -428,7 +429,7 @@ class _AddShopState extends State<AddShop> {
                                 );
                               }).toList(),
                               validator: (value) => value == null
-                                  ? 'Please select a subcategory'
+                                  ? AppLocalizations.of(context)!.subcategoryRequired
                                   : null,
                             ),
                           const SizedBox(height: 16),
@@ -436,44 +437,44 @@ class _AddShopState extends State<AddShop> {
                           // Conditional form fields based on category type
                           if (_categoryType == 'government') ...[
                             _buildTextField(
-                                'Department Name',
+                                AppLocalizations.of(context)!.name,
                                 'department_name',
                                 departmentNameController,
                                 14,
                                 const Icon(Icons.business, size: 18)),
                             _buildTextField(
-                                'Office Name',
+                                AppLocalizations.of(context)!.name,
                                 'office_name',
                                 officeNameController,
                                 14,
                                 const Icon(Icons.business_center, size: 18)),
                             _buildTextField(
-                                'Officer/Employee Name',
+                                AppLocalizations.of(context)!.name,
                                 'officer_name',
                                 officerNameController,
                                 14,
                                 const Icon(Icons.person, size: 18)),
                             _buildTextField(
-                                'Mobile Number',
+                                AppLocalizations.of(context)!.mobileNumber,
                                 'mobile_number',
                                 mobileNumberController,
                                 14,
                                 const Icon(Icons.phone, size: 18),
                                 keyboardType: TextInputType.number),
                             _buildTextField(
-                                'Email ID',
+                                AppLocalizations.of(context)!.email,
                                 'email',
                                 emailController,
                                 14,
                                 const Icon(Icons.email, size: 18)),
                             _buildTextField(
-                                'Description',
+                                AppLocalizations.of(context)!.description,
                                 'description',
                                 descriptionController,
                                 14,
                                 const Icon(Icons.description, size: 18)),
                             _buildTextField(
-                                'Website',
+                                AppLocalizations.of(context)!.name,
                                 'website_link',
                                 websiteLinkController,
                                 14,

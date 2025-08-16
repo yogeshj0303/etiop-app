@@ -66,7 +66,7 @@ class PaymentService {
 
   static Future<Map<String, dynamic>> purchasePackage({
     required double amount,
-    required String durationType, // 'annual' or 'monthly'
+    required String durationType, // 'monthly', 'yearly', '3years', '5years', '10years'
     required String orderId,
     required String transactionId,
   }) async {
@@ -83,13 +83,19 @@ class PaymentService {
       print(
           'Transaction details: Order ID: $orderId, Transaction ID: $transactionId');
 
+      // Calculate expiry date based on duration type
+      final now = DateTime.now();
+      final expiryDate = _calculateExpiryDate(now, durationType);
+
       // Prepare request body
       final body = jsonEncode({
         'user_id': int.parse(userId),
         'amount': amount,
         'duration_type': durationType,
         'order_id': orderId,
-        'trasaction_id': transactionId,
+        'transaction_id': transactionId,
+        'expiry_date': expiryDate.toIso8601String(),
+        'start_date': now.toIso8601String(),
       });
 
       // Make API request
@@ -112,18 +118,14 @@ class PaymentService {
         final prefs = await SharedPreferences.getInstance();
         prefs.setBool('has_subscription', true);
         prefs.setString('subscription_type', durationType);
-        prefs.setString(
-            'subscription_expiry',
-            DateTime.now()
-                .add(durationType == 'annual'
-                    ? const Duration(days: 365)
-                    : const Duration(days: 30))
-                .toIso8601String());
+        prefs.setString('subscription_expiry', expiryDate.toIso8601String());
+        prefs.setString('subscription_start', now.toIso8601String());
+        prefs.setString('subscription_status', 'active');
 
         return {
           'success': true,
           'message':
-              'Your ${durationType == 'annual' ? 'annual' : 'monthly'} subscription has been activated successfully!',
+              'Your ${durationType.replaceAll('years', ' year').replaceAll('3', '3-').replaceAll('5', '5-').replaceAll('10', '10-')} subscription has been activated successfully!',
           'data': responseData
         };
       } else {
@@ -138,21 +140,144 @@ class PaymentService {
     }
   }
 
+  // Calculate expiry date based on duration type
+  static DateTime _calculateExpiryDate(DateTime startDate, String durationType) {
+    switch (durationType) {
+      case 'monthly':
+        return startDate.add(const Duration(days: 30));
+      case 'yearly':
+        return startDate.add(const Duration(days: 365));
+      case '3years':
+        return startDate.add(const Duration(days: 3 * 365));
+      case '5years':
+        return startDate.add(const Duration(days: 5 * 365));
+      case '10years':
+        return startDate.add(const Duration(days: 10 * 365));
+      default:
+        return startDate.add(const Duration(days: 30)); // Default to monthly
+    }
+  }
+
   static Future<bool> hasActiveSubscription() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final hasSubscription = prefs.getBool('has_subscription') ?? false;
       final subscriptionExpiry = prefs.getString('subscription_expiry');
+      final subscriptionStatus = prefs.getString('subscription_status');
       
       if (!hasSubscription || subscriptionExpiry == null) {
         return false;
       }
 
+      // Check if subscription is cancelled
+      if (subscriptionStatus == 'cancelled') {
+        return false;
+      }
+
       final expiryDate = DateTime.parse(subscriptionExpiry);
-      return DateTime.now().isBefore(expiryDate);
+      final isActive = DateTime.now().isBefore(expiryDate);
+      
+      // If subscription has expired, update the status
+      if (!isActive && subscriptionStatus == 'active') {
+        prefs.setString('subscription_status', 'expired');
+      }
+      
+      return isActive;
     } catch (e) {
       print('Error checking subscription status: $e');
       return false;
+    }
+  }
+
+  // Get subscription expiry date
+  static Future<DateTime?> getSubscriptionExpiryDate() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final subscriptionExpiry = prefs.getString('subscription_expiry');
+      
+      if (subscriptionExpiry == null) {
+        return null;
+      }
+
+      return DateTime.parse(subscriptionExpiry);
+    } catch (e) {
+      print('Error getting subscription expiry date: $e');
+      return null;
+    }
+  }
+
+  // Get subscription type
+  static Future<String?> getSubscriptionType() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('subscription_type');
+    } catch (e) {
+      print('Error getting subscription type: $e');
+      return null;
+    }
+  }
+
+  // Check if business should be visible based on subscription status
+  static Future<bool> shouldShowBusiness() async {
+    try {
+      // First check if user has active subscription
+      final hasSubscription = await hasActiveSubscription();
+      if (hasSubscription) {
+        return true;
+      }
+
+      // If no subscription, check trial period
+      final isInTrial = await isInTrialPeriod();
+      return isInTrial;
+    } catch (e) {
+      print('Error checking business visibility: $e');
+      return false;
+    }
+  }
+
+  // Get remaining trial days
+  static Future<int> getRemainingTrialDays() async {
+    try {
+      final apiService = ApiService();
+      final userId = await apiService.getUserId();
+
+      if (userId == null) {
+        return 0;
+      }
+
+      final response = await http.get(
+        Uri.parse('${baseUrl}get-user?user_id=$userId'),
+        headers: {
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = json.decode(response.body);
+        final user = data['user'];
+
+        if (user != null && user['created_at'] != null) {
+          try {
+            final createdAt = DateTime.parse(user['created_at']);
+            final trialEnd = createdAt.add(const Duration(days: 30));
+            final now = DateTime.now();
+
+            if (now.isAfter(trialEnd)) {
+              return 0;
+            }
+
+            return trialEnd.difference(now).inDays;
+          } catch (e) {
+            print('Error parsing trial dates: $e');
+            return 0;
+          }
+        }
+      }
+
+      return 0;
+    } catch (e) {
+      print('Error getting remaining trial days: $e');
+      return 0;
     }
   }
 }

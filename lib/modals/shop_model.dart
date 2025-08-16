@@ -16,6 +16,9 @@ class Shop {
   final String? description;
   final String? paymentStatus;
   final String? expiryDate;
+  final String? subscriptionType;
+  final DateTime? subscriptionExpiry;
+  final bool isVisible; // Whether the shop should be visible to other users
   // final String? services;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -60,6 +63,9 @@ class Shop {
     required this.description,
     required this.paymentStatus,
     required this.expiryDate,
+    this.subscriptionType,
+    this.subscriptionExpiry,
+    this.isVisible = true, // Default to visible
     // required this.services,
     required this.createdAt,
     required this.updatedAt,
@@ -101,6 +107,30 @@ class Shop {
       requirementsList = List<dynamic>.from(json['requirements']);
     }
 
+    // Parse subscription expiry date
+    DateTime? subscriptionExpiry;
+    if (json['subscription_expiry'] != null) {
+      try {
+        subscriptionExpiry = DateTime.parse(json['subscription_expiry']);
+      } catch (e) {
+        print('Error parsing subscription expiry: $e');
+      }
+    }
+
+    // Determine if shop should be visible based on subscription status
+    bool isVisible = true;
+    if (json['payment_status'] != null) {
+      final paymentStatus = json['payment_status'].toString().toLowerCase();
+      if (paymentStatus == 'expired' || paymentStatus == 'inactive') {
+        isVisible = false;
+      }
+    }
+
+    // Check subscription expiry
+    if (subscriptionExpiry != null && DateTime.now().isAfter(subscriptionExpiry)) {
+      isVisible = false;
+    }
+
     return Shop(
       id: json['id'],
       shopOwnerId: json['shop_owner_id'],
@@ -120,6 +150,9 @@ class Shop {
       description: json['description'],
       paymentStatus: json['payment_status'],
       expiryDate: json['expiry_date'],
+      subscriptionType: json['subscription_type'],
+      subscriptionExpiry: subscriptionExpiry,
+      isVisible: isVisible,
       // services: json['services'],
       createdAt: DateTime.tryParse(json['created_at'].toString()),
       updatedAt: DateTime.tryParse(json['updated_at'].toString()),

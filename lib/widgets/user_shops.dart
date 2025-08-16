@@ -1,6 +1,7 @@
 import 'package:etiop_application/widgets/shop_requirment.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
@@ -90,17 +91,17 @@ class _UserShopScreenState extends State<UserShopScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Delete'),
-          content: const Text('Are you sure you want to delete this shop?'),
+          title: Text(AppLocalizations.of(context)!.confirmDelete),
+          content: Text(AppLocalizations.of(context)!.confirmDeleteShop),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text(
-                'Delete',
+              child: Text(
+                AppLocalizations.of(context)!.delete,
                 style: TextStyle(color: Colors.red),
               ),
             ),
@@ -121,7 +122,7 @@ class _UserShopScreenState extends State<UserShopScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Shop deleted successfully')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.shopDeletedSuccessfully)),
           );
           
           // Check if shops list is empty after deletion
@@ -140,7 +141,7 @@ class _UserShopScreenState extends State<UserShopScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete shop: ${responseBody['message']}')),
+            SnackBar(content: Text('${AppLocalizations.of(context)!.failedToDeleteShop}: ${responseBody['message']}')),
           );
         }
       }
@@ -189,8 +190,8 @@ class _UserShopScreenState extends State<UserShopScreen> {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          'My Shops',
+        title: Text(
+          AppLocalizations.of(context)!.myShops,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         elevation: 1,
@@ -268,8 +269,8 @@ class _UserShopScreenState extends State<UserShopScreen> {
                                 ),
                               ],
                             ),
-                            child: const Text(
-                              'Expired',
+                            child: Text(
+                              AppLocalizations.of(context)!.expired,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -314,23 +315,23 @@ class _UserShopScreenState extends State<UserShopScreen> {
                                 },
                                 itemBuilder: (BuildContext context) {
                                   return [
-                                    const PopupMenuItem<String>(
+                                    PopupMenuItem<String>(
                                       value: 'edit',
                                       child: Row(
                                         children: [
                                           Icon(Icons.edit, size: 20),
                                           SizedBox(width: 12),
-                                          Text('Edit Shop'),
+                                          Text(AppLocalizations.of(context)!.editShop),
                                         ],
                                       ),
                                     ),
-                                    const PopupMenuItem<String>(
+                                    PopupMenuItem<String>(
                                       value: 'delete',
                                       child: Row(
                                         children: [
                                           Icon(Icons.delete, size: 20, color: Colors.red),
                                           SizedBox(width: 12),
-                                          Text('Delete Shop', style: TextStyle(color: Colors.red)),
+                                          Text(AppLocalizations.of(context)!.deleteShop, style: TextStyle(color: Colors.red)),
                                         ],
                                       ),
                                     ),
@@ -361,7 +362,7 @@ class _UserShopScreenState extends State<UserShopScreen> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'Expires: ${shop.expiryDate}',
+                                  '${AppLocalizations.of(context)!.expires}: ${shop.expiryDate}',
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: shop.paymentStatus == 'Active'
@@ -388,8 +389,8 @@ class _UserShopScreenState extends State<UserShopScreen> {
                                 ),
                                 elevation: 0,
                               ),
-                              child: const Text(
-                                'Renew Subscription',
+                              child: Text(
+                                AppLocalizations.of(context)!.renewSubscription,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,

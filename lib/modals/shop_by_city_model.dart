@@ -31,6 +31,10 @@ class Shops {
   final String shopStatus;
   final String description;
   final String services;
+  final String? paymentStatus;
+  final String? subscriptionType;
+  final DateTime? subscriptionExpiry;
+  final bool isVisible; // Whether the shop should be visible to other users
   // final List<String> days;
   // final Map<String, ShopTime> time;
   final String createdAt;
@@ -53,6 +57,10 @@ class Shops {
     required this.shopStatus,
     required this.description,
     required this.services,
+    this.paymentStatus,
+    this.subscriptionType,
+    this.subscriptionExpiry,
+    this.isVisible = true, // Default to visible
     // required this.days,
     // required this.time,
     required this.createdAt,
@@ -60,6 +68,30 @@ class Shops {
   });
 
   factory Shops.fromJson(Map<String, dynamic> json) {
+    // Parse subscription expiry date
+    DateTime? subscriptionExpiry;
+    if (json['subscription_expiry'] != null) {
+      try {
+        subscriptionExpiry = DateTime.parse(json['subscription_expiry']);
+      } catch (e) {
+        print('Error parsing subscription expiry: $e');
+      }
+    }
+
+    // Determine if shop should be visible based on subscription status
+    bool isVisible = true;
+    if (json['payment_status'] != null) {
+      final paymentStatus = json['payment_status'].toString().toLowerCase();
+      if (paymentStatus == 'expired' || paymentStatus == 'inactive') {
+        isVisible = false;
+      }
+    }
+
+    // Check subscription expiry
+    if (subscriptionExpiry != null && DateTime.now().isAfter(subscriptionExpiry)) {
+      isVisible = false;
+    }
+
     // var timeMap = Map<String, ShopTime>.fromIterable(
     //   json['time'].keys,
     //   key: (key) => key as String,
@@ -83,6 +115,10 @@ class Shops {
       shopStatus: json['shop_status'],
       description: json['description'],
       services: json['services'],
+      paymentStatus: json['payment_status'],
+      subscriptionType: json['subscription_type'],
+      subscriptionExpiry: subscriptionExpiry,
+      isVisible: isVisible,
       // days: List<String>.from(json['days']),
       // time: timeMap,
       createdAt: json['created_at'],

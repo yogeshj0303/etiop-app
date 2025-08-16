@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'login_screen.dart';
 import '../utils/location_data.dart';
 
@@ -100,7 +101,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           print('User ID: $Id');
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Registration successful!")),
+            SnackBar(content: Text(AppLocalizations.of(context)!.registrationSuccessful)),
           );
 
           Navigator.pushReplacement(
@@ -108,11 +109,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
             MaterialPageRoute(builder: (context) => const LoginScreen()),
           );
         } else {
-          throw Exception("Invalid response from the server");
+          throw Exception(AppLocalizations.of(context)!.invalidResponse);
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error registering user: $e")),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorRegisteringUser(e.toString()))),
         );
       } finally {
         setState(() {
@@ -128,8 +129,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Color(4292815168),
-        title: const Text(
-          'Create Account',
+        title: Text(
+          AppLocalizations.of(context)!.createAccount,
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -167,23 +168,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   const SizedBox(height: 20),
                   _buildTextField(
-                      _nameController, "First Name", "Enter your first name"),
+                      _nameController, AppLocalizations.of(context)!.firstName, AppLocalizations.of(context)!.firstNameHint),
                   const SizedBox(height: 14),
                   _buildTextField(
-                      _lastNameController, "Last Name", "Enter your last name"),
+                      _lastNameController, AppLocalizations.of(context)!.lastName, AppLocalizations.of(context)!.lastNameHint),
                   const SizedBox(height: 14),
                   _buildTextField(
-                      _emailController, "Email", "Enter a valid email",
+                      _emailController, AppLocalizations.of(context)!.email, AppLocalizations.of(context)!.invalidEmailFormat,
                       isEmail: true),
                   const SizedBox(height: 14),
-                  _buildTextField(_mobileController, "Mobile Number",
-                      "Enter your mobile number",
+                  _buildTextField(_mobileController, AppLocalizations.of(context)!.mobileNumber,
+                      AppLocalizations.of(context)!.mobileNumberHint,
                       isMobile: true),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     value: _selectedState,
                     decoration: InputDecoration(
-                      labelText: 'State',
+                      labelText: AppLocalizations.of(context)!.state,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -197,7 +198,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     }).toList(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please select a state';
+                        return AppLocalizations.of(context)!.stateRequired;
                       }
                       return null;
                     },
@@ -207,7 +208,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   DropdownButtonFormField<String>(
                     value: _selectedDistrict,
                     decoration: InputDecoration(
-                      labelText: 'District',
+                      labelText: AppLocalizations.of(context)!.city,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -223,7 +224,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           }).toList(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please select a district';
+                        return AppLocalizations.of(context)!.districtRequired;
                       }
                       return null;
                     },
@@ -235,19 +236,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   const SizedBox(height: 14),
                   _buildTextField(
-                      _addressController, "Address", "Enter your address"),
+                      _addressController, AppLocalizations.of(context)!.address, AppLocalizations.of(context)!.addressHint),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     value: _gender,
-                    decoration: const InputDecoration(
-                      labelText: 'Gender',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.gender,
                       border: OutlineInputBorder(),
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
-                    items: const [
-                      DropdownMenuItem(value: "Male", child: Text("Male")),
-                      DropdownMenuItem(value: "Female", child: Text("Female")),
+                    items: [
+                      DropdownMenuItem(value: "Male", child: Text(AppLocalizations.of(context)!.male)),
+                      DropdownMenuItem(value: "Female", child: Text(AppLocalizations.of(context)!.female)),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -258,8 +259,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   const SizedBox(height: 14),
                   _buildTextField(
                     _passwordController,
-                    "Password",
-                    "Enter your password",
+                    AppLocalizations.of(context)!.password,
+                    AppLocalizations.of(context)!.passwordHint,
                     isPassword: true,
                     isPasswordVisible: _isPasswordVisible,
                     togglePasswordVisibility: () {
@@ -281,7 +282,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: const Text('Register',
+                          child: Text(AppLocalizations.of(context)!.register,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -292,8 +293,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: 0,
                     children: [
-                      const Text(
-                        'Already have an account?',
+                      Text(
+                        AppLocalizations.of(context)!.alreadyHaveAccount,
                         style: TextStyle(fontSize: 14),
                       ),
                       TextButton(
@@ -304,8 +305,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 builder: (context) => const LoginScreen()),
                           );
                         },
-                        child: const Text(
-                          'Log in',
+                        child: Text(
+                          AppLocalizations.of(context)!.logIn,
                           style: TextStyle(
                             color: Color(4292815168),
                             fontSize: 16,
@@ -355,10 +356,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
           return validatorMessage;
         }
         if (isEmail && !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-          return "Invalid email format";
+          return AppLocalizations.of(context)!.invalidEmailFormat;
         }
         if (isMobile && !RegExp(r'^\d{10}$').hasMatch(value)) {
-          return "Enter a valid 10-digit mobile number";
+          return AppLocalizations.of(context)!.validMobileRequired;
         }
         return null;
       },

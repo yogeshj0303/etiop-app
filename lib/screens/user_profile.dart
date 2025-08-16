@@ -1,11 +1,13 @@
 import 'dart:convert'; // For parsing JSON
 
 import 'package:etiop_application/modals/shop_model.dart';
+import 'package:etiop_application/screens/language_settings_screen.dart';
 import 'package:etiop_application/screens/support_screen.dart';
 import 'package:etiop_application/widgets/user_shops.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../widgets/shop_form.dart';
 import 'login_screen.dart';
@@ -170,6 +172,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   void _showCreateShopPrompt() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) {
@@ -179,14 +182,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 BorderRadius.circular(10.0), // Rounded corners for the dialog
           ),
           title: Text(
-            'No Shops Found',
+            l10n.noShopsFound,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
-            'You have not created any shops yet. Would you like to create one?',
+            l10n.noShopsMessage,
             style: TextStyle(
               fontSize: 16,
             ),
@@ -206,9 +209,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       BorderRadius.circular(10.0), // Rounded corners for button
                 ),
               ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
+              child: Text(
+                l10n.cancel,
+                style: const TextStyle(
                   fontSize: 16,
                 ),
               ),
@@ -228,8 +231,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       BorderRadius.circular(10.0), // Rounded corners for button
                 ),
               ),
-              child: const Text(
-                'Create Shop',
+              child: Text(
+                l10n.createShop,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -263,6 +266,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     String fullName = "$firstName $lastName";
 
     return Scaffold(
@@ -283,12 +287,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           },
         ),
         centerTitle: true,
-        title: const Text(
-          "PROFILE",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.profile,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         elevation: 4,
         actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const LanguageSettingsScreen(),
+              );
+            },
+            icon: const Icon(Icons.language),
+          ),
           Padding(
             padding: const EdgeInsets.only(
               right: 18.0,
@@ -381,7 +394,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           }
                         },
                         icon: const Icon(Icons.edit, size: 18),
-                        label: const Text('Edit Profile'),
+                        label: Text(l10n.editProfile),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
@@ -409,8 +422,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'My Businesses',
+                    Text(
+                      l10n.myBusinesses,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -423,8 +436,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         Icons.view_list,
                         size: 20,
                       ),
-                      label: const Text(
-                        'View All',
+                      label: Text(
+                        l10n.viewAll,
                       ),
                     ),
                   ],
@@ -465,8 +478,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Text(
-                        'Order History',
+                      Text(
+                        l10n.orderHistory,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -485,9 +498,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
             const SizedBox(height: 20),
             // Profile Info Sections
-            _buildProfileInfoSection("Mobile Number", mobileNumber),
-            _buildProfileInfoSection("Gender", gender),
-            _buildProfileInfoSection("Date of Birth", dob),
+            _buildProfileInfoSection(l10n.mobileNumber, mobileNumber, false),
+            _buildProfileInfoSection(l10n.gender, gender, false),
+            _buildProfileInfoSection(l10n.dateOfBirth, dob, true),
             Card(
               clipBehavior: Clip.none,
               margin: const EdgeInsets.only(bottom: 12.0),
@@ -527,8 +540,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 onPressed: () {
                   _logout(context);
                 },
-                child: const Text(
-                  'Sign Out',
+                child: Text(
+                  l10n.signOut,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -542,9 +555,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildProfileInfoSection(String title, String value) {
+  Widget _buildProfileInfoSection(String title, String value, bool isDateOfBirth) {
     // Format the date if this is the date of birth section
-    String displayValue = title == "Date of Birth" ? _formatDate(value) : value;
+    String displayValue = isDateOfBirth ? _formatDate(value) : value;
 
     return Card(
       clipBehavior: Clip.none,
