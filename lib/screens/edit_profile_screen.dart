@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../utils/location_data.dart'; // Ensure this import is present for location data
 
 class EditProfileScreen extends StatefulWidget {
@@ -74,6 +75,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _pickImage() async {
+    final l10n = AppLocalizations.of(context)!;
     final ImagePicker picker = ImagePicker();
     try {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -85,12 +87,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       print('Error picking image: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to pick image')),
+        SnackBar(content: Text(l10n.failedToPickImage)),
       );
     }
   }
 
   Future<void> _updateProfile() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       setState(() => _isLoading = true);
       
@@ -98,7 +101,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String? userId = prefs.getString('id');
 
       if (userId == null) {
-        throw Exception('User ID not found');
+        throw Exception(l10n.userIDNotFound);
       }
 
       // Create multipart request with the correct API endpoint
@@ -152,10 +155,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         Navigator.pop(context, true); // Return true to indicate successful update
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
+          SnackBar(content: Text(l10n.profileUpdatedSuccessfully)),
         );
       } else {
-        throw Exception(decodedResponse['message'] ?? 'Failed to update profile');
+        throw Exception(decodedResponse['message'] ?? l10n.failedToUpdateProfile);
       }
     } catch (e) {
       print('Error updating profile: $e');
@@ -168,17 +171,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   String _formatDate(DateTime? date) {
-    if (date == null) return 'Select Date';
+    final l10n = AppLocalizations.of(context)!;
+    if (date == null) return l10n.selectDate;
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(fontWeight: FontWeight.w600),
+        title: Text(
+          l10n.editProfile,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
@@ -249,11 +254,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
-                      'Personal Information',
-                      style: TextStyle(
+                      l10n.personalInformation,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -267,7 +272,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: TextField(
                           controller: _firstNameController,
                           decoration: InputDecoration(
-                            labelText: 'First Name',
+                            labelText: l10n.firstName,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -280,7 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: TextField(
                           controller: _lastNameController,
                           decoration: InputDecoration(
-                            labelText: 'Last Name',
+                            labelText: l10n.lastName,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -294,7 +299,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
-                      labelText: 'Email',
+                      labelText: l10n.email,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -306,7 +311,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   TextField(
                     controller: _mobileController,
                     decoration: InputDecoration(
-                      labelText: 'Mobile Number',
+                      labelText: l10n.mobileNumber,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -319,18 +324,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   DropdownButtonFormField<String>(
                     value: _selectedGender,
                     decoration: InputDecoration(
-                      labelText: 'Gender',
+                      labelText: l10n.gender,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       prefixIcon: const Icon(Icons.person_outline),
                     ),
-                    items: ['Male', 'Female', 'Other']
-                        .map((gender) => DropdownMenuItem(
-                              value: gender,
-                              child: Text(gender),
-                            ))
-                        .toList(),
+                    items: [
+                      DropdownMenuItem(value: l10n.male, child: Text(l10n.male)),
+                      DropdownMenuItem(value: l10n.female, child: Text(l10n.female)),
+                      DropdownMenuItem(value: l10n.other, child: Text(l10n.other)),
+                    ],
                     onChanged: (value) {
                       setState(() => _selectedGender = value);
                     },
@@ -359,7 +363,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     },
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: 'Date of Birth',
+                        labelText: l10n.dateOfBirth,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -379,7 +383,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   DropdownButtonFormField<String>(
                     value: _selectedState,
                     decoration: InputDecoration(
-                      labelText: 'State',
+                      labelText: l10n.state,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -398,7 +402,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   DropdownButtonFormField<String>(
                     value: _selectedDistrict,
                     decoration: InputDecoration(
-                      labelText: 'District',
+                      labelText: l10n.city,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -423,7 +427,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   TextField(
                     controller: _addressController,
                     decoration: InputDecoration(
-                      labelText: 'Address',
+                      labelText: l10n.address,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -452,9 +456,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text(
-                              'Update Profile',
-                              style: TextStyle(
+                          : Text(
+                              l10n.update,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),

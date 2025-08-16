@@ -302,5 +302,22 @@
   "category": "श्रेणी",
   "categoryRequired": "कृपया एक श्रेणी चुनें",
   "subcategory": "उप-श्रेणी",
-  "subcategoryRequired": "कृपया एक उप-श्रेणी चुनें"
+  "subcategoryRequired": "कृपया एक उप-श्रेणी चुनें",
+  "editProfile": "प्रोफ़ाइल संपादित करें",
+  "personalInformation": "व्यक्तिगत जानकारी",
+  "selectDate": "तिथि चुनें",
+  "profileUpdatedSuccessfully": "प्रोफ़ाइल सफलतापूर्वक अपडेट किया गया",
+  "failedToPickImage": "छवि चुनने में विफल",
+  "userIDNotFound": "उपयोगकर्ता ID नहीं मिला",
+  "failedToUpdateProfile": "प्रोफ़ाइल अपडेट करने में विफल",
+  "errorUpdatingProfile": "प्रोफ़ाइल अपडेट करने में त्रुटि: {error}",
+  "@errorUpdatingProfile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "other": "अन्य",
+  "update": "प्रोफ़ाइल अपडेट करें"
 }

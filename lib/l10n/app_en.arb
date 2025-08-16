@@ -331,5 +331,22 @@
   "category": "Category",
   "categoryRequired": "Please select a category",
   "subcategory": "Subcategory",
-  "subcategoryRequired": "Please select a subcategory"
+  "subcategoryRequired": "Please select a subcategory",
+  "editProfile": "Edit Profile",
+  "personalInformation": "Personal Information",
+  "selectDate": "Select Date",
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+  "failedToPickImage": "Failed to pick image",
+  "userIDNotFound": "User ID not found",
+  "failedToUpdateProfile": "Failed to update profile",
+  "errorUpdatingProfile": "Error updating profile: {error}",
+  "@errorUpdatingProfile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "other": "Other",
+  "update": "Update Profile"
 }

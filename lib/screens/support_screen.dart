@@ -2,7 +2,7 @@ import 'package:etiop_application/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../services/api_services.dart';
 
@@ -26,15 +26,17 @@ class _SupportScreenState extends State<SupportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Support',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          l10n.support,
+          style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color(4292815168), // Red color consistent with theme
       ),
@@ -46,9 +48,9 @@ class _SupportScreenState extends State<SupportScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Need Help? We\'re here to assist you!',
-                  style: TextStyle(
+                Text(
+                  l10n.needHelp,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -58,16 +60,16 @@ class _SupportScreenState extends State<SupportScreen> {
                 // Phone Number Field
                 TextFormField(
                   controller: _phoneController,
-                  decoration: const InputDecoration(
-                    labelText: 'Phone Number',
-                    hintText: 'Enter your phone number',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.phone),
+                  decoration: InputDecoration(
+                    labelText: l10n.phoneNumber,
+                    hintText: l10n.phoneNumberHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.phone),
                   ),
                   keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your phone number';
+                      return l10n.pleaseEnterPhone;
                     }
                     return null;
                   },
@@ -77,20 +79,20 @@ class _SupportScreenState extends State<SupportScreen> {
                 // Email Field
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email Address',
-                    hintText: 'Enter your email address',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
+                  decoration: InputDecoration(
+                    labelText: l10n.emailAddress,
+                    hintText: l10n.emailAddressHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.email),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email address';
+                      return l10n.pleaseEnterEmail;
                     } else if (!RegExp(
                             r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                         .hasMatch(value)) {
-                      return 'Please enter a valid email address';
+                      return l10n.pleaseEnterValidEmail;
                     }
                     return null;
                   },
@@ -100,14 +102,14 @@ class _SupportScreenState extends State<SupportScreen> {
                 // Message Field
                 TextFormField(
                   controller: _messageController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     alignLabelWithHint: true,
                     // Ensures the label stays at the top
-                    labelText: 'Message...',
-                    labelStyle: TextStyle(color: Colors.black),
-                    hintText: 'Enter your enquiry or issue',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Padding(
+                    labelText: l10n.message,
+                    labelStyle: const TextStyle(color: Colors.black),
+                    hintText: l10n.messageHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Padding(
                       padding: EdgeInsets.only(top: 0, bottom: 90),
                       // Aligns the prefix icon to the top
                       child: Icon(Icons.message),
@@ -116,7 +118,7 @@ class _SupportScreenState extends State<SupportScreen> {
                   maxLines: 5,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your message';
+                      return l10n.pleaseEnterMessage;
                     }
                     return null;
                   },
@@ -136,9 +138,9 @@ class _SupportScreenState extends State<SupportScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          'Submit Enquiry',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.submitEnquiry,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white, // White text
@@ -151,15 +153,15 @@ class _SupportScreenState extends State<SupportScreen> {
                 Center(
                   child: GestureDetector(
                     onTap: () => launch('tel:$tollFreeNumber'),
-                    child: Text(
-                      'Call Us: $tollFreeNumber',
-                      style: const TextStyle(
-                        color: Color(4292815168),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+                                          child: Text(
+                        'Call Us: $tollFreeNumber',
+                        style: const TextStyle(
+                          color: Color(4292815168),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
-                    ),
                   ),
                 ),
               ],
@@ -171,6 +173,8 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 
   void _submitEnquiry() async {
+    final l10n = AppLocalizations.of(context)!;
+    
     // Check if form is valid
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -192,7 +196,7 @@ class _SupportScreenState extends State<SupportScreen> {
           setState(() {
             _isLoading = false;
           });
-          _showErrorDialog('User information is not available.');
+          _showErrorDialog(l10n.userInfoNotAvailable);
           return; // Exit if no user data is found
         }
 
@@ -211,13 +215,13 @@ class _SupportScreenState extends State<SupportScreen> {
 
         // Check if response contains 'id', indicating success
         if (response['id'] != null) {
-          _showSuccessDialog('Your enquiry has been submitted successfully!');
+          _showSuccessDialog(l10n.enquirySubmitted);
           Future.delayed(const Duration(seconds: 2), () {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => MainScreen()));
           });
         } else {
-          _showErrorDialog('Failed to submit the enquiry.');
+          _showErrorDialog(l10n.failedToSubmitEnquiry);
         }
       } catch (e) {
         setState(() {
@@ -229,15 +233,17 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 
   void _showSuccessDialog(String message) {
+    final l10n = AppLocalizations.of(context)!;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Success'),
+        title: Text(l10n.success),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -245,15 +251,17 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 
   void _showErrorDialog(String message) {
+    final l10n = AppLocalizations.of(context)!;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Error'),
+        title: Text(l10n.error),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
