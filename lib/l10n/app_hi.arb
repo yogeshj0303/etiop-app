@@ -380,5 +380,9 @@
   "gallery": "गैलरी",
   "maximumCatalogImages": "अधिकतम 5 कैटलॉग छवियां अनुमत हैं",
   "dismiss": "खारिज करें",
-  "address": "पता"
+  "address": "पता",
+  "categories": "श्रेणियां",
+  "errorFetchingCategories": "श्रेणियां लाने में त्रुटि: {error}",
+  "noSubcategoriesAvailable": "कोई उप-श्रेणियां उपलब्ध नहीं हैं",
+  "failedToLoadSubcategories": "उप-श्रेणियां लोड करने में विफल"
 }

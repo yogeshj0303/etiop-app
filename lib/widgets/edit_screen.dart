@@ -7,6 +7,9 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:collection';
+import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../providers/language_provider.dart';
 
 class EditShopScreen extends StatefulWidget {
   final Shop shop;
@@ -125,21 +128,13 @@ class _EditShopScreenState extends State<EditShopScreen> {
 
   // Add method to initialize location data
   void _initializeLocationData() {
-    _states = IndianLocation.states;
+    // This will be updated when the widget builds to use localized data
+    _states = [];
     _selectedState = widget.shop.state;
     if (_selectedState != null) {
-      _districts = IndianLocation.getDistricts(_selectedState!);
+      _districts = [];
       _selectedDistrict = widget.shop.district;
     }
-
-    // Ensure _districts list is correctly populated and does not contain duplicates
-    Set<String> uniqueDistricts = Set<String>.from(_districts);
-    if (uniqueDistricts.length != _districts.length) {
-      print('Duplicate districts found');
-    }
-
-    // Use the unique set to populate the dropdown
-    _districts = uniqueDistricts.toList();
   }
 
   Future<void> _pickShopImage() async {
@@ -453,13 +448,13 @@ class _EditShopScreenState extends State<EditShopScreen> {
         child: DropdownButtonFormField<String>(
           value: _selectedState,
           decoration: InputDecoration(
-            labelText: 'State',
+            labelText: AppLocalizations.of(context)!.state,
             contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          items: _states.map((String state) {
+          items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
             return DropdownMenuItem<String>(  
               value: state,
               child: Text(state),
@@ -468,17 +463,11 @@ class _EditShopScreenState extends State<EditShopScreen> {
           onChanged: (String? newValue) {
             setState(() {
               _selectedState = newValue;
-              _districts = IndianLocation.getDistricts(newValue ?? '');
-              
-              // Reset the selected district
+              // Reset the selected district when state changes
               _selectedDistrict = null;
-              
-              // Ensure unique districts
-              Set<String> uniqueDistricts = Set<String>.from(_districts);
-              _districts = uniqueDistricts.toList();
             });
           },
-          validator: (value) => value == null ? 'Please select a state' : null,
+          validator: (value) => value == null ? AppLocalizations.of(context)!.pleaseSelectState : null,
         ),
       ),
       
@@ -487,70 +476,72 @@ class _EditShopScreenState extends State<EditShopScreen> {
         child: DropdownButtonFormField<String>(
           value: _selectedDistrict,
           decoration: InputDecoration(
-            labelText: 'District',
+            labelText: AppLocalizations.of(context)!.district,
             contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          items: _districts.map((String district) {
-            return DropdownMenuItem<String>(  
-              value: district,
-              child: Text(district),
-            );
-          }).toList(),
+          items: _selectedState == null
+              ? []
+              : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!).map((String district) {
+                  return DropdownMenuItem<String>(  
+                    value: district,
+                    child: Text(district),
+                  );
+                }).toList(),
           onChanged: (String? newValue) {
             setState(() {
               _selectedDistrict = newValue;
             });
           },
-          validator: (value) => value == null ? 'Please select a district' : null,
+          validator: (value) => value == null ? AppLocalizations.of(context)!.pleaseSelectDistrict : null,
         ),
       ),
       
-      _buildTextField('City', 'city', city),
-      _buildTextField('Area', 'area', area),
-      _buildTextField('Zipcode', 'zipcode', zipcode),
+      _buildTextField(AppLocalizations.of(context)!.city, 'city', city),
+      _buildTextField(AppLocalizations.of(context)!.area, 'area', area),
+      _buildTextField(AppLocalizations.of(context)!.zipcode, 'zipcode', zipcode),
     ];
 
     if (_categoryType == 'government') {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextField('Department Name', 'department_name', departmentName),
-          _buildTextField('Office Name', 'office_name', officeName),
-          _buildTextField('Officer Name', 'officer_name', officerName),
-          _buildTextField('Mobile Number', 'mobile_no', mobileNo),
-          _buildTextField('Email', 'email', widget.shop.email),
-          _buildTextField('Description', 'description', description),
-          _buildTextField('Website', 'website_link', websiteLink, isRequired: false),
+          _buildTextField(AppLocalizations.of(context)!.departmentName, 'department_name', departmentName),
+          _buildTextField(AppLocalizations.of(context)!.officeName, 'office_name', officeName),
+          _buildTextField(AppLocalizations.of(context)!.officerName, 'officer_name', officerName),
+          _buildTextField(AppLocalizations.of(context)!.mobileNumber, 'mobile_no', mobileNo),
+          _buildTextField(AppLocalizations.of(context)!.email, 'email', widget.shop.email),
+          _buildTextField(AppLocalizations.of(context)!.description, 'description', description),
+          _buildTextField(AppLocalizations.of(context)!.websiteLink, 'website_link', websiteLink, isRequired: false),
           ...defaultFields,
-          _buildTextField('Google Map Location', 'google_map_link', googleMapLink, isRequired: false),
+          _buildTextField(AppLocalizations.of(context)!.googleMapLocation, 'google_map_link', googleMapLink, isRequired: false),
         ],
       );
     } else if (_categoryType == 'public') {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextField('Spot Name', 'shop_name', shopName),
-          _buildTextField('Contact Number', 'mobile_no', mobileNo),
-          _buildTextField('Email', 'email', widget.shop.email),
-          _buildTextField('Description', 'description', description),
-          _buildTextField('Website', 'website_link', websiteLink, isRequired: false),
+          _buildTextField(AppLocalizations.of(context)!.spotName, 'shop_name', shopName),
+          _buildTextField(AppLocalizations.of(context)!.contactNumber, 'mobile_no', mobileNo),
+          _buildTextField(AppLocalizations.of(context)!.email, 'email', widget.shop.email),
+          _buildTextField(AppLocalizations.of(context)!.description, 'description', description),
+          _buildTextField(AppLocalizations.of(context)!.websiteLink, 'website_link', websiteLink, isRequired: false),
           ...defaultFields,
-          _buildTextField('Google Map Location', 'google_map_link', googleMapLink, isRequired: false),
+          _buildTextField(AppLocalizations.of(context)!.googleMapLocation, 'google_map_link', googleMapLink, isRequired: false),
         ],
       );
     } else {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextField('Shop Name', 'shop_name', shopName),
-          _buildTextField('Shop No', 'shop_no', shopNo),
-          _buildTextField('Description', 'description', description),
-          _buildTextField('Website Link', 'website_link', websiteLink, isRequired: false),
+          _buildTextField(AppLocalizations.of(context)!.shopName, 'shop_name', shopName),
+          _buildTextField(AppLocalizations.of(context)!.shopNo, 'shop_no', shopNo),
+          _buildTextField(AppLocalizations.of(context)!.description, 'description', description),
+          _buildTextField(AppLocalizations.of(context)!.websiteLink, 'website_link', websiteLink, isRequired: false),
           ...defaultFields,
-          _buildTextField('Google Map Link', 'google_map_link', googleMapLink, isRequired: false),
+          _buildTextField(AppLocalizations.of(context)!.googleMapLink, 'google_map_link', googleMapLink, isRequired: false),
         ],
       );
     }
@@ -560,8 +551,8 @@ class _EditShopScreenState extends State<EditShopScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTextField('Area', 'area', area),
-        // _buildTextField('City', 'city', city),
+        _buildTextField(AppLocalizations.of(context)!.area, 'area', area),
+        // _buildTextField(AppLocalizations.of(context)!.city, 'city', city),
         
         // State Dropdown
         Padding(
@@ -569,7 +560,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
           child: DropdownButtonFormField<String>(
             value: _selectedState,
             decoration: InputDecoration(
-              labelText: 'State',
+              labelText: AppLocalizations.of(context)!.state,
               contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
@@ -579,7 +570,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
                 borderSide: const BorderSide(width: 2.0),
               ),
             ),
-            items: _states.map((String state) {
+            items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
               return DropdownMenuItem<String>(
                 value: state,
                 child: Text(state),
@@ -592,14 +583,9 @@ class _EditShopScreenState extends State<EditShopScreen> {
                 // Reset district when state changes
                 _selectedDistrict = null;
                 district = null;
-                if (newValue != null) {
-                  _districts = IndianLocation.getDistricts(newValue);
-                } else {
-                  _districts = [];
-                }
               });
             },
-            validator: (value) => value == null ? 'Please select a state' : null,
+            validator: (value) => value == null ? AppLocalizations.of(context)!.pleaseSelectState : null,
           ),
         ),
 
@@ -610,7 +596,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
             child: DropdownButtonFormField<String>(
               value: _selectedDistrict,
               decoration: InputDecoration(
-                labelText: 'District',
+                labelText: AppLocalizations.of(context)!.district,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -620,7 +606,7 @@ class _EditShopScreenState extends State<EditShopScreen> {
                   borderSide: const BorderSide(width: 2.0),
                 ),
               ),
-              items: _districts.map((String district) {
+              items: Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!).map((String district) {
                 return DropdownMenuItem<String>(
                   value: district,
                   child: Text(district),
@@ -632,12 +618,12 @@ class _EditShopScreenState extends State<EditShopScreen> {
                   district = newValue;
                 });
               },
-              validator: (value) => value == null ? 'Please select a district' : null,
+              validator: (value) => value == null ? AppLocalizations.of(context)!.pleaseSelectDistrict : null,
             ),
           ),
 
-        _buildTextField('Country', 'country', country),
-        _buildTextField('Zipcode', 'zipcode', zipcode),
+        _buildTextField(AppLocalizations.of(context)!.country, 'country', country),
+        _buildTextField(AppLocalizations.of(context)!.zipcode, 'zipcode', zipcode),
       ],
     );
   }
@@ -648,13 +634,13 @@ class _EditShopScreenState extends State<EditShopScreen> {
       children: [
         // Shop Image
         const SizedBox(height: 20),
-        Text('Shop Image', style: Theme.of(context).textTheme.titleMedium),
+        Text(AppLocalizations.of(context)!.shopImage, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 10),
         _buildShopImagePicker(),
 
         // Catalog Images
         const SizedBox(height: 20),
-        Text('Catalog Images', style: Theme.of(context).textTheme.titleMedium),
+        Text(AppLocalizations.of(context)!.catalogueImages, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 10),
         _buildCatalogImagesPicker(),
       ],

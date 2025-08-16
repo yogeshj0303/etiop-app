@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../screens/sub_category_screen.dart';
 import '../services/api_services.dart';
@@ -21,9 +22,12 @@ class _AllCategoriesState extends State<AllCategories> {
         _categories = categories;
       });
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Error fetching categories: $e';
-      });
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        setState(() {
+          _errorMessage = l10n.errorFetchingCategories(e.toString());
+        });
+      }
     }
   }
 
@@ -35,6 +39,7 @@ class _AllCategoriesState extends State<AllCategories> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: _buildAppBar(),
       body: Padding(
@@ -44,13 +49,14 @@ class _AllCategoriesState extends State<AllCategories> {
   }
 
   AppBar _buildAppBar() {
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
-        'Categories',
+      title: Text(
+        l10n.categories,
         style: TextStyle(color: Colors.black),
       ),
       clipBehavior: Clip.none,

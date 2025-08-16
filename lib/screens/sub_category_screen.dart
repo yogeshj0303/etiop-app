@@ -1,5 +1,6 @@
 import 'package:etiop_application/screens/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:etiop_application/services/api_services.dart';
 import '../modals/sub_category.dart';
 import '../widgets/sub_category_related_shops.dart';
@@ -30,6 +31,7 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -51,9 +53,9 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('Failed to load subcategories'));
+            return Center(child: Text(l10n.failedToLoadSubcategories));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No subcategories available'));
+            return Center(child: Text(l10n.noSubcategoriesAvailable));
           } else {
             final subcategories = snapshot.data!;
             return GridView.builder(

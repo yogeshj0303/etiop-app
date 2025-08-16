@@ -5,7 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import '../utils/location_data.dart'; // Ensure this import is present for location data
+import '../providers/language_provider.dart'; // Added for localized states and districts
 
 class EditProfileScreen extends StatefulWidget {
   final String currentAvatar;
@@ -404,7 +406,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       prefixIcon: const Icon(Icons.map_outlined),
                     ),
-                    items: IndianLocation.states.map((String state) {
+                    items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
                       return DropdownMenuItem<String>(
                         value: state,
                         child: Text(state),
@@ -425,7 +427,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     items: _selectedState == null
                         ? []
-                        : IndianLocation.getDistricts(_selectedState!).map((String district) {
+                        : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!).map((String district) {
                             return DropdownMenuItem<String>(
                               value: district,
                               child: Text(district),

@@ -409,5 +409,9 @@
   "gallery": "Gallery",
   "maximumCatalogImages": "Maximum 5 catalog images allowed",
   "dismiss": "Dismiss",
-  "address": "Address"
+  "address": "Address",
+  "categories": "Categories",
+  "errorFetchingCategories": "Error fetching categories: {error}",
+  "noSubcategoriesAvailable": "No subcategories available",
+  "failedToLoadSubcategories": "Failed to load subcategories"
 }

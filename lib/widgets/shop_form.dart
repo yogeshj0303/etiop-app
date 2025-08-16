@@ -9,10 +9,12 @@ import 'package:http/http.dart' as http; // For HTTP requests
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 import '../modals/sub_category.dart';
 import '../services/api_services.dart';
 import '../utils/location_data.dart';
+import '../providers/language_provider.dart'; // Added import for LanguageProvider
 
 class AddShop extends StatefulWidget {
   const AddShop({Key? key}) : super(key: key);
@@ -492,7 +494,7 @@ class _AddShopState extends State<AddShop> {
                                     borderRadius: BorderRadius.circular(8.0)),
                               ),
                               value: _selectedState,
-                              items: IndianLocation.states.map((String state) {
+                              items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
                                 return DropdownMenuItem<String>(
                                   value: state,
                                   child: Text(state),
@@ -505,13 +507,13 @@ class _AddShopState extends State<AddShop> {
                                 });
                               },
                               validator: (value) => value == null
-                                  ? 'Please select a state'
+                                  ? l10n.pleaseSelectState
                                   : null,
                             ),
                             const SizedBox(height: 14),
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
-                                labelText: 'District',
+                                labelText: l10n.district,
                                 prefixIcon:
                                     const Icon(Icons.location_city, size: 18),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -522,7 +524,7 @@ class _AddShopState extends State<AddShop> {
                               value: _selectedDistrict,
                               items: _selectedState == null
                                   ? []
-                                  : IndianLocation.getDistricts(_selectedState!)
+                                  : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
                                       .map((String district) {
                                       return DropdownMenuItem<String>(
                                         value: district,
@@ -535,7 +537,7 @@ class _AddShopState extends State<AddShop> {
                                 });
                               },
                               validator: (value) => value == null
-                                  ? 'Please select a district'
+                                  ? l10n.pleaseSelectDistrict
                                   : null,
                             ),
                             const SizedBox(height: 14),
@@ -596,7 +598,7 @@ class _AddShopState extends State<AddShop> {
                                 isRequired: false),
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
-                                labelText: 'State',
+                                labelText: l10n.state,
                                 prefixIcon:
                                     const Icon(Icons.location_city, size: 18),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -605,7 +607,7 @@ class _AddShopState extends State<AddShop> {
                                     borderRadius: BorderRadius.circular(8.0)),
                               ),
                               value: _selectedState,
-                              items: IndianLocation.states.map((String state) {
+                              items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
                                 return DropdownMenuItem<String>(
                                   value: state,
                                   child: Text(state),
@@ -618,13 +620,13 @@ class _AddShopState extends State<AddShop> {
                                 });
                               },
                               validator: (value) => value == null
-                                  ? 'Please select a state'
+                                  ? l10n.pleaseSelectState
                                   : null,
                             ),
                             const SizedBox(height: 14),
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
-                                labelText: 'District',
+                                labelText: l10n.district,
                                 prefixIcon:
                                     const Icon(Icons.location_city, size: 18),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -635,7 +637,7 @@ class _AddShopState extends State<AddShop> {
                               value: _selectedDistrict,
                               items: _selectedState == null
                                   ? []
-                                  : IndianLocation.getDistricts(_selectedState!)
+                                  : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
                                       .map((String district) {
                                       return DropdownMenuItem<String>(
                                         value: district,
@@ -648,7 +650,7 @@ class _AddShopState extends State<AddShop> {
                                 });
                               },
                               validator: (value) => value == null
-                                  ? 'Please select a district'
+                                  ? l10n.pleaseSelectDistrict
                                   : null,
                             ),
                             const SizedBox(height: 14),
@@ -690,7 +692,7 @@ class _AddShopState extends State<AddShop> {
                                 const Icon(Icons.home, size: 18)),
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
-                                labelText: 'State',
+                                labelText: l10n.state,
                                 prefixIcon:
                                     const Icon(Icons.location_city, size: 18),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -699,7 +701,7 @@ class _AddShopState extends State<AddShop> {
                                     borderRadius: BorderRadius.circular(8.0)),
                               ),
                               value: _selectedState,
-                              items: IndianLocation.states.map((String state) {
+                              items: Provider.of<LanguageProvider>(context, listen: false).localizedStates.map((String state) {
                                 return DropdownMenuItem<String>(
                                   value: state,
                                   child: Text(state),
@@ -712,13 +714,13 @@ class _AddShopState extends State<AddShop> {
                                 });
                               },
                               validator: (value) => value == null
-                                  ? 'Please select a state'
+                                  ? l10n.pleaseSelectState
                                   : null,
                             ),
                             const SizedBox(height: 14),
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
-                                labelText: 'District',
+                                labelText: l10n.district,
                                 prefixIcon:
                                     const Icon(Icons.location_city, size: 18),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -729,7 +731,7 @@ class _AddShopState extends State<AddShop> {
                               value: _selectedDistrict,
                               items: _selectedState == null
                                   ? []
-                                  : IndianLocation.getDistricts(_selectedState!)
+                                  : Provider.of<LanguageProvider>(context, listen: false).getLocalizedDistricts(_selectedState!)
                                       .map((String district) {
                                       return DropdownMenuItem<String>(
                                         value: district,
@@ -742,7 +744,7 @@ class _AddShopState extends State<AddShop> {
                                 });
                               },
                               validator: (value) => value == null
-                                  ? 'Please select a district'
+                                  ? l10n.pleaseSelectDistrict
                                   : null,
                             ),
                             const SizedBox(height: 14),
