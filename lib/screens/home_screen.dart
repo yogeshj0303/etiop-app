@@ -45,7 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String mobileNumber = "";
   String _selectedDistrict = '';
 
-// Method to fetch search results from the API
+  String baseUrl =
+      'https://etiop.in/'; // Fixed base URL for images
+
+  // Method to fetch search results from the API
   Future<void> _search(String query) async {
     if (query.isEmpty) {
       setState(() {
@@ -56,7 +59,28 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    final url = 'https://etiop.in/api/shop-search/$query';
+    // Check if the query looks like a city name (you can enhance this logic)
+    bool isCitySearch = query.length > 2 && !query.contains(' ');
+    print('Search query: "$query"');
+    print('Is city search: $isCitySearch');
+
+    if (isCitySearch) {
+      // Use city-specific search API
+      print('Using city search API');
+      await _searchByCity(query);
+    } else {
+      // Use general shop search API
+      print('Using general search API');
+      await _searchGeneral(query);
+    }
+  }
+
+  // Method to search by city
+  Future<void> _searchByCity(String cityName) async {
+    final url = 'https://etiop.in/api/shop-by-city/$cityName';
+    print('Searching by city: $cityName');
+    print('URL: $url');
+    
     try {
       setState(() {
         _isLoading = true;
@@ -64,23 +88,33 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
       final response = await http.get(Uri.parse(url));
+      print('City search response status: ${response.statusCode}');
+      print('City search response body: ${response.body}');
+      
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        // Now using 'data' instead of 'results'
-        setState(() {
-          _searchResults = data['data'] != null && data['data'].isNotEmpty
-              ? data['data']
-              : []; // Check for null or empty data
-          _isSearching = true;
-        });
+        if (data['success'] == true && data['data'] != null) {
+          print('City search successful, found ${data['data'].length} shops');
+          setState(() {
+            _searchResults = data['data'];
+            _isSearching = true;
+          });
+        } else {
+          print('City search failed: ${data['message']}');
+          setState(() {
+            _searchResults = [];
+            _errorMessage = data['message'] ?? 'No shops found in this city';
+          });
+        }
       } else {
+        print('City search HTTP error: ${response.statusCode}');
         setState(() {
           _searchResults = [];
-          _errorMessage =
-              'Error: Unable to fetch results (${response.statusCode})';
+          _errorMessage = 'Error: Unable to fetch results (${response.statusCode})';
         });
       }
     } catch (e) {
+      print('City search exception: $e');
       setState(() {
         _searchResults = [];
         _errorMessage = 'Error: $e';
@@ -90,6 +124,61 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  // Method to search generally
+  Future<void> _searchGeneral(String query) async {
+    final url = 'https://etiop.in/api/shop-search/$query';
+    print('General search: $query');
+    print('URL: $url');
+    
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final response = await http.get(Uri.parse(url));
+      print('General search response status: ${response.statusCode}');
+      print('General search response body: ${response.body}');
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        print('General search successful, found ${data['data']?.length ?? 0} shops');
+        setState(() {
+          _searchResults = data['data'] != null && data['data'].isNotEmpty
+              ? data['data']
+              : [];
+          _isSearching = true;
+        });
+      } else {
+        print('General search HTTP error: ${response.statusCode}');
+        setState(() {
+          _searchResults = [];
+          _errorMessage = 'Error: Unable to fetch results (${response.statusCode})';
+        });
+      }
+    } catch (e) {
+      print('General search exception: $e');
+      setState(() {
+        _searchResults = [];
+        _errorMessage = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Method to clear search and results
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _searchResults.clear();
+      _isSearching = false;
+      _errorMessage = null;
+    });
   }
 
   // Method to handle search input with debouncing
@@ -153,14 +242,68 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(child: CircularProgressIndicator()))
               else if (_searchResults.isNotEmpty)
                 Expanded(child: _buildSearchResultsGrid())
+              else if (_errorMessage != null)
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage!,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Try searching for a different city or shop name',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[500],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               else
                 Expanded(
                   child: Center(
-                    child: Text(
-                      l10n.noResultsFound,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No results found',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Try searching for a different city or shop name',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[500],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -365,27 +508,23 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         children: [
           if (_searchController.text.isNotEmpty)
-            _buildAppBarIcon(Icons.arrow_back, onTap: () {
-              _searchController.clear();
-              _search('');
-            }),
+            _buildAppBarIcon(Icons.arrow_back, onTap: _clearSearch),
           Expanded(
             child: TextField(
               controller: _searchController,
-                          decoration: InputDecoration(
-              hintText: l10n.searchHint,
-              prefixIcon: const Icon(
-                Icons.search,
-              ),
+              decoration: InputDecoration(
+                hintText: _searchController.text.isEmpty 
+                    ? '${l10n.searchHint}' 
+                    : l10n.searchHint,
+                prefixIcon: const Icon(
+                  Icons.search,
+                ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(
                           Icons.clear,
                         ),
-                        onPressed: () {
-                          _searchController.clear();
-                          _search('');
-                        },
+                        onPressed: _clearSearch,
                       )
                     : null,
                 border: OutlineInputBorder(
@@ -393,8 +532,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
+                fillColor: Colors.grey[100],
               ),
-              onChanged: _onSearchChanged, // Use debounce here
+              onChanged: _onSearchChanged,
+              onSubmitted: (query) {
+                if (query.isNotEmpty) {
+                  _search(query);
+                }
+              },
             ),
           ),
         ],
@@ -402,75 +547,160 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String baseUrl =
-      'https://etiop.acttconnect.com/'; // Replace with your actual base URL
-
   Widget _buildSearchResultsGrid() {
-    return GridView.builder(
-      padding: const EdgeInsets.all(8.0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 3 / 2,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
-      ),
-      itemCount: _searchResults.length,
-      itemBuilder: (context, index) {
-        final result = _searchResults[index];
-
-        // Construct the image URL
-        final imageUrl = result['shop_image'] != null
-            ? '$baseUrl${result['shop_image']}'
-            : 'https://via.placeholder.com/150';
-
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-                10), // More rounded corners for a soft look
-          ),
-          elevation: 4.0,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ShopDetailsScreen(
-                    shopId: result['id'],
-                  ),
-                ),
-              );
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    // Check if this is a city search (query doesn't contain spaces and is longer than 2 chars)
+    final isCitySearch = _searchController.text.length > 2 && !_searchController.text.contains(' ');
+    
+    return Column(
+      children: [
+        // Search type indicator
+        if (_searchResults.isNotEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            color: Colors.blue[50],
+            child: Row(
               children: [
-                Expanded(
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.fill,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.image,
-                      size: 50,
-                    ),
+                Icon(
+                  isCitySearch ? Icons.location_city : Icons.search,
+                  color: Colors.blue[700],
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isCitySearch 
+                      ? 'Showing shops in ${_searchController.text}'
+                      : 'Search results for "${_searchController.text}"',
+                  style: TextStyle(
+                    color: Colors.blue[700],
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    result['shop_name'] ?? 'Unknown',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                const Spacer(),
+                Text(
+                  '${_searchResults.length} ${_searchResults.length == 1 ? 'shop' : 'shops'}',
+                  style: TextStyle(
+                    color: Colors.blue[700],
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-        );
-      },
+        // Search results grid
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.all(8.0),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 3 / 2,
+              crossAxisSpacing: 8.0,
+              mainAxisSpacing: 8.0,
+            ),
+            itemCount: _searchResults.length,
+            itemBuilder: (context, index) {
+              final result = _searchResults[index];
+
+              // Construct the image URL - handle both shop_image and shopImage fields
+              String? imageUrl;
+              if (result['shop_image'] != null && result['shop_image'].toString().isNotEmpty) {
+                imageUrl = '$baseUrl${result['shop_image']}';
+                print('Using shop_image: ${result['shop_image']} -> $imageUrl');
+              } else if (result['shopImage'] != null && result['shopImage'].toString().isNotEmpty) {
+                imageUrl = '$baseUrl${result['shopImage']}';
+                print('Using shopImage: ${result['shopImage']} -> $imageUrl');
+              } else {
+                imageUrl = 'https://via.placeholder.com/150';
+                print('No image found, using placeholder');
+              }
+              print('Final image URL: $imageUrl');
+
+              // Get shop name from different possible fields
+              final shopName = result['shop_name'] ?? result['shopName'] ?? 'Unknown';
+              final city = result['city'] ?? 'Unknown City';
+              final area = result['area'] ?? 'Unknown Area';
+
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 4.0,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ShopDetailsScreen(
+                          shopId: result['id'],
+                        ),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[300],
+                              child: const Icon(
+                                Icons.store,
+                                size: 50,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              shopName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '$area, $city',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -483,43 +713,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildOffersAndSales(BuildContext context, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildCategoryButton(context, l10n.offers),
-          _buildCategoryButton(context, l10n.sales),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildCategoryButton(BuildContext context, String text) {
-    return Expanded(
-        child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ComingSoonScreen()),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ));
-  }
 
   Widget _buildSponsoredSection(AppLocalizations l10n) {
     return Column(
