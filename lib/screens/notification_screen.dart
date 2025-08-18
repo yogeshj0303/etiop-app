@@ -19,6 +19,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   List<dynamic> _notifications = [];
   bool _isLoading = true;
   bool _isTranslating = false;
+  int? _retranslatingIndex; // Track which notification is being retranslated
   Map<String, String> _translatedNotifications = {};
   String? _errorMessage;
 
@@ -130,10 +131,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
       setState(() {
         _translatedNotifications = translated;
         _isTranslating = false;
+        _retranslatingIndex = null;
       });
     } catch (e) {
       setState(() {
         _isTranslating = false;
+        _retranslatingIndex = null;
         _errorMessage = 'Translation failed: $e';
       });
     }
@@ -144,29 +147,57 @@ class _NotificationScreenState extends State<NotificationScreen> {
     if (index >= _notifications.length) return;
     
     try {
+      setState(() {
+        _isTranslating = true;
+        _retranslatingIndex = index; // Set the index being retranslated
+      });
+      
       final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
       final currentLanguage = languageProvider.currentLanguageCode;
       
-      if (currentLanguage == 'en') return;
+      if (currentLanguage == 'en') {
+        setState(() {
+          _isTranslating = false;
+          _retranslatingIndex = null;
+        });
+        return;
+      }
       
       final notification = _notifications[index];
       final title = notification['title']?.toString() ?? '';
       final message = notification['message']?.toString() ?? '';
       
       if (title.isNotEmpty) {
-        final translatedTitle = await _translationService.translateText(title, currentLanguage);
-        setState(() {
-          _translatedNotifications['title_$index'] = translatedTitle;
-        });
+        try {
+          final translatedTitle = await _translationService.translateText(title, currentLanguage);
+          setState(() {
+            _translatedNotifications['title_$index'] = translatedTitle;
+          });
+        } catch (e) {
+          print('Failed to retranslate title for notification $index: $e');
+        }
       }
       
       if (message.isNotEmpty) {
-        final translatedMessage = await _translationService.translateText(message, currentLanguage);
-        setState(() {
-          _translatedNotifications['message_$index'] = translatedMessage;
-        });
+        try {
+          final translatedMessage = await _translationService.translateText(message, currentLanguage);
+          setState(() {
+            _translatedNotifications['message_$index'] = translatedMessage;
+          });
+        } catch (e) {
+          print('Failed to retranslate message for notification $index: $e');
+        }
       }
+      
+      setState(() {
+        _isTranslating = false;
+        _retranslatingIndex = null;
+      });
     } catch (e) {
+      setState(() {
+        _isTranslating = false;
+        _retranslatingIndex = null;
+      });
       print('Failed to retranslate notification $index: $e');
     }
   }
@@ -201,8 +232,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+    if (_isLoading || _isTranslating) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              _isLoading ? 'Loading notifications...' : 'Translating notifications...',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     if (_errorMessage != null) {
@@ -266,28 +312,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
       );
     }
 
-    return Stack(
-      children: [
-        RefreshIndicator(
-          onRefresh: _fetchNotifications,
-          child: ListView.separated(
-            itemCount: _notifications.length,
-            itemBuilder: (context, index) {
-              return _buildNotificationItem(_notifications[index], index);
-            },
-            separatorBuilder: (context, index) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Divider(
-                  color: Colors.grey,
-                  thickness: 0.5,
-                  height: 1,
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+    return RefreshIndicator(
+      onRefresh: _fetchNotifications,
+      child: ListView.separated(
+        itemCount: _notifications.length,
+        itemBuilder: (context, index) {
+          return _buildNotificationItem(_notifications[index], index);
+        },
+        separatorBuilder: (context, index) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(
+              color: Colors.grey,
+              thickness: 0.5,
+              height: 1,
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -314,9 +356,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
         subtitle: Text(
           message,
         ),
-        trailing: Text(
-          _formatTimestamp(notification['created_at']), // Use created_at for timestamp
-          style: const TextStyle(fontSize: 12),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isTranslating && _retranslatingIndex == index)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              ),
+            const SizedBox(width: 8),
+            Text(
+              _formatTimestamp(notification['created_at']),
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
         ),
         onTap: () {
           // Handle notification tap if needed
