@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/location_data.dart';
+import '../services/translation_service.dart';
 
 class LanguageProvider extends ChangeNotifier {
   static const String _languageKey = 'selected_language';
   Locale _currentLocale = const Locale('en');
+  final TranslationService _translationService = TranslationService();
   
   Locale get currentLocale => _currentLocale;
   
@@ -86,5 +88,57 @@ class LanguageProvider extends ChangeNotifier {
     
     // If not found in Hindi, return the original (assuming it's already English)
     return localizedDistrict;
+  }
+
+  // Translate dynamic API data
+  Future<String> translateApiData(String text) async {
+    if (currentLanguageCode == 'en') {
+      return text; // Already in English
+    }
+    return await _translationService.translateText(text, currentLanguageCode);
+  }
+
+  // Translate a list of API data
+  Future<List<String>> translateApiDataList(List<String> texts) async {
+    if (currentLanguageCode == 'en') {
+      return texts; // Already in English
+    }
+    return await _translationService.translateList(texts, currentLanguageCode);
+  }
+
+  // Translate a map of API data
+  Future<Map<String, String>> translateApiDataMap(Map<String, String> textMap) async {
+    if (currentLanguageCode == 'en') {
+      return textMap; // Already in English
+    }
+    return await _translationService.translateMap(textMap, currentLanguageCode);
+  }
+
+  // Translate shop data (assuming it's a Map with string values)
+  Future<Map<String, dynamic>> translateShopData(Map<String, dynamic> shopData) async {
+    if (currentLanguageCode == 'en') {
+      return shopData; // Already in English
+    }
+
+    Map<String, dynamic> translatedData = Map.from(shopData);
+    
+    // Translate common shop fields
+    final fieldsToTranslate = [
+      'name', 'description', 'address', 'category', 'subcategory',
+      'services', 'specialties', 'about', 'highlights'
+    ];
+
+    for (String field in fieldsToTranslate) {
+      if (translatedData.containsKey(field) && 
+          translatedData[field] is String && 
+          translatedData[field].toString().isNotEmpty) {
+        translatedData[field] = await _translationService.translateText(
+          translatedData[field].toString(), 
+          currentLanguageCode
+        );
+      }
+    }
+
+    return translatedData;
   }
 }

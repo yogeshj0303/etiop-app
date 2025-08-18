@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../modals/sub_category_related_shops_model.dart';
 import '../screens/shop_details_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'translated_text.dart';
 
 class SubCategoryRelatedShops extends StatefulWidget {
   final int subCategoryId;
@@ -214,8 +215,8 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          //if it is government then show office name
+                        TranslatedText(
+                          text: //if it is government then show office name
                           shop.categoryId == 6
                               ? shop.officeName ?? AppLocalizations.of(context)!.noData
                               : shop.shopName,
@@ -226,8 +227,8 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        Text(
-                          '${shop.district}, ${shop.state}',
+                        TranslatedText(
+                          text: '${shop.district}, ${shop.state}',
                           style: const TextStyle(
                             fontSize: 10,
                           ),

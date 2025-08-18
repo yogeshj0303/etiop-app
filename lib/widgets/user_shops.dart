@@ -11,6 +11,7 @@ import '../modals/shop_model.dart';
 import '../services/api_services.dart'; // Import the API services
 import '../screens/subscription_screen.dart';
 import 'edit_screen.dart';
+import 'translated_text.dart';
 
 class UserShopScreen extends StatefulWidget {
   final List<Shop> shops;
@@ -290,8 +291,8 @@ class _UserShopScreenState extends State<UserShopScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: Text(
-                                shop.shopName ?? 'Shop Name',
+                              child: TranslatedText(
+                                text: shop.shopName ?? 'Shop Name',
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,

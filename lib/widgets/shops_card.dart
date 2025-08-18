@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../modals/shop_model.dart';
+import 'translated_text.dart';
 
 class ShopsCarousel extends StatefulWidget {
   @override
@@ -79,8 +80,8 @@ class _ShopsCarouselState extends State<ShopsCarousel> {
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 4),
-                                child: Text(
-                                  shop.shopName ?? AppLocalizations.of(context)!.shopName,
+                                child: TranslatedText(
+                                  text: shop.shopName ?? AppLocalizations.of(context)!.shopName,
                                   textAlign: TextAlign.center,
                                   maxLines: 2,
                                   style: TextStyle(

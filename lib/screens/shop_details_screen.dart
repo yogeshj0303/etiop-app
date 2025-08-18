@@ -6,6 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../modals/shop_details.dart';
 import '../services/api_services.dart';
 import '../widgets/contact_form.dart';
+import '../widgets/translated_text.dart';
 
 class ShopDetailsScreen extends StatefulWidget {
   final int shopId;
@@ -152,8 +153,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: 16),
-                              Text(
-                                shopDetails.categoryName?.toLowerCase() ==
+                              TranslatedText(
+                                text: shopDetails.categoryName?.toLowerCase() ==
                                         'government'
                                     ? shopDetails.officeName ??
                                         l10n.noOfficeNameAvailable
@@ -166,15 +167,21 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                               ),
 
                               const SizedBox(height: 8),
-                              HtmlWidget(shopDetails.description),
+                              // Description - NOW TRANSLATED AUTOMATICALLY
+                              TranslatedText(
+                                text: shopDetails.description,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               Row(
                                 children: [
                                   const Icon(Icons.location_on, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(
-                                      '${shopDetails.area}${shopDetails.city != null && shopDetails.city!.isNotEmpty ? ', ${shopDetails.city}' : ''}, ${shopDetails.state}, ${shopDetails.country}, ${shopDetails.zipcode}',
+                                    child: TranslatedText(
+                                      text: '${shopDetails.area}${shopDetails.city != null && shopDetails.city!.isNotEmpty ? ', ${shopDetails.city}' : ''}, ${shopDetails.state}, ${shopDetails.country}, ${shopDetails.zipcode}',
                                       style: const TextStyle(
                                         fontSize: 16,
                                       ),
@@ -310,8 +317,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                   const Icon(Icons.category, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(
-                                      '${shopDetails.categoryName ?? 'N/A'}',
+                                    child: TranslatedText(
+                                      text: '${shopDetails.categoryName ?? 'N/A'}',
                                       style: const TextStyle(
                                         fontSize: 16,
                                         color: Colors.black,
@@ -332,8 +339,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                   const Icon(Icons.category, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                      child: Text(
-                                    '${shopDetails.subCategoryName ?? 'N/A'}',
+                                      child: TranslatedText(
+                                    text: '${shopDetails.subCategoryName ?? 'N/A'}',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       color: Colors.black,
@@ -357,8 +364,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     const SizedBox(height: 4),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8.0),
-                                      child: Text(
-                                        shopDetails.departmentName ??
+                                      child: TranslatedText(
+                                        text: shopDetails.departmentName ??
                                             l10n.noDepartmentNameAvailable,
                                         style: TextStyle(
                                           fontSize: 16,
@@ -380,8 +387,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
                                     const SizedBox(height: 4),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8.0),
-                                      child: Text(
-                                        shopDetails.officerName ??
+                                      child: TranslatedText(
+                                        text: shopDetails.officerName ??
                                             l10n.noOfficerNameAvailable,
                                         style: TextStyle(
                                           fontSize: 16,

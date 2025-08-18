@@ -3,6 +3,7 @@ import '../modals/related_shops.dart';
 import '../screens/shop_details_screen.dart';
 import '../services/api_services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'translated_text.dart';
 
 class RelatedShopsScreen extends StatefulWidget {
   final int categoryId;
@@ -148,8 +149,8 @@ class _RelatedShopsScreenState extends State<RelatedShopsScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  shop.shopName,
+                child: TranslatedText(
+                  text: shop.shopName,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,

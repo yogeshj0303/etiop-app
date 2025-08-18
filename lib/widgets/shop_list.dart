@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../modals/shop_by_city_model.dart'; // Import ShopByCity model
 import '../screens/shop_details_screen.dart';
 import '../services/api_services.dart'; // Import the API services for fetching data
+import 'translated_text.dart';
 
 class ShopListScreen extends StatefulWidget {
   final String cityName; // Field to accept city name for the ShopListScreen
@@ -209,23 +210,23 @@ class _ShopListScreenState extends State<ShopListScreen> {
                                               ),
                                             ),
                                     ),
-                                    // Shop Name
+                                    // Shop Name - NOW TRANSLATED AUTOMATICALLY
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        shop.shopName ?? 'Unknown Shop',
+                                      child: TranslatedText(
+                                        text: shop.shopName ?? 'Unknown Shop',
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
-                                    // Shop Description
+                                    // Shop Description - NOW TRANSLATED AUTOMATICALLY
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8.0, vertical: 0),
-                                      child: Text(
-                                        shop.description ??
+                                      child: TranslatedText(
+                                        text: shop.description ??
                                             'No description available',
                                         style: TextStyle(
                                           fontSize: 12,

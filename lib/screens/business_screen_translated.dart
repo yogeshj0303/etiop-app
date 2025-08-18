@@ -6,14 +6,14 @@ import '../widgets/translated_text.dart';
 import 'shop_details_screen.dart';
 import 'main_screen.dart';
 
-class BusinessScreen extends StatefulWidget {
-  const BusinessScreen({super.key});
+class BusinessScreenTranslated extends StatefulWidget {
+  const BusinessScreenTranslated({super.key});
 
   @override
-  State<BusinessScreen> createState() => _BusinessScreenState();
+  State<BusinessScreenTranslated> createState() => _BusinessScreenTranslatedState();
 }
 
-class _BusinessScreenState extends State<BusinessScreen> {
+class _BusinessScreenTranslatedState extends State<BusinessScreenTranslated> {
   late Future<List<Shop>> _businessesFuture;
   final TextEditingController _searchController = TextEditingController();
   List<Shop> _filteredBusinesses = [];
@@ -184,7 +184,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
                     itemCount: displayBusinesses.length,
                     itemBuilder: (context, index) {
                       final business = displayBusinesses[index];
-                      return _buildBusinessCard(business, l10n);
+                      return _buildBusinessCardTranslated(business, l10n);
                     },
                   );
                 }
@@ -196,7 +196,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
     );
   }
 
-  Widget _buildBusinessCard(Shop business, AppLocalizations l10n) {
+  Widget _buildBusinessCardTranslated(Shop business, AppLocalizations l10n) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
       elevation: 2,
@@ -268,12 +268,12 @@ class _BusinessScreenState extends State<BusinessScreen> {
                   
                   const SizedBox(height: 8),
                   
-                  // Category
+                  // Category - NOW TRANSLATED AUTOMATICALLY
                   if (business.categoryName != null && business.categoryName!.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: TranslatedText(
@@ -300,48 +300,31 @@ class _BusinessScreenState extends State<BusinessScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   
-                  // Action Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ShopDetailsScreen(shopId: business.id),
-                              ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                  // Location Information - NOW TRANSLATED AUTOMATICALLY
+                  if (business.area != null || business.city != null || business.state != null)
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: TranslatedText(
+                            text: [
+                              if (business.area != null && business.area!.isNotEmpty) business.area,
+                              if (business.city != null && business.city!.isNotEmpty) business.city,
+                              if (business.state != null && business.state!.isNotEmpty) business.state,
+                            ].join(', '),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          child: Text(l10n.view),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Add to favorites or contact business
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(l10n.contact),
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),

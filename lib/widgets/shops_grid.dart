@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../modals/shop_model.dart';
 import '../screens/main_screen.dart';
+import 'translated_text.dart';
 
 class ShopsGridView extends StatefulWidget {
   const ShopsGridView({
@@ -109,8 +110,8 @@ class _ShopsGridViewState extends State<ShopsGridView> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 4.0, horizontal: 4.0),
-                                child: Text(
-                                  shop.shopName ?? AppLocalizations.of(context)!.shopName,
+                                child: TranslatedText(
+                                  text: shop.shopName ?? AppLocalizations.of(context)!.shopName,
                                   textAlign: TextAlign.center,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
