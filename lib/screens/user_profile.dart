@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../widgets/shop_form.dart';
+import '../widgets/translated_text.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
 import 'edit_profile_screen.dart';
@@ -72,15 +73,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       print('Raw avatar path from SharedPreferences: $avatarPath');
 
       setState(() {
-        firstName = prefs.getString('name') ?? "User";
-        lastName = prefs.getString('last_name') ?? "Name";
-        email = prefs.getString('email') ?? "example@example.com";
-        mobileNumber = prefs.getString('mobile_number') ?? "Not available";
-        gender = prefs.getString('gender') ?? "Not specified";
-        dob = prefs.getString('dob') ?? "Not specified";
-        address = prefs.getString('address') ?? "No address provided";
-        state = prefs.getString('state') ?? "Not specified";
-        district = prefs.getString('district') ?? "Not specified";
+        firstName = prefs.getString('name') ?? "";
+        lastName = prefs.getString('last_name') ?? "";
+        email = prefs.getString('email') ?? "";
+        mobileNumber = prefs.getString('mobile_number') ?? "";
+        gender = prefs.getString('gender') ?? "";
+        dob = prefs.getString('dob') ?? "";
+        address = prefs.getString('address') ?? "";
+        state = prefs.getString('state') ?? "";
+        district = prefs.getString('district') ?? "";
         avatar = avatarPath ?? "";
         print('Final avatar URL: $baseUrl/$avatar');
 
@@ -349,16 +350,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        fullName,
+                      TranslatedText(
+                        text: fullName.isNotEmpty ? fullName : l10n.username,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        email,
+                      TranslatedText(
+                        text: email.isNotEmpty ? email : l10n.email,
                         style: const TextStyle(
                           fontSize: 14,
                         ),
@@ -498,9 +499,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
             const SizedBox(height: 20),
             // Profile Info Sections
-            _buildProfileInfoSection(l10n.mobileNumber, mobileNumber, false),
-            _buildProfileInfoSection(l10n.gender, gender, false),
-            _buildProfileInfoSection(l10n.dateOfBirth, dob, true),
+            _buildProfileInfoSection(l10n.mobileNumber, mobileNumber, false, l10n),
+            _buildProfileInfoSection(l10n.gender, gender, false, l10n),
+            _buildProfileInfoSection(l10n.dateOfBirth, dob, true, l10n),
             Card(
               clipBehavior: Clip.none,
               margin: const EdgeInsets.only(bottom: 12.0),
@@ -515,8 +516,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   children: [
                     Icon(Icons.location_on, color: Colors.grey),
                     SizedBox(width: 8),
-                    Text(
-                      address,
+                    TranslatedText(
+                      text: address.isNotEmpty ? address : l10n.noAddressProvided,
                       style: TextStyle(
                         fontSize: 14,
                       ),
@@ -555,7 +556,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildProfileInfoSection(String title, String value, bool isDateOfBirth) {
+  Widget _buildProfileInfoSection(String title, String value, bool isDateOfBirth, AppLocalizations l10n) {
     // Format the date if this is the date of birth section
     String displayValue = isDateOfBirth ? _formatDate(value) : value;
 
@@ -578,8 +579,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(
-              displayValue,
+            TranslatedText(
+              text: displayValue.isNotEmpty ? displayValue : l10n.noData,
               style: const TextStyle(
                 fontSize: 14,
               ),
