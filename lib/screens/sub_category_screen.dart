@@ -1,7 +1,7 @@
 import 'package:etiop_application/screens/main_screen.dart';
+import 'package:etiop_application/widgets/translated_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:etiop_application/services/api_services.dart';
+import '../generated/app_localizations.dart';import 'package:etiop_application/services/api_services.dart';
 import '../modals/sub_category.dart';
 import '../widgets/sub_category_related_shops.dart';
 
@@ -43,7 +43,8 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
             }));
           },
         ),
-        title: Text(widget.categoryName,
+        title: TranslatedText(
+            text: widget.categoryName,
             style: const TextStyle( fontSize: 20, fontWeight: FontWeight.bold)),
         elevation: 1,
       ),
@@ -114,8 +115,8 @@ class _SubcategoryScreenState extends State<SubcategoryScreen> {
                         // Subcategory name with border radius for bottom part
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            subcategory.subcategoryName ?? '',
+                          child: TranslatedText(
+                            text: subcategory.subcategoryName ?? '',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,

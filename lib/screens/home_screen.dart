@@ -17,11 +17,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../generated/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../providers/language_provider.dart';
 
 import '../widgets/all_categories.dart';
 import '../widgets/comming_soon.dart';
 import '../widgets/sponsored_card.dart';
+import '../widgets/translated_text.dart';
 import 'user_profile.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -45,8 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String mobileNumber = "";
   String _selectedDistrict = '';
 
-  String baseUrl =
-      'https://etiop.in/'; // Fixed base URL for images
+  String baseUrl = 'https://etiop.in/'; // Fixed base URL for images
 
   // Method to fetch search results from the API
   Future<void> _search(String query) async {
@@ -80,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final url = 'https://etiop.in/api/shop-by-city/$cityName';
     print('Searching by city: $cityName');
     print('URL: $url');
-    
+
     try {
       setState(() {
         _isLoading = true;
@@ -90,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final response = await http.get(Uri.parse(url));
       print('City search response status: ${response.statusCode}');
       print('City search response body: ${response.body}');
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         if (data['success'] == true && data['data'] != null) {
@@ -110,7 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
         print('City search HTTP error: ${response.statusCode}');
         setState(() {
           _searchResults = [];
-          _errorMessage = 'Error: Unable to fetch results (${response.statusCode})';
+          _errorMessage =
+              'Error: Unable to fetch results (${response.statusCode})';
         });
       }
     } catch (e) {
@@ -131,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final url = 'https://etiop.in/api/shop-search/$query';
     print('General search: $query');
     print('URL: $url');
-    
+
     try {
       setState(() {
         _isLoading = true;
@@ -141,10 +144,11 @@ class _HomeScreenState extends State<HomeScreen> {
       final response = await http.get(Uri.parse(url));
       print('General search response status: ${response.statusCode}');
       print('General search response body: ${response.body}');
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        print('General search successful, found ${data['data']?.length ?? 0} shops');
+        print(
+            'General search successful, found ${data['data']?.length ?? 0} shops');
         setState(() {
           _searchResults = data['data'] != null && data['data'].isNotEmpty
               ? data['data']
@@ -155,7 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
         print('General search HTTP error: ${response.statusCode}');
         setState(() {
           _searchResults = [];
-          _errorMessage = 'Error: Unable to fetch results (${response.statusCode})';
+          _errorMessage =
+              'Error: Unable to fetch results (${response.statusCode})';
         });
       }
     } catch (e) {
@@ -214,10 +219,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      firstName = prefs.getString('name') ?? "User";
-      lastName = prefs.getString('last_name') ?? "Name";
-      email = prefs.getString('email') ?? "example@example.com";
-      mobileNumber = prefs.getString('mobile_number') ?? "Not available";
+      firstName = prefs.getString('name') ?? "";
+      lastName = prefs.getString('last_name') ?? "";
+      email = prefs.getString('email') ?? "";
+      mobileNumber = prefs.getString('mobile_number') ?? "";
     });
   }
 
@@ -382,58 +387,76 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Build drawer with navigation options
-  Drawer _buildDrawer(AppLocalizations l10n) {
-    return Drawer(
-      width: MediaQuery.of(context).size.width * 0.7,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        // Push content to top and bottom
-        children: <Widget>[
-          // Drawer Header
-          UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(color: Color(4292815168)),
-            accountName: Text(
-              '$firstName $lastName',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            accountEmail: Text(email, style: const TextStyle(fontSize: 16)),
-            currentAccountPicture: CircleAvatar(
-              //give primary color
-              backgroundColor: Theme.of(context).primaryColor,
-              child: Text(
-                firstName[0].toUpperCase(),
-                style: const TextStyle(fontSize: 40),
+  Widget _buildDrawer(AppLocalizations l10n) {
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        return Drawer(
+          width: MediaQuery.of(context).size.width * 0.7,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // Push content to top and bottom
+            children: <Widget>[
+              // Drawer Header
+              UserAccountsDrawerHeader(
+                decoration: const BoxDecoration(color: Color(4292815168)),
+                accountName: TranslatedText(
+                  text: firstName.isNotEmpty && lastName.isNotEmpty
+                      ? '$firstName $lastName'
+                      : firstName.isNotEmpty
+                          ? firstName
+                          : lastName.isNotEmpty
+                              ? lastName
+                              : l10n.username,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                accountEmail: TranslatedText(
+                    text: email.isNotEmpty ? email : l10n.email,
+                    style: const TextStyle(fontSize: 16)),
+                currentAccountPicture: CircleAvatar(
+                  //give primary color
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: TranslatedText(
+                    text: firstName.isNotEmpty
+                        ? firstName[0].toUpperCase()
+                        : l10n.username[0].toUpperCase(),
+                    style: const TextStyle(fontSize: 40),
+                  ),
+                ),
               ),
-            ),
+              // Drawer items
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: <Widget>[
+                    _buildDrawerItem(CupertinoIcons.home, l10n.home, 0),
+                    _buildDrawerItem(CupertinoIcons.cube_box, l10n.category, 1),
+                    _buildDrawerItem(CupertinoIcons.person, l10n.profile, 2),
+                    //supscription screen
+                    _buildDrawerItem(Icons.subscriptions, l10n.subscription, 3),
+                    _buildDrawerItem(
+                        Icons.privacy_tip_outlined, l10n.privacyPolicy, 4),
+                    _buildDrawerItem(
+                        Icons.add_to_drive, l10n.termsConditions, 5),
+                    _buildDrawerItem(Icons.logout, l10n.logout, 6),
+                  ],
+                ),
+              ),
+              // Bottom Text
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  languageProvider.currentLanguageCode == 'hi'
+                      ? "एटिओप\n एटिओप प्राइवेट लिमिटेड की एक इकाई"
+                      : "ETIOP\n A unit of Etiop Private Limited",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                ),
+              )
+            ],
           ),
-          // Drawer items
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                _buildDrawerItem(CupertinoIcons.home, l10n.home, 0),
-                _buildDrawerItem(CupertinoIcons.cube_box, l10n.category, 1),
-                _buildDrawerItem(CupertinoIcons.person, l10n.profile, 2),
-                //supscription screen
-                _buildDrawerItem(Icons.subscriptions, l10n.subscription, 3),
-                _buildDrawerItem(
-                    Icons.privacy_tip_outlined, l10n.privacyPolicy, 4),
-                _buildDrawerItem(Icons.add_to_drive, l10n.termsConditions, 5),
-                _buildDrawerItem(Icons.logout, l10n.logout, 6),
-              ],
-            ),
-          ),
-          // Bottom Text
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "ETIOP\n A unit of Etiop Private Limited",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
-            ),
-          )
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -513,8 +536,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: _searchController.text.isEmpty 
-                    ? '${l10n.searchHint}' 
+                hintText: _searchController.text.isEmpty
+                    ? '${l10n.searchHint}'
                     : l10n.searchHint,
                 prefixIcon: const Icon(
                   Icons.search,
@@ -549,15 +572,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSearchResultsGrid() {
     // Check if this is a city search (query doesn't contain spaces and is longer than 2 chars)
-    final isCitySearch = _searchController.text.length > 2 && !_searchController.text.contains(' ');
-    
+    final isCitySearch = _searchController.text.length > 2 &&
+        !_searchController.text.contains(' ');
+
     return Column(
       children: [
         // Search type indicator
         if (_searchResults.isNotEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             color: Colors.blue[50],
             child: Row(
               children: [
@@ -568,7 +593,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isCitySearch 
+                  isCitySearch
                       ? 'Showing shops in ${_searchController.text}'
                       : 'Search results for "${_searchController.text}"',
                   style: TextStyle(
@@ -603,10 +628,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Construct the image URL - handle both shop_image and shopImage fields
               String? imageUrl;
-              if (result['shop_image'] != null && result['shop_image'].toString().isNotEmpty) {
+              if (result['shop_image'] != null &&
+                  result['shop_image'].toString().isNotEmpty) {
                 imageUrl = '$baseUrl${result['shop_image']}';
                 print('Using shop_image: ${result['shop_image']} -> $imageUrl');
-              } else if (result['shopImage'] != null && result['shopImage'].toString().isNotEmpty) {
+              } else if (result['shopImage'] != null &&
+                  result['shopImage'].toString().isNotEmpty) {
                 imageUrl = '$baseUrl${result['shopImage']}';
                 print('Using shopImage: ${result['shopImage']} -> $imageUrl');
               } else {
@@ -616,7 +643,8 @@ class _HomeScreenState extends State<HomeScreen> {
               print('Final image URL: $imageUrl');
 
               // Get shop name from different possible fields
-              final shopName = result['shop_name'] ?? result['shopName'] ?? 'Unknown';
+              final shopName =
+                  result['shop_name'] ?? result['shopName'] ?? 'Unknown';
               final city = result['city'] ?? 'Unknown City';
               final area = result['area'] ?? 'Unknown Area';
 
@@ -641,12 +669,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Expanded(
                         child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(10)),
                           child: Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
                             width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) => Container(
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
                               color: Colors.grey[300],
                               child: const Icon(
                                 Icons.store,
@@ -671,8 +701,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              shopName,
+                            TranslatedText(
+                              text: shopName,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
@@ -681,8 +711,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 2),
-                            Text(
-                              '$area, $city',
+                            TranslatedText(
+                              text: '$area, $city',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],
@@ -713,8 +743,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
   Widget _buildSponsoredSection(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -742,13 +770,13 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
             children: [
-                              Text(
-                  l10n.highlightsOf(_selectedDistrict),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
+              TranslatedText(
+                text: "Highlights of ${_selectedDistrict}",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
               const Spacer(),
               Row(
                 children: [
@@ -757,9 +785,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                                                  builder: (context) => ShopsGridView(
-                          title: l10n.highlightsOf(_selectedDistrict),
-                        ),
+                          builder: (context) => ShopsGridView(
+                            title: _selectedDistrict.isNotEmpty
+                                ? _selectedDistrict
+                                : l10n.pleaseSelectDistrict,
+                          ),
                         ),
                       );
                     },
@@ -885,8 +915,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             vertical: 8.0, horizontal: 4.0),
                         // Increased padding
                         child: Center(
-                          child: Text(
-                            category['category_name'],
+                          child: TranslatedText(
+                            text: category['category_name'],
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 14, // Font size for the category name

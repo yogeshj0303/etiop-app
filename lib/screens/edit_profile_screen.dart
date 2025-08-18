@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../generated/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../utils/location_data.dart'; // Ensure this import is present for location data
 import '../providers/language_provider.dart'; // Added for localized states and districts

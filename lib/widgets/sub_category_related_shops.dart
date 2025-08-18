@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../modals/sub_category_related_shops_model.dart';
 import '../screens/shop_details_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../generated/app_localizations.dart';
 import 'translated_text.dart';
 
 class SubCategoryRelatedShops extends StatefulWidget {
@@ -123,8 +123,8 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'No shops found for this subcategory.',
+          TranslatedText(
+            text: 'No shops found for this subcategory.',
             style: TextStyle(fontSize: 14, color: Colors.grey),
             textAlign: TextAlign.center,
           ),
@@ -216,8 +216,8 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TranslatedText(
-                          text: //if it is government then show office name
-                          shop.categoryId == 6
+                          //if it is government then show office name
+                          text: shop.categoryId == 6
                               ? shop.officeName ?? AppLocalizations.of(context)!.noData
                               : shop.shopName,
                           style: const TextStyle(
@@ -250,7 +250,8 @@ class _SubCategoryRelatedShopsState extends State<SubCategoryRelatedShops> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(AppLocalizations.of(context)!.relatedServices,
+        title: TranslatedText(
+            text: AppLocalizations.of(context)!.relatedServices,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: const Icon(

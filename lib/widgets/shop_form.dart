@@ -4,11 +4,12 @@ import 'dart:io'; // For File class
 import 'package:etiop_application/modals/shop_details.dart';
 import 'package:etiop_application/screens/subscription_screen.dart';
 import 'package:etiop_application/services/payment_service.dart';
+import 'package:etiop_application/widgets/translated_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../generated/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../modals/sub_category.dart';
@@ -434,7 +435,7 @@ class _AddShopState extends State<AddShop> {
                                 items: _categories.map((category) {
                                   return DropdownMenuItem<String>(
                                     value: category['id'].toString(),
-                                    child: Text(category['category_name']),
+                                    child: TranslatedText(text: category['category_name']),
                                   );
                                 }).toList(),
                                 validator: (value) => value == null
@@ -473,7 +474,7 @@ class _AddShopState extends State<AddShop> {
                                         subCategory as Subcategory;
                                     return DropdownMenuItem<int>(
                                       value: sub.id,
-                                      child: Text(sub.subcategoryName ?? ''),
+                                      child: TranslatedText(text: sub.subcategoryName ?? ''),
                                     );
                                   }).toList(),
                                   validator: (value) => value == null

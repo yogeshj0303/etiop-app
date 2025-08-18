@@ -7,8 +7,7 @@ import 'package:etiop_application/widgets/user_shops.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import '../generated/app_localizations.dart';
 import '../widgets/shop_form.dart';
 import '../widgets/translated_text.dart';
 import 'login_screen.dart';

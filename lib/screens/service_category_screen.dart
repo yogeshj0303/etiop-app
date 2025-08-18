@@ -1,6 +1,7 @@
 import 'package:etiop_application/screens/shop_details_screen.dart';
 import 'package:etiop_application/widgets/shops_grid.dart';
 import 'package:flutter/material.dart';
+import '../generated/app_localizations.dart';
 import '../modals/sub_category.dart';
 import '../services/api_services.dart';
 import '../modals/shop_model.dart';
@@ -79,8 +80,8 @@ class _ServiceCategoryScreenState extends State<ServiceCategoryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Subcategories',
+          Text(
+            AppLocalizations.of(context)!.subcategory,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -175,8 +176,8 @@ class _ServiceCategoryScreenState extends State<ServiceCategoryScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black87, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Categories',
+        title: Text(
+          AppLocalizations.of(context)!.category,
           style: TextStyle(
             color: Colors.black87,
             fontSize: 20,
@@ -196,8 +197,8 @@ class _ServiceCategoryScreenState extends State<ServiceCategoryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Categories',
+                        Text(
+                          AppLocalizations.of(context)!.category,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -266,8 +267,8 @@ class _ServiceCategoryScreenState extends State<ServiceCategoryScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Services',
+                            Text(
+                              AppLocalizations.of(context)!.relatedServices,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -284,7 +285,7 @@ class _ServiceCategoryScreenState extends State<ServiceCategoryScreen> {
                                 );
                               },
                               child: Text(
-                                'See All>',
+                                '${AppLocalizations.of(context)!.seeAll}>',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.w600,

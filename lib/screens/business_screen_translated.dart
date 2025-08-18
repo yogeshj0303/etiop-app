@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../generated/app_localizations.dart';
 import '../services/api_services.dart';
 import '../modals/shop_model.dart';
 import '../widgets/translated_text.dart';

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/payment_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import '../generated/app_localizations.dart';
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({Key? key}) : super(key: key);
 

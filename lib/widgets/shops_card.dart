@@ -1,7 +1,7 @@
 import 'package:etiop_application/screens/shop_details_screen.dart';
 import 'package:etiop_application/services/api_services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../generated/app_localizations.dart';
 
 import '../modals/shop_model.dart';
 import 'translated_text.dart';

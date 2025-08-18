@@ -1,5 +1,6 @@
+import 'package:etiop_application/widgets/translated_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../generated/app_localizations.dart';
 
 import '../screens/sub_category_screen.dart';
 import '../services/api_services.dart';
@@ -55,8 +56,8 @@ class _AllCategoriesState extends State<AllCategories> {
         icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Text(
-        l10n.categories,
+      title: TranslatedText(
+        text: l10n.categories,
         style: TextStyle(color: Colors.black),
       ),
       clipBehavior: Clip.none,
@@ -98,8 +99,8 @@ class _AllCategoriesState extends State<AllCategories> {
           borderRadius: BorderRadius.circular(10.0), // Rounded corners
         ),
         child: Center(
-          child: Text(
-            category['category_name'],
+          child: TranslatedText(
+            text: category['category_name'],
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 16,

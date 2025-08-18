@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../modals/sub_category.dart';
 import '../services/api_services.dart';
 import '../modals/shop_model.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import '../generated/app_localizations.dart';
 class SubcategoryScreen extends StatefulWidget {
   final Map<String, dynamic> category;
 

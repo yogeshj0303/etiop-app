@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:etiop_application/widgets/related_shops.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+// import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';  // Temporarily commented out
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../modals/shop_details.dart';
+import '../generated/app_localizations.dart';import '../modals/shop_details.dart';
 import '../services/api_services.dart';
 import '../widgets/contact_form.dart';
 import '../widgets/translated_text.dart';
