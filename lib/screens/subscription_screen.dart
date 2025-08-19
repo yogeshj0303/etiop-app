@@ -53,7 +53,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       '3years': {
         'price': 3000,
         'period': '3 years',
-        'discount': 300,
+        'discount': 0,
         'features': [
           'Register unlimited businesses',
           'Advanced compliance monitoring',
@@ -68,7 +68,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       '5years': {
         'price': 4500,
         'period': '5 years',
-        'discount': 1000,
+        'discount': 0,
         'features': [
           'Register unlimited businesses',
           'Advanced compliance monitoring',
@@ -84,7 +84,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       '10years': {
         'price': 8000,
         'period': '10 years',
-        'discount': 3000,
+        'discount': 0,
         'features': [
           'Register unlimited businesses',
           'Advanced compliance monitoring',
@@ -418,17 +418,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       case '3years':
         planLabel = '3-Year Plan';
         planIcon = Icons.verified_user;
-        savingsLabel = 'SAVE 10%';
         break;
       case '5years':
         planLabel = '5-Year Plan';
         planIcon = Icons.workspace_premium;
-        savingsLabel = 'SAVE 22%';
         break;
       case '10years':
         planLabel = '10-Year Plan';
         planIcon = Icons.diamond;
-        savingsLabel = 'SAVE 37%';
         break;
       default:
         planLabel = 'Plan';
